@@ -1,0 +1,49 @@
+Language: Cpp
+Standard: c++17
+
+# Basic Layout
+IndentWidth: 4
+ColumnLimit: 120
+UseTab: Never
+MaxEmptyLinesToKeep: 2
+
+# Namespaces
+NamespaceIndentation: None
+CompactNamespaces: true
+
+# Templates
+AlwaysBreakTemplateDeclarations: Yes
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: All
+
+# Braces and Spacing
+BreakBeforeBraces: Attach
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
+# Pointer Alignment
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# Function Declaration Style
+BinPackParameters: false
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: true
+ExperimentalAutoDetectBinPacking: false
+
+# Class Layout
+AccessModifierOffset: -4
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+# Comments
+AlignTrailingComments: true
+ReflowComments: true
+SpacesBeforeTrailingComments: 2
