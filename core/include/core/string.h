@@ -1,3 +1,6 @@
+#ifndef LIB_STRING_H
+#define LIB_STRING_H
+
 // string.h
 //
 // Starter file for a string template
@@ -111,3 +114,5 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const string& s) {}
+
+#endif

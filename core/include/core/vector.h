@@ -1,3 +1,6 @@
+#ifndef LIB_VECTOR_H
+#define LIB_VECTOR_H
+
 // vector.h
 //
 // Starter file for a vector template
@@ -120,3 +123,4 @@ private:
     // TODO
 };
 
+#endif
