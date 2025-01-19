@@ -41,3 +41,6 @@ CheckOptions:
 
   # Preprocessor
   - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
+
+  # Ignores
+  - { key: readability-identifier-naming.FunctionIgnoredRegexp,  value: '^(begin|end|cbegin|cend)$' }
