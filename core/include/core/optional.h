@@ -85,6 +85,19 @@ public:
     constexpr const T* end() const noexcept { return has_value_ ? &val_ + 1 : nullptr; }
 
     // Modifiers
+    constexpr void swap(Optional& other)
+        noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_swappable_v<T>)
+        requires std::is_move_constructible_v<T>
+    {
+        // TODO: need some initializtion helpers to do this
+        if (this->has_value_ && other.has_value_) {
+
+        } else if (this->has_value_) {
+
+        }else if (other.has_value_) {
+            
+        }
+    }
 
 private:
     union { char sentinel_; T val_; };
