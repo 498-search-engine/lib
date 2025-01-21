@@ -1,17 +1,21 @@
+---
 Checks: >
   -*,
-  bugprone-*
+  bugprone-*,
   misc-*,
   modernize-*,
   performance-*,
   portability-*,
   readability-*,
   -modernize-use-trailing-return-type,
-  -modernize-use-nodiscard,
   -performance-avoid-endl,
   -readability-else-after-return,
   -readability-identifier-length,
-  -readability-magic-numbers
+  -readability-magic-numbers,
+  -modernize-use-nodiscard,
+  performance-for-range-copy,
+  bugprone-use-after-move,
+  cppcoreguidelines-pro-type-member-init
 
 # https://clang.llvm.org/extra/clang-tidy/checks/readability/identifier-naming.html
 CheckOptions:
