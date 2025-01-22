@@ -6,12 +6,12 @@
 namespace core {
 
 template<typename T>
-class Span {
+class span {
 public:
     using iterator = T*;
     using const_iterator = const T*;
 
-    Span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
+    span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
 
     T* data() const { return ptr_; }
     size_t size() const { return size_; }
@@ -23,7 +23,7 @@ public:
 
     T& operator[](size_t n) const { return *(ptr_ + n); }
 
-    [[nodiscard]] Span subspan(size_t offset, size_t size) const { return Span{ptr_ + offset, size}; }
+    [[nodiscard]] span subspan(size_t offset, size_t size) const { return span{ptr_ + offset, size}; }
 
 private:
     T* ptr_;
