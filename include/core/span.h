@@ -11,10 +11,12 @@ public:
     using iterator = T*;
     using const_iterator = const T*;
 
+    span() : ptr_(nullptr), size_(0) {}
     span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
 
     T* data() const { return ptr_; }
     size_t size() const { return size_; }
+    bool empty() const { return size_ == 0; }
 
     iterator begin() const { return ptr_; }
     iterator end() const { return ptr_ + size_; }
