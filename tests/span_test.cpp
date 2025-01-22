@@ -9,11 +9,15 @@ TEST(Span, Initialize) {
     auto a = span<const char>{text, 5};
     ASSERT_EQ(a.size(), 5);
     ASSERT_EQ(a.data(), text);
+    ASSERT_FALSE(a.empty());
     ASSERT_EQ(a[0], 'h');
     ASSERT_EQ(a[1], 'e');
     ASSERT_EQ(a[2], 'l');
     ASSERT_EQ(a[3], 'l');
     ASSERT_EQ(a[4], 'o');
+
+    auto b = span<int>{};
+    ASSERT_TRUE(b.empty());
 }
 
 TEST(Span, Subspan) {
