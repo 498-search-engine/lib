@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <stdexcept>
 #include <memory>
+#include <initializer_list>
+
 
 struct nullopt_t {};
 inline static constexpr nullopt_t nullopt;
@@ -24,6 +26,9 @@ class Optional {
 
     template<class... Args>
     static constexpr bool is_convertible_from_any_v = (std::is_convertible_v<Args, T> || ...);
+
+    template<class... Args>
+    static constexpr bool is_assignable_from_any_v = (std::is_assignable_v<Args, T> || ...);
 
     template<typename U, typename V /*= U& or U&&*/>
     static constexpr bool satisfies_conv_ctor = std::is_constructible_v<T, V> &&
@@ -81,9 +86,59 @@ public:
     constexpr ~Optional() requires std::is_trivially_destructible_v<T> = default;
     constexpr ~Optional() { if (has_value_) val_.~T(); }
 
+    static constexpr bool is_trivially_copyable_v = std::is_trivially_copy_constructible_v<T> && 
+        std::is_trivially_copy_assignable_v<T> && std::is_trivially_destructible_v<T>;
+    static constexpr bool is_trivially_moveable_v = std::is_trivially_move_constructible_v<T> &&
+        std::is_trivially_move_assignable_v<T> && std::is_trivially_destructible_v<T>;
+
     // Assignment
     constexpr Optional& operator=(nullopt_t) noexcept { Reset(); }
-    
+    constexpr Optional& operator=(const Optional& opt) requires is_trivially_copyable_v = default;
+    constexpr Optional& operator=(const Optional& opt)
+        requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T> && !is_trivially_copyable_v)
+    {
+        AssignFromOpt(opt);
+        return *this;
+    }
+    constexpr Optional& operator=(Optional&& opt)
+        noexcept(std::is_nothrow_move_assignable_v<T> && std::is_nothrow_move_constructible_v<T>)
+        requires is_trivially_moveable_v = default;
+    constexpr Optional& operator=(Optional&& opt)
+        noexcept(std::is_nothrow_move_assignable_v<T> && std::is_nothrow_move_constructible_v<T>)
+        requires (std::is_move_constructible_v<T> && std::is_move_assignable_v<T> && !is_trivially_moveable_v)
+    {
+        AssignFromOpt(std::forward(opt));
+        return *this;
+    }
+
+    template<typename U = T>
+    constexpr Optional& operator=(U&& value) requires
+        (std::is_constructible_v<T, U> && std::is_assignable_v<T&, U> &&
+        !std::is_same_v<std::remove_cvref_t<U>, Optional> &&
+        (!std::is_scalar_v<T> || !std::is_same_v<std::decay_t<U>, T>))
+    {
+        if (has_value_) { // val_ exists, so assign
+            val_ = std::forward(value);
+        } else { // must direct init it
+            DirectInitVal(std::forward(value));
+        }
+        return val_;
+    }
+
+    template<typename U, typename UU>
+    static constexpr bool satisfies_assign_reqs = satisfies_conv_ctor<U, UU> && std::is_assignable_v<T&, UU>
+        !is_assignable_from_any_v<Optional<U>&, const Optional<U>&, Optional<U>&&, const Optional<U>&&>;
+
+    template<typename U>
+    constexpr Optional& operator=(const Optional<U>& opt) requires satisfies_assign_reqs<U, const U&> {
+        AssignFromOpt(opt);
+        return *this;
+    }
+
+    template<typename U>
+    constexpr Optional& operator=(Optional<U>&& opt) requires satisfies_assign_reqs<U, U> {
+        AssignFromOpt(std::forward(opt));
+    }
 
     // Iterators (C++26)
     // FIXME: add custom iterator type later
@@ -117,11 +172,11 @@ public:
 
     // TODO: add type constraints here https://en.cppreference.com/w/cpp/utility/optional/value_or
     template<typename U >
-    constexpr T ValueOr( U&& default_value ) const& { 
+    constexpr T ValueOr(U&& default_value) const& { 
         return has_value_ ? val_ : static_cast<T>(std::forward<U>(default_value));
     }
     template<typename U >
-    constexpr T ValueOr( U&& default_value ) && {
+    constexpr T ValueOr(U&& default_value) && {
         return has_value_ ? std::move(val_) : static_cast<T>(std::forward<U>(default_value));
     }
 
@@ -147,6 +202,20 @@ public:
         if (has_value_) ForceReset();
     }
 
+    // TODO: check Args can construct T?
+    template<class... Args>
+    constexpr T& Emplace(Args&&... args) {
+
+    }
+
+    // TODO: check Args can construct T?
+    template<typename U, class... Args>
+    constexpr T& Emplace(std::initializer_list<U> ilist, Args&&... args)
+        requires std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>
+    {
+        
+    }
+
 private:
     // assumes has_value_ is true
     constexpr void ForceReset() {
@@ -168,6 +237,18 @@ private:
     constexpr void DirectInitFromOpt(Opt&& opt) {
         if (opt.has_value_) DirectInitVal(*std::forward(opt));
         else sentinel_ = 0; // Required for constexpr
+    }
+
+    // TODO: constrain Opt
+    template<typename Opt>
+    constexpr void AssignFromOpt(Opt&& opt) {
+        if (this->has_value_ && opt.has_value_) {
+            val_ = *std::forward(opt);
+        } else if (this->has_value_) {
+            ForceReset();
+        } else if (opt.has_value_) {
+            DirectInitVal(std::forward(*opt));
+        }
     }
 
 private:
