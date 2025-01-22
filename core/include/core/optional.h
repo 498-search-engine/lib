@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <memory>
 #include <initializer_list>
+#include <algorithm>
+#include <concepts>
+#include <compare>
 
 
 struct nullopt_t {};
@@ -98,7 +101,7 @@ public:
         requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T> && !is_trivially_copyable_v)
     {
         AssignFromOpt(opt);
-        return *this;
+        return val_;
     }
     constexpr Optional& operator=(Optional&& opt)
         noexcept(std::is_nothrow_move_assignable_v<T> && std::is_nothrow_move_constructible_v<T>)
@@ -108,7 +111,7 @@ public:
         requires (std::is_move_constructible_v<T> && std::is_move_assignable_v<T> && !is_trivially_moveable_v)
     {
         AssignFromOpt(std::forward(opt));
-        return *this;
+        return val_;
     }
 
     template<typename U = T>
@@ -132,12 +135,13 @@ public:
     template<typename U>
     constexpr Optional& operator=(const Optional<U>& opt) requires satisfies_assign_reqs<U, const U&> {
         AssignFromOpt(opt);
-        return *this;
+        return val_;
     }
 
     template<typename U>
     constexpr Optional& operator=(Optional<U>&& opt) requires satisfies_assign_reqs<U, U> {
         AssignFromOpt(std::forward(opt));
+        return val_;
     }
 
     // Iterators (C++26)
@@ -188,13 +192,15 @@ public:
         noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_swappable_v<T>)
         requires std::is_move_constructible_v<T>
     {
-        // TODO: need some initializtion helpers to do this
         if (this->has_value_ && other.has_value_) {
-
+            // TODO: use our own swap later
+            std::swap(this->val_, other.val_);
         } else if (this->has_value_) {
-
+            other.DirectInitVal(std::move(this->val_));
+            this->ForceReset();
         } else if (other.has_value_) {
-
+            this->DirectInitVal(std::move(other.val_));
+            other.ForceReset();
         }
     }
 
@@ -205,7 +211,8 @@ public:
     // TODO: check Args can construct T?
     template<class... Args>
     constexpr T& Emplace(Args&&... args) {
-
+        Reset();
+        DirectInitVal(std::forward(args));
     }
 
     // TODO: check Args can construct T?
@@ -213,7 +220,8 @@ public:
     constexpr T& Emplace(std::initializer_list<U> ilist, Args&&... args)
         requires std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>
     {
-        
+        Reset();
+        DirectInitVal(ilist, std::forward(args));
     }
 
 private:
@@ -255,5 +263,159 @@ private:
     union { char sentinel_; T val_; };
     bool has_value_;
 };
+
+// Comparison Operators
+// compare with another optional
+template<class T, class U>
+constexpr bool operator==(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs == *rhs} -> std::convertible_to<bool>;}
+{
+    if (lhs && rhs) return (*lhs == *rhs);
+    else return (lhs.HasValue() == rhs.HasValue());
+}
+
+template<class T, class U>
+constexpr bool operator!=(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs != *rhs} -> std::convertible_to<bool>;}
+{
+    if (lhs && rhs) return (*lhs == *rhs);
+    else return (lhs.HasValue() != rhs.HasValue());
+}
+
+template<class T, class U>
+constexpr bool operator<(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs < *rhs} -> std::convertible_to<bool>;}
+{
+    if (lhs && rhs) return (*lhs < *rhs);
+    else return !lhs.HasValue();
+}
+
+template<class T, class U>
+constexpr bool operator<=(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs <= *rhs} -> std::convertible_to<bool>;}
+{
+    if (lhs && rhs) return (*lhs <= *rhs);
+    else return (lhs.HasValue() <= rhs.HasValue());
+}
+
+template<class T, class U>
+constexpr bool operator>(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs > *rhs} -> std::convertible_to<bool>;}
+{
+    if (lhs && rhs) return (*lhs > *rhs);
+    else return lhs.HasValue();
+}
+
+template<class T, class U>
+constexpr bool operator<=(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs >= *rhs} -> std::convertible_to<bool>;}
+{
+    if (lhs && rhs) return (*lhs >= *rhs);
+    else return (lhs.HasValue() >= rhs.HasValue());
+}
+
+template<class T, std::three_way_comparable_with<T> U>
+constexpr std::compare_three_way_result_t<T, U> operator<=>(const Optional<T>& lhs, const Optional<U>& rhs)
+    requires requires {{*lhs <=> *rhs} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
+{
+    return lhs && rhs ? *lhs <=> *rhs : lhs.HasValue() <=> rhs.HasValue();
+}
+
+// compare with nullopt
+template<class T>
+constexpr bool operator==(const Optional<T>& opt, nullopt_t) noexcept {
+    return !opt.HasValue();
+}
+
+template<class T>
+constexpr std::strong_ordering operator<=>(const Optional<T>& opt, nullopt_t) noexcept {
+    return (opt.HasValue() <=> false);
+}
+
+// compare with value
+template<class T, class U>
+constexpr bool operator==(const Optional<T>& opt, const U& value)
+    requires requires {{*opt == value} -> std::convertible_to<bool>;}
+{
+    return opt ? *opt == value : false;
+}
+template<class T, class U>
+constexpr bool operator==(const Optional<T>& opt, const U& value)
+    requires requires {{value == *opt} -> std::convertible_to<bool>;}
+{
+    return opt ? value == *opt : false;
+}
+
+template<class T, class U>
+constexpr bool operator!=(const Optional<T>& opt, const U& value)
+    requires requires {{*opt != value} -> std::convertible_to<bool>;}
+{
+    return opt ? *opt != value : false;
+}
+template<class T, class U>
+constexpr bool operator!=(const Optional<T>& opt, const U& value)
+    requires requires {{value != *opt} -> std::convertible_to<bool>;}
+{
+    return opt ? value != *opt : false;
+}
+
+template<class T, class U>
+constexpr bool operator<(const Optional<T>& opt, const U& value)
+    requires requires {{*opt < value} -> std::convertible_to<bool>;}
+{
+    return opt ? *opt < value : false;
+}
+template<class T, class U>
+constexpr bool operator<(const Optional<T>& opt, const U& value)
+    requires requires {{value < *opt} -> std::convertible_to<bool>;}
+{
+    return opt ? value < *opt : false;
+}
+
+template<class T, class U>
+constexpr bool operator<=(const Optional<T>& opt, const U& value)
+    requires requires {{*opt <= value} -> std::convertible_to<bool>;}
+{
+    return opt ? *opt == value : false;
+}
+template<class T, class U>
+constexpr bool operator<=(const Optional<T>& opt, const U& value)
+    requires requires {{value <= *opt} -> std::convertible_to<bool>;}
+{
+    return opt ? value == *opt : false;
+}
+
+template<class T, class U>
+constexpr bool operator>(const Optional<T>& opt, const U& value)
+    requires requires {{*opt > value} -> std::convertible_to<bool>;}
+{
+    return opt ? *opt > value : false;
+}
+template<class T, class U>
+constexpr bool operator>(const Optional<T>& opt, const U& value)
+    requires requires {{value > *opt} -> std::convertible_to<bool>;}
+{
+    return opt ? value > *opt : false;
+}
+
+template<class T, class U>
+constexpr bool operator>=(const Optional<T>& opt, const U& value)
+    requires requires {{*opt >= value} -> std::convertible_to<bool>;}
+{
+    return opt ? *opt >= value : false;
+}
+template<class T, class U>
+constexpr bool operator>=(const Optional<T>& opt, const U& value)
+    requires requires {{value >= *opt} -> std::convertible_to<bool>;}
+{
+    return opt ? value >= *opt : false;
+}
+
+template<class T, std::three_way_comparable_with<T> U>
+constexpr std::compare_three_way_result_t<T, U> operator<=>( const Optional<T>& opt, const U& value )
+    requires requires {{*opt <=> value} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
+{
+    return opt ? ? *opt <=> value : std::strong_ordering::less;
+}
 
 #endif
