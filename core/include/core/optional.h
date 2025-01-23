@@ -53,7 +53,7 @@ public:
     constexpr Optional(Optional&& opt) requires std::is_trivially_move_constructible_v<T> = default;
     constexpr Optional(Optional&& opt)
         noexcept(std::is_nothrow_move_assignable_v<T>)
-        requires (std::is_move_constructible_v<T> && !std::is_trivially_move_constructible_v)
+        requires (std::is_move_constructible_v<T> && !std::is_trivially_move_constructible_v<T>)
         : has_value_{opt.has_value_}
     {
         DirectInitFromOpt(std::forward(opt));
@@ -129,7 +129,7 @@ public:
     }
 
     template<typename U, typename UU>
-    static constexpr bool satisfies_assign_reqs = satisfies_conv_ctor<U, UU> && std::is_assignable_v<T&, UU>
+    static constexpr bool satisfies_assign_reqs = satisfies_conv_ctor<U, UU> && std::is_assignable_v<T&, UU> &&
         !is_assignable_from_any_v<Optional<U>&, const Optional<U>&, Optional<U>&&, const Optional<U>&&>;
 
     template<typename U>
@@ -166,13 +166,13 @@ public:
     constexpr bool HasValue() const noexcept { return has_value_; }
 
     [[nodiscard]]
-    constexpr T& Value() & { return has_value_ ? val_ : throw BadOptionalAccess; }
+    constexpr T& Value() & { return has_value_ ? val_ : throw BadOptionalAccess{}; }
     [[nodiscard]]
-    constexpr const T& Value() const & { return has_value_ ? val_ : throw BadOptionalAccess; }
+    constexpr const T& Value() const & { return has_value_ ? val_ : throw BadOptionalAccess{}; }
     [[nodiscard]]
-    constexpr T&& value() && { return has_value_ ? std::move(val_) : throw BadOptionalAccess; }
+    constexpr T&& value() && { return has_value_ ? std::move(val_) : throw BadOptionalAccess{}; }
     [[nodiscard]]
-    constexpr const T&& value() const && { return has_value_ ? std::move(val_) : throw BadOptionalAccess; }
+    constexpr const T&& value() const && { return has_value_ ? std::move(val_) : throw BadOptionalAccess{}; }
 
     // TODO: add type constraints here https://en.cppreference.com/w/cpp/utility/optional/value_or
     template<typename U >
@@ -212,7 +212,8 @@ public:
     template<class... Args>
     constexpr T& Emplace(Args&&... args) {
         Reset();
-        DirectInitVal(std::forward(args));
+        DirectInitVal(std::forward<Args>(args)...);
+        return val_;
     }
 
     // TODO: check Args can construct T?
@@ -221,7 +222,8 @@ public:
         requires std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>
     {
         Reset();
-        DirectInitVal(ilist, std::forward(args));
+        DirectInitVal(ilist, std::forward<Args>(args)...);
+        return val_;
     }
 
 private:
@@ -278,7 +280,7 @@ template<class T, class U>
 constexpr bool operator!=(const Optional<T>& lhs, const Optional<U>& rhs)
     requires requires {{*lhs != *rhs} -> std::convertible_to<bool>;}
 {
-    if (lhs && rhs) return (*lhs == *rhs);
+    if (lhs && rhs) return (*lhs != *rhs);
     else return (lhs.HasValue() != rhs.HasValue());
 }
 
@@ -307,7 +309,7 @@ constexpr bool operator>(const Optional<T>& lhs, const Optional<U>& rhs)
 }
 
 template<class T, class U>
-constexpr bool operator<=(const Optional<T>& lhs, const Optional<U>& rhs)
+constexpr bool operator>=(const Optional<T>& lhs, const Optional<U>& rhs)
     requires requires {{*lhs >= *rhs} -> std::convertible_to<bool>;}
 {
     if (lhs && rhs) return (*lhs >= *rhs);
@@ -340,7 +342,7 @@ constexpr bool operator==(const Optional<T>& opt, const U& value)
     return opt ? *opt == value : false;
 }
 template<class T, class U>
-constexpr bool operator==(const Optional<T>& opt, const U& value)
+constexpr bool operator==(const U& value, const Optional<T>& opt)
     requires requires {{value == *opt} -> std::convertible_to<bool>;}
 {
     return opt ? value == *opt : false;
@@ -353,7 +355,7 @@ constexpr bool operator!=(const Optional<T>& opt, const U& value)
     return opt ? *opt != value : false;
 }
 template<class T, class U>
-constexpr bool operator!=(const Optional<T>& opt, const U& value)
+constexpr bool operator!=(const U& value, const Optional<T>& opt)
     requires requires {{value != *opt} -> std::convertible_to<bool>;}
 {
     return opt ? value != *opt : false;
@@ -366,7 +368,7 @@ constexpr bool operator<(const Optional<T>& opt, const U& value)
     return opt ? *opt < value : false;
 }
 template<class T, class U>
-constexpr bool operator<(const Optional<T>& opt, const U& value)
+constexpr bool operator<(const U& value, const Optional<T>& opt)
     requires requires {{value < *opt} -> std::convertible_to<bool>;}
 {
     return opt ? value < *opt : false;
@@ -379,7 +381,7 @@ constexpr bool operator<=(const Optional<T>& opt, const U& value)
     return opt ? *opt == value : false;
 }
 template<class T, class U>
-constexpr bool operator<=(const Optional<T>& opt, const U& value)
+constexpr bool operator<=(const U& value, const Optional<T>& opt)
     requires requires {{value <= *opt} -> std::convertible_to<bool>;}
 {
     return opt ? value == *opt : false;
@@ -392,7 +394,7 @@ constexpr bool operator>(const Optional<T>& opt, const U& value)
     return opt ? *opt > value : false;
 }
 template<class T, class U>
-constexpr bool operator>(const Optional<T>& opt, const U& value)
+constexpr bool operator>(const U& value, const Optional<T>& opt)
     requires requires {{value > *opt} -> std::convertible_to<bool>;}
 {
     return opt ? value > *opt : false;
@@ -405,7 +407,7 @@ constexpr bool operator>=(const Optional<T>& opt, const U& value)
     return opt ? *opt >= value : false;
 }
 template<class T, class U>
-constexpr bool operator>=(const Optional<T>& opt, const U& value)
+constexpr bool operator>=(const U& value, const Optional<T>& opt)
     requires requires {{value >= *opt} -> std::convertible_to<bool>;}
 {
     return opt ? value >= *opt : false;
@@ -415,7 +417,7 @@ template<class T, std::three_way_comparable_with<T> U>
 constexpr std::compare_three_way_result_t<T, U> operator<=>( const Optional<T>& opt, const U& value )
     requires requires {{*opt <=> value} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
 {
-    return opt ? ? *opt <=> value : std::strong_ordering::less;
+    return opt ? *opt <=> value : std::strong_ordering::less;
 }
 
 #endif
