@@ -30,6 +30,33 @@ TEST(OptionalTests, EmplaceInitList) {
     EXPECT_EQ(o1.Value(), v);
 }
 
+TEST(OptionalTests, Swap) {
+    Optional<int> o1{1};
+    Optional<int> o2{2};
+    o1.Swap(o2);
+    ASSERT_TRUE(o1 && o2);
+    EXPECT_EQ(o2, 1);
+    EXPECT_EQ(o1, 2);
+}
+
+TEST(OptionalTests, SwapNullopt) {
+    Optional<int> o1{1};
+    Optional<int> o2{};
+    o1.Swap(o2);
+    ASSERT_TRUE(o2);
+    EXPECT_FALSE(o1);
+    EXPECT_EQ(o2, 1);
+
+    Optional<int> o3{}, o4{}, o5{5};
+    o3.Swap(o4);
+    EXPECT_FALSE(o3 || o4);
+
+    o3.Swap(o5);
+    EXPECT_FALSE(o5);
+    ASSERT_TRUE(o3);
+    EXPECT_EQ(o3, 5);
+}
+
 TEST(OptionalTests, BadOptionalAccessError) {
     Optional<int> opt;
     EXPECT_THROW({int i = opt.Value();}, BadOptionalAccess);
@@ -60,7 +87,7 @@ TEST(OptionalTests, Comparisons) {
     EXPECT_TRUE(o1 <= j);
     EXPECT_TRUE(j >= o1);
     EXPECT_EQ(o1 <=> i, std::strong_ordering::equal);
-    EXPECT_NE(o1 <=> j, std::strong_ordering::less);
+    EXPECT_EQ(o1 <=> j, std::strong_ordering::less);
 
     Optional<int> o2{j};
     EXPECT_TRUE(o1 < o2);

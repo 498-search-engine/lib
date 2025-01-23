@@ -188,7 +188,7 @@ public:
     // TODO: maybe add these?
 
     // Modifiers
-    constexpr void swap(Optional& other)
+    constexpr void Swap(Optional& other)
         noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_swappable_v<T>)
         requires std::is_move_constructible_v<T>
     {
@@ -316,9 +316,9 @@ constexpr bool operator>=(const Optional<T>& lhs, const Optional<U>& rhs)
     else return (lhs.HasValue() >= rhs.HasValue());
 }
 
-template<class T, std::three_way_comparable_with<T> U>
+template<class T, class U>
 constexpr std::compare_three_way_result_t<T, U> operator<=>(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs <=> *rhs} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
+    requires requires(T t, U u) {{t <=> u} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
 {
     return lhs && rhs ? *lhs <=> *rhs : lhs.HasValue() <=> rhs.HasValue();
 }
@@ -378,13 +378,13 @@ template<class T, class U>
 constexpr bool operator<=(const Optional<T>& opt, const U& value)
     requires requires {{*opt <= value} -> std::convertible_to<bool>;}
 {
-    return opt ? *opt == value : false;
+    return opt ? *opt <= value : false;
 }
 template<class T, class U>
 constexpr bool operator<=(const U& value, const Optional<T>& opt)
     requires requires {{value <= *opt} -> std::convertible_to<bool>;}
 {
-    return opt ? value == *opt : false;
+    return opt ? value <= *opt : false;
 }
 
 template<class T, class U>
@@ -413,9 +413,9 @@ constexpr bool operator>=(const U& value, const Optional<T>& opt)
     return opt ? value >= *opt : false;
 }
 
-template<class T, std::three_way_comparable_with<T> U>
+template<class T, class U>
 constexpr std::compare_three_way_result_t<T, U> operator<=>( const Optional<T>& opt, const U& value )
-    requires requires {{*opt <=> value} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
+    requires requires(T t, U u) {{t <=> u} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
 {
     return opt ? *opt <=> value : std::strong_ordering::less;
 }
