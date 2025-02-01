@@ -18,6 +18,14 @@ target_link_libraries(optional_test
 )
 add_test(NAME optional_test COMMAND optional_test)
 
+add_executable(vector_test vector_test.cpp)
+target_link_libraries(vector_test
+    PRIVATE
+        gtest_main   # from googletest
+        core         # link our library
+)
+add_test(NAME vector_test COMMAND vector_test)
+
 # Repeat as needed for each test file...
 # add_executable(optional_test optional_test.cpp)
 # ...
