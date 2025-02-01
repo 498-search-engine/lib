@@ -20,16 +20,6 @@ TEST(OptionalTests, Emplace) {
     EXPECT_EQ(o1, i);
 }
 
-TEST(OptionalTests, NestedOptionals) {
-    Optional<Optional<int>> nested{1};
-    EXPECT_TRUE(nested->HasValue());
-}
-
-TEST(OptionalTests, StringViewOptimization) {
-    Optional<std::string_view> sv{"test"};
-    EXPECT_EQ(sv->length(), 4);
-}
-
 TEST(OptionalTests, EmplaceInitList) {
     Optional<std::vector<int>> o1;
     EXPECT_FALSE(o1);

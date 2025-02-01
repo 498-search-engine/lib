@@ -6,15 +6,6 @@ IndentWidth: 4
 ColumnLimit: 120
 UseTab: Never
 MaxEmptyLinesToKeep: 2
-UseCRLF: false
-
-# Indentation and alignment
-AlignArrayOfStructures: Right
-AlignEscapedNewlines: Left
-IndentAccessModifiers: false
-IndentCaseBlocks: true
-IndentCaseLabels: false
-IndentPPDirectives: AfterHash
 
 # Namespaces
 NamespaceIndentation: None
@@ -29,15 +20,9 @@ AllowShortLambdasOnASingleLine: All
 # Braces and Spacing
 BreakBeforeBraces: Attach
 SpaceAfterTemplateKeyword: false
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
-SpaceBeforeRangeBasedForLoopColon: true
-SpaceBeforeSquareBrackets: false
-SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
-SpacesInAngles: Never
+SpacesInAngles: false
 SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
 SpacesInParentheses: false
@@ -46,7 +31,6 @@ SpacesInSquareBrackets: false
 # Pointer Alignment
 PointerAlignment: Left
 ReferenceAlignment: Left
-DerivePointerAlignment: false
 
 # Function Declaration Style
 BinPackParameters: false
@@ -63,16 +47,3 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: true
 AlignTrailingComments: true
 ReflowComments: true
 SpacesBeforeTrailingComments: 2
-
-# Includes
-SortIncludes: CaseSensitive
-IncludeBlocks: Regroup
-IncludeCategories:
-  - Regex: '^\"' # "quotes"
-    Priority: 10
-  - Regex: "^<[^/>]*>" # < no / >
-    Priority: 20
-    SortPriority: 100
-  - Regex: "^<[^>]*/" # < has / >
-    Priority: 20
-    SortPriority: 200
