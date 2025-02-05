@@ -1,6 +1,8 @@
 #ifndef LIB_ALGORITHM_H
 #define LIB_ALGORITHM_H
 
+namespace core {
+
 // Non-modifying sequence operations
 
 template<class InputIt, class UnaryFunc>
@@ -18,5 +20,7 @@ constexpr InputIt for_each_n(InputIt first, Size n, UnaryFunc f) {
  
     return first;
 }
+
+}  // core
 
 #endif
