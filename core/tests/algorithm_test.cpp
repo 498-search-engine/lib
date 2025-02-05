@@ -35,3 +35,35 @@ TEST(AlgorithmTests, ForEach_constexr) {
     }();
     static_assert(sum == 6);
 }
+
+TEST(AlgorithmTests, AnyAllNone) {
+    constexpr std::array<int,4> arr{1,2,3,4};
+    const auto pnone = [](int i) { return i > 4; };
+    EXPECT_TRUE(core::none_of(arr.begin(), arr.end(), pnone));
+    EXPECT_FALSE(core::any_of(arr.begin(), arr.end(), pnone));
+    EXPECT_FALSE(core::all_of(arr.begin(), arr.end(), pnone));
+
+    const auto pall = [](int i) { return i > 0; };
+    EXPECT_FALSE(core::none_of(arr.begin(), arr.end(), pall));
+    EXPECT_TRUE(core::any_of(arr.begin(), arr.end(), pall));
+    EXPECT_TRUE(core::all_of(arr.begin(), arr.end(), pall));
+
+    const auto pany = [](int i) { return i == 1; };
+    EXPECT_FALSE(core::none_of(arr.begin(), arr.end(), pany));
+    EXPECT_TRUE(core::any_of(arr.begin(), arr.end(), pany));
+    EXPECT_FALSE(core::all_of(arr.begin(), arr.end(), pany));
+
+    const auto ptrue = [](int i) { return true; };
+    const vector<int> v{};
+    EXPECT_FALSE(core::none_of(arr.begin(), arr.end(), pany));
+    EXPECT_FALSE(core::any_of(arr.begin(), arr.end(), pany));
+    EXPECT_FALSE(core::all_of(arr.begin(), arr.end(), pany));
+}
+
+TEST(AlgorithmTests, AnyAllNone_constexpr) {
+    constexpr std::array<int,4> arr{1,2,3,4};
+    constexpr auto pnone = [](int i) constexpr { return i > 4; };
+    static_assert(core::none_of(arr.begin(), arr.end(), pnone));
+    static_assert(!core::any_of(arr.begin(), arr.end(), pnone));
+    static_assert(!core::all_of(arr.begin(), arr.end(), pnone));
+}
