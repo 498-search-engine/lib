@@ -159,3 +159,45 @@ TEST(AlgorithmTests, Search_constexpr) {
     static_assert(
         core::search(text.begin(), text.end(), pattern.begin(), pattern.end(), isequal) == text.begin()+3);
 }
+
+TEST(AlgorithmTests, FindEnd) {
+    const vector<int> text = {1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 10, 11, 12};
+    const vector<int> pattern = {4, 5, 6};
+
+    auto it = core::find_end(text.begin(), text.end(), pattern.begin(), pattern.end());
+    ASSERT_NE(it, text.end());
+    EXPECT_EQ(it, text.begin()+9);
+
+    auto isequal = [](int a, int b){ return a == b; };
+    it = core::find_end(text.begin(), text.end(), pattern.begin(), pattern.end(), isequal);
+    ASSERT_NE(it, text.end());
+    EXPECT_EQ(it, text.begin()+9);
+
+    auto isparity = [](int a, int b) { return (a % 2) == (b % 2);};
+    it = core::find_end(text.begin(), text.end(), pattern.begin(), pattern.end(), isparity);
+    ASSERT_NE(it, text.end());
+    EXPECT_EQ(it, text.begin() + 12);
+
+    const vector<int> empty{};
+    it = core::find_end(empty.begin(), empty.end(), pattern.begin(), pattern.end());
+    EXPECT_EQ(it, empty.end());
+    it = core::find_end(empty.begin(), empty.end(), pattern.begin(), pattern.end(), isequal);
+    EXPECT_EQ(it, empty.end());
+
+    it = core::find_end(text.begin(), text.end(), empty.begin(), empty.end());
+    EXPECT_EQ(it, text.end());
+    it = core::find_end(text.begin(), text.end(), empty.begin(), empty.end(), isequal);
+    EXPECT_EQ(it, text.end());
+}
+
+TEST(AlgorithmTests, FindEnd_constexpr) {
+    constexpr std::array<int,15> text{1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 5, 6, 10, 11, 12};
+    constexpr std::array<int,3> pattern{4, 5, 6};
+
+    static_assert(
+        core::find_end(text.begin(), text.end(), pattern.begin(), pattern.end()) == text.begin()+9);
+
+    constexpr auto isequal = [](int a, int b) constexpr { return a == b; };
+    static_assert(
+        core::find_end(text.begin(), text.end(), pattern.begin(), pattern.end(), isequal) == text.begin()+9);
+}
