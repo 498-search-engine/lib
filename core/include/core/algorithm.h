@@ -116,6 +116,41 @@ ForwardIt search(ForwardIt first, ForwardIt last,
     return searcher(first, last).first;
 }
 
+template<class ForwardIt1, class ForwardIt2>
+constexpr ForwardIt1 find_end(ForwardIt1 first, ForwardIt1 last,
+                    ForwardIt2 s_first, ForwardIt2 s_last)
+{
+    if (s_first == s_last) return last;
+
+    ForwardIt1 pos = last;
+    while (first != last) {
+        const auto it = ::core::search(first, last, s_first, s_last);
+        if (it == last) break; // last occurence
+        pos = it;
+        first = it;
+        ++first;
+    }
+    return pos;
+}
+
+template< class ForwardIt1, class ForwardIt2, class BinaryPred >
+constexpr ForwardIt1 find_end(ForwardIt1 first, ForwardIt1 last,
+                    ForwardIt2 s_first, ForwardIt2 s_last,
+                    BinaryPred p)
+{
+    if (s_first == s_last) return last;
+
+    ForwardIt1 pos = last;
+    while (first != last) {
+        const auto it = ::core::search(first, last, s_first, s_last, p);
+        if (it == last) break; // last occurence
+        pos = it;
+        first = it;
+        ++first;
+    }
+    return pos;
+}
+
 }  // core
 
 #endif
