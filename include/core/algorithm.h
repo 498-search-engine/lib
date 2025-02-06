@@ -64,6 +64,58 @@ constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPred q) {
     return last;
 }
 
+template<class ForwardIt1, class ForwardIt2>
+constexpr ForwardIt1 search(ForwardIt1 first, ForwardIt1 last,
+                  ForwardIt2 s_first, ForwardIt2 s_last)
+{
+    if (s_first == s_last) return first;
+    while (first != last) {
+        ForwardIt1 it1 = first;
+        ForwardIt2 it2 = s_first;
+        while (it1 != last && it2 != s_last && *it1 == *it2) {
+            ++it1, ++it2;
+        }
+        if (it2 == s_last) { // found sequence
+            return first;
+        } else if (it1 == last) { // no match, end of searching
+            return last;
+        } else {
+            ++first; // search from next element
+        }
+    }
+    return last; // didn't find anything
+}
+
+template< class ForwardIt1, class ForwardIt2, class BinaryPred >
+constexpr ForwardIt1 search(ForwardIt1 first, ForwardIt1 last,
+                  ForwardIt2 s_first, ForwardIt2 s_last,
+                  BinaryPred p)
+{
+    if (s_first == s_last) return first;
+    while (first != last) {
+        ForwardIt1 it1 = first;
+        ForwardIt2 it2 = s_first;
+        while (it1 != last && it2 != s_last && p(*it1, *it2)) {
+            ++it1, ++it2;
+        }
+        if (it2 == s_last) { // found sequence
+            return first;
+        } else if (it1 == last) { // no match, end of searching
+            return last;
+        } else {
+            ++first; // search from next element
+        }
+    }
+    return last; // didn't find anything
+}
+
+template<class ForwardIt, class Searcher>
+ForwardIt search(ForwardIt first, ForwardIt last,
+                 const Searcher& searcher)
+{
+    return searcher(first, last).first;
+}
+
 }  // core
 
 #endif
