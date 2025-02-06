@@ -147,3 +147,15 @@ TEST(AlgorithmTests, Search) {
     it = core::search(text.begin(), text.end(), empty.begin(), empty.end(), isequal);
     EXPECT_EQ(it, text.begin());
 }
+
+TEST(AlgorithmTests, Search_constexpr) {
+    constexpr std::array<int,9> text{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    constexpr std::array<int,3> pattern{4, 5, 6};
+
+    static_assert(
+        core::search(text.begin(), text.end(), pattern.begin(), pattern.end()) == text.begin()+3);
+
+    constexpr auto isequal = [](int a, int b) constexpr { return a == b; };
+    static_assert(
+        core::search(text.begin(), text.end(), pattern.begin(), pattern.end(), isequal) == text.begin()+3);
+}
