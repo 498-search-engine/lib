@@ -41,7 +41,27 @@ constexpr bool any_of(InputIt first, InputIt last, UnaryPred p) {
 
 template<class InputIt, class UnaryPred>
 constexpr bool none_of(InputIt first, InputIt last, UnaryPred p) {
-    return !any_of(first, last, p);
+    return !::core::any_of(first, last, p);
+}
+
+template<class InputIt, class T>
+constexpr InputIt find(InputIt first, InputIt last, const T& value) {
+    while (first != last && *first != value) ++first;
+    return first;
+}
+
+template<class InputIt, class UnaryPred>
+constexpr InputIt find_if(InputIt first, InputIt last, UnaryPred p) {
+    for (; first != last; ++first)
+        if (p(*first)) return first;
+    return last;
+}
+
+template<class InputIt, class UnaryPred>
+constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPred q) {
+    for (; first != last; ++first)
+        if (!q(*first)) return first;
+    return last;
 }
 
 }  // core
