@@ -8,7 +8,8 @@
 
 using std::vector;
 
-constexpr void foo(int& s, int i) { s+= i; }
+constexpr bool iseven(int i) { return i % 2 == 0; }
+constexpr bool isodd(int i) { return !iseven(i); }
 
 TEST(AlgorithmTests, ForEach) {
     const vector<int> v = {1,2,3};
@@ -55,9 +56,9 @@ TEST(AlgorithmTests, AnyAllNone) {
 
     const auto ptrue = [](int i) { return true; };
     const vector<int> v{};
-    EXPECT_FALSE(core::none_of(arr.begin(), arr.end(), pany));
-    EXPECT_FALSE(core::any_of(arr.begin(), arr.end(), pany));
-    EXPECT_FALSE(core::all_of(arr.begin(), arr.end(), pany));
+    EXPECT_TRUE(core::none_of(v.begin(), v.end(), ptrue));
+    EXPECT_FALSE(core::any_of(v.begin(), v.end(), ptrue));
+    EXPECT_TRUE(core::all_of(v.begin(), v.end(), ptrue));
 }
 
 TEST(AlgorithmTests, AnyAllNone_constexpr) {
@@ -66,4 +67,53 @@ TEST(AlgorithmTests, AnyAllNone_constexpr) {
     static_assert(core::none_of(arr.begin(), arr.end(), pnone));
     static_assert(!core::any_of(arr.begin(), arr.end(), pnone));
     static_assert(!core::all_of(arr.begin(), arr.end(), pnone));
+}
+
+TEST(AlgorithmTests, Find) {
+    vector<int> v{1,3,5,7,8,9};
+    for (int i: v) {
+        auto it = core::find(v.begin(), v.end(), i);
+        EXPECT_TRUE((it != v.end() && *it == i));
+    }
+    auto it = core::find(v.begin(), v.end(), 0);
+    EXPECT_EQ(it, v.end());
+
+    vector<int> empty{};
+    it = core::find(empty.begin(), empty.end(), 0);
+    EXPECT_EQ(it, empty.end());
+}
+
+TEST(AlgorithmTests, FindIf) {
+    const vector<int> v{1,3,5,7,8,9};
+    auto it = core::find_if(v.begin(), v.end(), iseven);
+    EXPECT_NE(it, v.end());
+    EXPECT_EQ(*it, 8);
+
+    it = core::find_if(v.begin(), v.begin()+3, iseven);
+    EXPECT_EQ(it, v.begin()+3);
+
+    vector<int> empty{};
+    it = core::find_if(empty.begin(), empty.end(), iseven);
+    EXPECT_EQ(it, empty.end());
+}
+
+TEST(AlgorithmTests, FindIfNot) {
+    const vector<int> v{1,3,5,7,8,9};
+    auto it = core::find_if_not(v.begin(), v.end(), isodd);
+    EXPECT_NE(it, v.end());
+    EXPECT_EQ(*it, 8);
+
+    it = core::find_if_not(v.begin(), v.begin()+3, isodd);
+    EXPECT_EQ(it, v.begin()+3);
+
+    vector<int> empty{};
+    it = core::find_if_not(empty.begin(), empty.end(), iseven);
+    EXPECT_EQ(it, empty.end());
+}
+
+TEST(AlgorithmTests, FindX_constexpr) {
+    constexpr std::array<int, 6> a{1,3,5,7,8,9};
+    static_assert(core::find(a.begin(), a.end(), 8) == a.begin()+4);
+    static_assert(core::find_if(a.begin(), a.end(), iseven) == a.begin()+4);
+    static_assert(core::find_if_not(a.begin(), a.end(), isodd) == a.begin()+4);
 }
