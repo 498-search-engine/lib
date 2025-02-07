@@ -1,4 +1,5 @@
-# Fetch Google Tests
+enable_testing()
+
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -7,18 +8,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-
-# ----- TESTS HERE -----
-# TODO: automate this based on naming conventions
-add_executable(optional_test optional_test.cpp)
-target_link_libraries(optional_test
-    PRIVATE
-        gtest_main   # from googletest
-        core         # link our library
-)
-add_test(NAME optional_test COMMAND optional_test)
-
-# Repeat as needed for each test file...
-# add_executable(optional_test optional_test.cpp)
-# ...
-# add_test(NAME optional_test COMMAND optional_test)
+file(GLOB TEST_SOURCES "*_test.cpp")
+foreach(TEST_SOURCE ${TEST_SOURCES})
+    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_SOURCE})
+    target_link_libraries(${TEST_NAME}
+        PRIVATE
+            gtest_main
+            core
+    )
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+endforeach()
