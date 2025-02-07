@@ -102,6 +102,103 @@ public:
         }
     }
 
+    String(const char* cstr, size_t n) : String() {
+        Resize(n);
+
+        // stack allocate string
+        if (IsShort()) {
+            for (size_t i = 0; i < n; ++i) {
+                internal_.stack_string.data[i] = cstr[i];
+            }
+
+            ShortSetSize(n);
+            return;
+        }
+
+        // heap allocate string
+        for (size_t i = 0; i < n; ++i) {
+            internal_.heap_string.ptr[i] = cstr[i];
+        }
+
+        internal_.heap_string.size = n;
+    }
+
+    ~String() {
+        if (!IsShort()) {
+            delete[] internal_.heap_string.ptr;
+        }
+    };
+
+    // Copy constructor
+    String(const String& other) : String(other.Cstr(), other.Size()) {}
+
+    // Copy assignment
+    String& operator=(const String &other) {
+        if (this == &other) {
+            return *this;
+        }
+        
+        const char *cstr = other.Cstr();
+        size_t n = other.Size();
+
+        Resize(n);
+
+        // stack allocate string
+        if (IsShort()) {
+            for (size_t i = 0; i < n; ++i) {
+                internal_.stack_string.data[i] = cstr[i];
+            }
+
+            ShortSetSize(n);
+            return *this;
+        }
+
+        // heap allocate string
+        for (size_t i = 0; i < n; ++i) {
+            internal_.heap_string.ptr[i] = cstr[i];
+        }
+
+        internal_.heap_string.size = n;
+
+        return *this;
+    }
+
+    // Move constructor
+    String(String &&other) noexcept {
+        if (other.IsShort()) {
+            for (size_t i = 0; i < StackArrSize; ++i) {
+                this->internal_.stack_string.data[i] = other.internal_.stack_string.data[i];
+            }
+
+            return;
+        }
+
+        this->internal_.heap_string.ptr = other.internal_.heap_string.ptr;
+        this->internal_.heap_string.capacity = other.internal_.heap_string.capacity;
+        this->internal_.heap_string.size = other.internal_.heap_string.size;
+
+        other.Nullify();
+    }
+
+    // Move assignment constructor
+    String& operator=(String &&other) noexcept {
+        if (other.IsShort()) {
+            for (size_t i = 0; i < StackArrSize; ++i) {
+                this->internal_.stack_string.data[i] = other.internal_.stack_string.data[i];
+            }
+
+            return *this;
+        }
+
+        this->internal_.heap_string.ptr = other.internal_.heap_string.ptr;
+        this->internal_.heap_string.capacity = other.internal_.heap_string.capacity;
+        this->internal_.heap_string.size = other.internal_.heap_string.size;
+
+        other.Nullify();
+
+        return *this;
+    }
+
     // Size
     // REQUIRES: Nothing
     // MODIFIES: Nothing
@@ -469,6 +566,14 @@ private:
         // keeps the last bit as 1 to maintain short string notation
         // this conversion is fine since new_size < 22
         internal_.stack_string.data[StackCharSize] = (new_size << 1) + 1;
+    }
+
+    void Nullify() {
+        for (size_t i = 0; i < StackCharSize; ++i) {
+            internal_.stack_string.data[i] = 0;
+        }
+
+        internal_.stack_string.data[StackCharSize] = 1;
     }
 
     static size_t NextPower2(size_t n) {
