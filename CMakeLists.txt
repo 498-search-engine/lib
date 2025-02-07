@@ -3,13 +3,15 @@ project(lib VERSION 1.0
         DESCRIPTION "Search engine core library"
         LANGUAGES CXX)
 
+find_package(OpenSSL REQUIRED)
+
 # Create main library target
 add_library(core
     src/core/optional.cpp
     # Add other source files
 )
 
-# Create alias target for better usage
+# Create alias target
 add_library(lib::core ALIAS core)
 
 # Set up include paths
@@ -17,6 +19,12 @@ target_include_directories(core
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(core
+    PUBLIC
+        OpenSSL::Crypto
+        OpenSSL::SSL
 )
 
 # Set up compile features

@@ -1,7 +1,6 @@
 // d-ary heap tests
 // authors: @mdvsh
 
-
 #include <gtest/gtest.h>
 #include <core/dary_heap.h>
 
