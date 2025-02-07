@@ -12,6 +12,8 @@
 #include <concepts>
 #include <cassert>
 
+namespace core {
+
 // core type reqs
 template <typename T>
 concept HeapItem = std::movable<T> && std::equality_comparable<T> && requires(T a, T b) { std::swap(a, b); };
@@ -150,7 +152,8 @@ public:
             throw std::out_of_range("heap is empty");
         return heap_.front().value;
     }
-
 };
+
+} // namespace core
 
 #endif 
