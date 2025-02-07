@@ -151,6 +151,35 @@ constexpr ForwardIt1 find_end(ForwardIt1 first, ForwardIt1 last,
     return pos;
 }
 
+template<class InputIt, class ForwardIt>
+constexpr InputIt find_first_of(InputIt first, InputIt last,
+                      ForwardIt s_first, ForwardIt s_last)
+{
+    if (s_first == s_last) return last;
+
+    for (; first != last; ++first) {
+        for (ForwardIt it = s_first; it != s_last; ++it) {
+            if (*it == *first) return first;
+        }
+    }
+    return last;
+}
+
+template<class InputIt, class ForwardIt, class BinaryPred>
+constexpr InputIt find_first_of(InputIt first, InputIt last,
+                      ForwardIt s_first, ForwardIt s_last,
+                      BinaryPred p)
+{
+    if (s_first == s_last) return last;
+
+    for (; first != last; ++first) {
+        for (ForwardIt it = s_first; it != s_last; ++it) {
+            if (p(*it, *first)) return first;
+        }
+    }
+    return last;
+}
+
 }  // core
 
 #endif
