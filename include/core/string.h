@@ -9,6 +9,7 @@
 #include <cstddef>   // for size_t
 #include <iostream>  // for ostream
 
+namespace core {
 class string {
 public:
     // Default Constructor
@@ -114,5 +115,9 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& os, const string& s) {}
+
+
+}  // namespace core
+
 
 #endif

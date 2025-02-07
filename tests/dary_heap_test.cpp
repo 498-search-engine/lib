@@ -1,9 +1,10 @@
 // d-ary heap tests
 // authors: @mdvsh
 
-
 #include <gtest/gtest.h>
-#include "core/dary_heap.h"
+#include <core/dary_heap.h>
+
+using namespace core;
 
 // Test fixture for dary_heap
 class DaryHeapTest : public ::testing::Test {

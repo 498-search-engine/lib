@@ -5,7 +5,7 @@
 //
 // Starter file for a vector template
 
-
+namespace core {
 template<typename T>
 class vector {
 public:
@@ -122,5 +122,8 @@ public:
 private:
     // TODO
 };
+
+
+}  // namespace core
 
 #endif

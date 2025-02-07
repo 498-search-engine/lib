@@ -10,6 +10,7 @@
 #include <concepts>
 #include <compare>
 
+namespace core {
 
 struct nullopt_t {};
 inline static constexpr nullopt_t nullopt;
@@ -419,5 +420,7 @@ constexpr std::compare_three_way_result_t<T, U> operator<=>( const Optional<T>& 
 {
     return opt ? *opt <=> value : std::strong_ordering::less;
 }
+
+} // namespace core
 
 #endif

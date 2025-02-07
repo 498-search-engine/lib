@@ -1,20 +1,50 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.20)
 project(lib VERSION 1.0
-        DESCRIPTION "a search engine std lib"
+        DESCRIPTION "Search engine core library"
         LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+find_package(OpenSSL REQUIRED)
 
-# Option to build tests (default ON, can turn off if desired)
-option(BUILD_TESTS "Build tests" ON)
+# Create main library target
+add_library(core
+    src/core/optional.cpp
+    # Add other source files
+)
 
-# Add the core library
-add_subdirectory(core)
+# Create alias target
+add_library(lib::core ALIAS core)
 
-# If tests are enabled, set up the tests directory
-if (BUILD_TESTS)
-    enable_testing()  # Enable CTest
-    add_subdirectory(core/tests)
+# Set up include paths
+target_include_directories(core
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(core
+    PUBLIC
+        OpenSSL::Crypto
+        OpenSSL::SSL
+)
+
+# Set up compile features
+target_compile_features(core PUBLIC cxx_std_20)
+
+# Optional: Set up installation
+if(NOT SKIP_INSTALL)
+    include(GNUInstallDirs)
+    install(TARGETS core
+        EXPORT lib-core-targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+    install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif()
+
+# Add tests if building standalone
+if(PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    enable_testing()
+    add_subdirectory(tests)
 endif()

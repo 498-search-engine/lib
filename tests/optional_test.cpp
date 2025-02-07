@@ -1,10 +1,11 @@
-#include "core/optional.h"
+#include <core/optional.h>
 
 #include <type_traits>
 #include <gtest/gtest.h>
 #include <vector>
 #include <utility>
 
+using namespace core;
 
 TEST(OptionalTests, Emplace) {
     constexpr int i = 1;
