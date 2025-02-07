@@ -201,3 +201,65 @@ TEST(AlgorithmTests, FindEnd_constexpr) {
     static_assert(
         core::find_end(text.begin(), text.end(), pattern.begin(), pattern.end(), isequal) == text.begin()+9);
 }
+
+TEST(AlgorithmTests, FindFirstOf) {
+    auto isequal = [](int a, int b){ return a == b; };
+    // Case 1: Empty haystack
+    std::vector<int> empty_haystack;
+    std::vector<int> needles = {1, 2, 3};
+    EXPECT_EQ(core::find_first_of(empty_haystack.begin(), empty_haystack.end(),
+                            needles.begin(), needles.end()), empty_haystack.end());
+    EXPECT_EQ(core::find_first_of(empty_haystack.begin(), empty_haystack.end(),
+                            needles.begin(), needles.end(), isequal), empty_haystack.end());
+
+    // Case 2: Empty needle
+    std::vector<int> haystack = {4, 5, 6, 7, 8};
+    std::vector<int> empty_needles;
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            empty_needles.begin(), empty_needles.end()), haystack.end());
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            empty_needles.begin(), empty_needles.end(), isequal), haystack.end());
+
+    // Case 3: No matches
+    std::vector<int> no_match_needles = {1, 2, 3};
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            no_match_needles.begin(), no_match_needles.end()), haystack.end());
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            no_match_needles.begin(), no_match_needles.end(), isequal), haystack.end());
+
+    // Case 4: First element is a match
+    std::vector<int> first_match_needles = {4, 9, 10};
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            first_match_needles.begin(), first_match_needles.end()), haystack.begin());
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            first_match_needles.begin(), first_match_needles.end(), isequal), haystack.begin());
+
+    // Case 5: Last element is a match
+    std::vector<int> last_match_needles = {8, 9, 10};
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            last_match_needles.begin(), last_match_needles.end()), haystack.begin() + 4);
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            last_match_needles.begin(), last_match_needles.end(), isequal), haystack.begin() + 4);
+
+    // Case 6: Middle element is a match
+    std::vector<int> middle_match_needles = {6, 10, 11};
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            middle_match_needles.begin(), middle_match_needles.end()), haystack.begin() + 2);
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            middle_match_needles.begin(), middle_match_needles.end(), isequal), haystack.begin() + 2);
+
+    // Case 7: Multiple matches, return first occurrence
+    std::vector<int> multiple_match_needles = {7, 8, 6};
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            multiple_match_needles.begin(), multiple_match_needles.end()), haystack.begin() + 2);
+    EXPECT_EQ(core::find_first_of(haystack.begin(), haystack.end(),
+                            multiple_match_needles.begin(), multiple_match_needles.end(), isequal), haystack.begin() + 2);
+
+    // Case 8: Custom binary predicate
+    std::string str_haystack = "HelloWorld";
+    std::string str_needles = "ow";
+    auto it = core::find_first_of(str_haystack.begin(), str_haystack.end(),
+                            str_needles.begin(), str_needles.end(),
+                            [](char a, char b) { return std::tolower(a) == std::tolower(b); });
+    EXPECT_EQ(it, str_haystack.begin() + 4);
+}
