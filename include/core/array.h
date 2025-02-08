@@ -13,29 +13,29 @@ struct Array {
 
     T __elements_[N];
 
-    T* Data() { return __elements_; }
-    const T* Data() const { return __elements_; }
+    constexpr T* Data() { return __elements_; }
+    constexpr const T* Data() const { return __elements_; }
 
     constexpr size_t Size() const { return N; }
     constexpr bool Empty() const { return N == 0; }
 
-    iterator begin() { return __elements_; }
-    iterator end() { return __elements_ + N; }
-    const_iterator begin() const { return __elements_; }
-    const_iterator end() const { return __elements_ + N; }
-    const_iterator cbegin() const { return begin(); }
-    const_iterator cend() const { return end(); }
+    constexpr iterator begin() { return __elements_; }
+    constexpr iterator end() { return __elements_ + N; }
+    constexpr const_iterator begin() const { return __elements_; }
+    constexpr const_iterator end() const { return __elements_ + N; }
+    constexpr const_iterator cbegin() const { return begin(); }
+    constexpr const_iterator cend() const { return end(); }
 
-    T& operator[](size_t n) { return __elements_[n]; }
-    const T& operator[](size_t n) const { return __elements_[n]; }
+    constexpr T& operator[](size_t n) { return __elements_[n]; }
+    constexpr const T& operator[](size_t n) const { return __elements_[n]; }
 
-    void Fill(const T& val) {
+    constexpr void Fill(const T& val) {
         for (size_t i = 0; i < N; ++i) {
             __elements_[i] = val;
         }
     }
 
-    void Swap(Array& other) { std::swap(__elements_, other.__elements_); }
+    constexpr void Swap(Array& other) { std::swap(__elements_, other.__elements_); }
 };
 
 }  // namespace core
