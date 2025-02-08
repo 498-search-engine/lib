@@ -263,3 +263,13 @@ TEST(AlgorithmTests, FindFirstOf) {
                             [](char a, char b) { return std::tolower(a) == std::tolower(b); });
     EXPECT_EQ(it, str_haystack.begin() + 4);
 }
+
+TEST(AlgorithmTests, FindFirstOf_constexpr) {
+    constexpr std::array<int,3> needles = {6, 10, 11};
+    constexpr std::array<int,5> haystack = {4, 5, 6, 7, 8};
+    auto isequal = [](int a, int b){ return a == b; };
+    static_assert(core::find_first_of(haystack.begin(), haystack.end(),
+                            needles.begin(), needles.end()) == haystack.begin() + 2);
+    static_assert(core::find_first_of(haystack.begin(), haystack.end(),
+                            needles.begin(), needles.end(), isequal) == haystack.begin() + 2);
+}
