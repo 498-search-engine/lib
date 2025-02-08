@@ -6,7 +6,7 @@ using namespace core;
 
 TEST(Span, Initialize) {
     const char text[] = "hello world";
-    auto a = span<const char>{text, 5};
+    auto a = Span<const char>{text, 5};
     ASSERT_EQ(a.size(), 5);
     ASSERT_EQ(a.data(), text);
     ASSERT_FALSE(a.empty());
@@ -16,13 +16,13 @@ TEST(Span, Initialize) {
     ASSERT_EQ(a[3], 'l');
     ASSERT_EQ(a[4], 'o');
 
-    auto b = span<int>{};
+    auto b = Span<int>{};
     ASSERT_TRUE(b.empty());
 }
 
 TEST(Span, Subspan) {
     const char text[] = "hello world";
-    auto a = span<const char>{text, sizeof(text) - 1};
+    auto a = Span<const char>{text, sizeof(text) - 1};
 
     auto b = a.subspan(0, 5);
     ASSERT_EQ(b.size(), 5);
@@ -48,7 +48,7 @@ TEST(Span, Subspan) {
 
 TEST(Span, Iterator) {
     const char text[] = "abc";
-    auto a = span<const char>{text, sizeof(text) - 1};
+    auto a = Span<const char>{text, sizeof(text) - 1};
     const auto* it = a.begin();
     ASSERT_NE(it, a.end());
     ASSERT_EQ(*it, 'a');
