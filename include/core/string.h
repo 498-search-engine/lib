@@ -172,6 +172,7 @@ public:
                 this->internal_.stack_string.data[i] = other.internal_.stack_string.data[i];
             }
 
+            other.Nullify();
             return;
         }
 
@@ -188,6 +189,8 @@ public:
             for (size_t i = 0; i < StackArrSize; ++i) {
                 this->internal_.stack_string.data[i] = other.internal_.stack_string.data[i];
             }
+
+            other.Nullify();
 
             return *this;
         }
