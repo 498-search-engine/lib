@@ -10,7 +10,9 @@ TEST(STACK_STRINGS, EMPTY_STRING) {
     String emptyString2("");
 
     EXPECT_EQ(emptyString.Size(), 0);
+    EXPECT_TRUE(emptyString.Empty());
     EXPECT_EQ(emptyString2.Size(), 0);
+    EXPECT_TRUE(emptyString2.Empty());
 
     EXPECT_EQ(*emptyString.begin(), '\0');
     EXPECT_EQ(*emptyString.Cstr(), '\0');
@@ -45,7 +47,9 @@ TEST(STACK_STRINGS, EMPTY_STRING) {
     emptyString2 += emptyString;
 
     EXPECT_EQ(emptyString.Size(), 0);
+    EXPECT_TRUE(emptyString.Empty());
     EXPECT_EQ(emptyString2.Size(), 0);
+    EXPECT_TRUE(emptyString2.Empty());
 
     EXPECT_EQ(*emptyString.begin(), '\0');
     EXPECT_EQ(*emptyString.Cstr(), '\0');
@@ -61,6 +65,10 @@ TEST(STACK_STRINGS, EMPTY_STRING) {
 
     emptyString.PushBack('c');
     emptyString2.PushBack('c');
+
+    EXPECT_FALSE(emptyString.Empty());
+    EXPECT_FALSE(emptyString2.Empty());
+
     emptyString.PopBack();
     emptyString2.PopBack();
 

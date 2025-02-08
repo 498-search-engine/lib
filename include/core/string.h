@@ -204,6 +204,10 @@ public:
         return *this;
     }
 
+    bool Empty() const {
+        return Size() == 0;
+    }
+
     // Size
     // REQUIRES: Nothing
     // MODIFIES: Nothing
