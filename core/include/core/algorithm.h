@@ -48,7 +48,7 @@ constexpr bool none_of(InputIt first, InputIt last, UnaryPred p) {
 
 template<class InputIt, class T>
 constexpr InputIt find(InputIt first, InputIt last, const T& value) {
-    while (first != last && *first != value) ++first;
+    while (first != last && !(*first == value)) ++first;
     return first;
 }
 
@@ -227,6 +227,70 @@ constexpr typename std::iterator_traits<InputIt>::difference_type
 }
 
 // TODO: std::mismatch() (requires std::pair)
+
+template<class InputIt1, class InputIt2>
+constexpr bool equal(InputIt1 first1, InputIt1 last1,
+                     InputIt2 first2)
+{
+    for (; first1 != last1; ++first1, ++first2) {
+        if (!(*first1 == *first2)) return false;
+    }
+    return true;
+}
+
+template<class InputIt1, class InputIt2, class BinaryPred>
+constexpr bool equal(InputIt1 first1, InputIt1 last1,
+                     InputIt2 first2, BinaryPred p)
+{
+    for (; first1 != last1; ++first1, ++first2) {
+        if (!p(*first1, *first2)) return false;
+    }
+    return true;
+}
+
+template<class InputIt1, class InputIt2>
+constexpr bool equal(InputIt1 first1, InputIt1 last1,
+                     InputIt2 first2, InputIt2 last2)
+{
+    constexpr bool is_random_access =
+        std::random_access_iterator<InputIt1> && std::random_access_iterator<InputIt2>;
+    if constexpr (is_random_access) {
+        if (last1 - first1 != last2 - first2)
+            return false;
+    }
+
+    for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+        if (!(*first1 == *first2)) return false;
+    }
+
+    if constexpr (is_random_access) {
+        return true; // already checked they match length
+    } else {
+        return first1 == last1 && first2 == last2;
+    }
+}
+
+template< class InputIt1, class InputIt2, class BinaryPred >
+constexpr bool equal(InputIt1 first1, InputIt1 last1,
+                     InputIt2 first2, InputIt2 last2, BinaryPred p)
+{
+    constexpr bool is_random_access =
+        std::random_access_iterator<InputIt1> && std::random_access_iterator<InputIt2>;
+    if constexpr (is_random_access) {
+        if (last1 - first1 != last2 - first2)
+            return false;
+    }
+
+    for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+        if (!p(*first1, *first2)) return false;
+    }
+
+    if constexpr (is_random_access) {
+        return true; // already checked they match length
+    } else {
+        return first1 == last1 && first2 == last2;
+    }
+}
 
 }  // core
 
