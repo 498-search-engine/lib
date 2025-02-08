@@ -492,8 +492,15 @@ public:
     // EFFECTS: all iterators invalidated
     void Resize(size_t new_capacity) {
         // this is for safety in regards to creating the char * ptr and failing gracefully
-        if (IsShort() && new_capacity < 22) {
+        if (IsShort() && new_capacity < StackStringSize) {
             // Cannot make short representation smaller
+            if (Size() > new_capacity) {
+                for (size_t i = new_capacity; i < StackStringSize; ++i) {
+                    internal_.stack_string.data[i] = '\0';
+                }
+                ShortSetSize(new_capacity);
+            }
+
             return;
         }
 
