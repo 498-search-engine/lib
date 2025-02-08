@@ -1,7 +1,7 @@
 #include <core/string.h>
 
-#include <gtest/gtest.h>
 #include <cstring>
+#include <gtest/gtest.h>
 
 using namespace core;
 
@@ -685,6 +685,34 @@ TEST(StringIntegrationTest, RepeatedAppendsAndResizes) {
     for (size_t i = 0; i < 100; ++i) {
         EXPECT_EQ(s[i], 'a');
     }
+}
+
+TEST(ConstStringTest, Access) {
+    const auto s = String{"Hello world"};
+    EXPECT_EQ(s.Size(), 11);
+    EXPECT_EQ(s[0], 'H');
+}
+
+TEST(ConstStringTest, Copy) {
+    const auto s1 = String{"Hello world"};
+    const auto s2 = s1;
+
+    EXPECT_EQ(s1.Size(), s2.Size());
+    EXPECT_EQ(s1[0], s2[0]);
+}
+
+
+TEST(ConstStringTest, Iterate) {
+    const auto s = String{"123"};
+
+    auto it = s.begin();
+    EXPECT_EQ(*it, '1');
+    ++it;
+    EXPECT_EQ(*it, '2');
+    ++it;
+    EXPECT_EQ(*it, '3');
+    ++it;
+    EXPECT_EQ(it, s.end());
 }
 
 int main(int argc, char** argv) {

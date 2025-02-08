@@ -275,6 +275,14 @@ public:
         return internal_.heap_string.ptr[i];
     }
 
+    const char& operator[](size_t i) const {
+        if (IsShort()) {
+            return internal_.stack_string.data[i];
+        }
+
+        return internal_.heap_string.ptr[i];
+    }
+
     // string Append
     // REQUIRES: Nothing
     // MODIFIES: *this
