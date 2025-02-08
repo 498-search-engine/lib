@@ -616,7 +616,7 @@ private:
     }
 };
 
-std::ostream& operator<<(std::ostream& os, const String& s) {
+inline std::ostream& operator<<(std::ostream& os, const String& s) {
     os << s.Cstr();
     return os;
 }
