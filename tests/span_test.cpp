@@ -18,6 +18,15 @@ TEST(Span, Initialize) {
 
     auto b = Span<int>{};
     ASSERT_TRUE(b.Empty());
+
+    auto c = Span<const char>{"hello"};
+    ASSERT_EQ(c.Size(), 6);  // includes \0 terminator
+    ASSERT_EQ(c[0], 'h');
+    ASSERT_EQ(c[1], 'e');
+    ASSERT_EQ(c[2], 'l');
+    ASSERT_EQ(c[3], 'l');
+    ASSERT_EQ(c[4], 'o');
+    ASSERT_EQ(c[5], '\0');
 }
 
 TEST(Span, Subspan) {

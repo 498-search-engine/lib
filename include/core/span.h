@@ -14,6 +14,9 @@ public:
     constexpr Span() : ptr_(nullptr), size_(0) {}
     constexpr Span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
 
+    template<size_t N>
+    constexpr Span(T (&arr)[N]) : ptr_(arr), size_(N) {}
+
     constexpr T* Data() const { return ptr_; }
     constexpr size_t Size() const { return size_; }
     constexpr bool Empty() const { return size_ == 0; }
