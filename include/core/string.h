@@ -288,7 +288,7 @@ public:
     // MODIFIES: *this
     // EFFECTS: Appends the contents of other to *this, resizing any
     //      memory at most once
-    void operator+=(const String& other) {
+    void Append(const String& other) {
         // Grow string if necessary
         const size_t currentSize = Size();
         size_t newSize = currentSize + other.Size();
@@ -313,6 +313,10 @@ public:
         } else {
             internal_.heap_string.size = newSize;
         }
+    }
+
+    void operator+=(const String& other) {
+        Append(other);
     }
 
     // Push Back
