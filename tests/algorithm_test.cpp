@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <array>
+#include <list>
 
 using std::vector;
 
@@ -396,3 +397,148 @@ TEST(AlgorithmTests, CountX_constexpr) {
         core::count_if(arr.begin(), arr.end(), [](int x) { return x > 0; }) == 3);
     static_assert(core::count(arr.begin(), arr.end(), 0) == 1);
 }
+
+// TODO: core::mismatch tests
+
+TEST(AlgorithmTests, Equal_unsafe) {
+    // Tests for unsafe core::Equal() overload
+
+    // Case 1: Empty ranges (should be equal)
+    std::vector<int> empty1, empty2;
+    EXPECT_TRUE(core::equal(empty1.begin(), empty1.end(), empty2.begin()));
+
+    // Case 2: Equal ranges
+    std::vector<int> same1 = {1, 2, 3, 4, 5};
+    std::vector<int> same2 = {1, 2, 3, 4, 5};
+    EXPECT_TRUE(core::equal(same1.begin(), same1.end(), same2.begin()));
+
+    // Case 3: Different elements
+    std::vector<int> diff = {1, 2, 3, 4, 6}; // Last element differs
+    EXPECT_FALSE(core::equal(same1.begin(), same1.end(), diff.begin()));
+
+    // Case 6: Custom predicate - case insensitive string comparison
+    std::string str1 = "Hello";
+    std::string str2 = "hello";
+    auto case_insensitive = [](char a, char b) { return std::tolower(a) == std::tolower(b); };
+    EXPECT_TRUE(core::equal(str1.begin(), str1.end(), str2.begin(), case_insensitive));
+
+    // Case 7: Custom predicate - absolute value comparison
+    std::vector<int> abs1 = {1, -2, 3, -4, 5};
+    std::vector<int> abs2 = {1, 2, 3, 4, 5};
+    auto abs_compare = [](int a, int b) { return std::abs(a) == std::abs(b); };
+    EXPECT_TRUE(core::equal(abs1.begin(), abs1.end(), abs2.begin(), abs_compare));
+
+    // Case 8: Custom predicate - floating-point comparison with tolerance
+    std::vector<double> float1 = {1.00001, 2.00002, 3.00003};
+    std::vector<double> float2 = {1.00002, 2.00003, 3.00004};
+    auto float_tolerance = [](double a, double b) { return std::fabs(a - b) < 0.0001; };
+    EXPECT_TRUE(core::equal(float1.begin(), float1.end(), float2.begin(), float_tolerance));
+
+    // Case 9: Mismatch with custom predicate
+    std::vector<int> mismatch1 = {1, 2, 3, 4};
+    std::vector<int> mismatch2 = {1, 2, 3, 5};
+    EXPECT_FALSE(core::equal(mismatch1.begin(), mismatch1.end(), mismatch2.begin(), abs_compare));
+
+    // Case 10: Non-random access container (std::list)
+    std::list<int> list1 = {10, 20, 30, 40, 50};
+    std::list<int> list2 = {10, 20, 30, 40, 50};
+    EXPECT_TRUE(core::equal(list1.begin(), list1.end(), list2.begin()));
+
+    // Case 11: Non-random access container with mismatch
+    std::list<int> list3 = {10, 20, 30, 40, 60};  // Last element differs
+    EXPECT_FALSE(core::equal(list1.begin(), list1.end(), list3.begin()));
+
+    // Case 12: Non-random access container with a custom predicate (check even/odd equivalence)
+    std::list<int> list4 = {4, 6, 9, 10, 12};
+    std::list<int> list5 = {2, 4, 5, 8, 10};
+    auto odd_even_equivalent = [](int a, int b) { return (a % 2) == (b % 2); };
+    EXPECT_TRUE(core::equal(list4.begin(), list4.end(), list5.begin(), odd_even_equivalent));
+}
+
+TEST(AlgorithmTests, Equal) {
+    // Tests for (safe) core::Equal() overload
+
+    // Case 1: Empty ranges (should be equal)
+    std::vector<int> empty1, empty2;
+    EXPECT_TRUE(core::equal(empty1.begin(), empty1.end(), empty2.begin(), empty2.end()));
+
+    // Case 2: Equal ranges
+    std::vector<int> same1 = {1, 2, 3, 4, 5};
+    std::vector<int> same2 = {1, 2, 3, 4, 5};
+    EXPECT_TRUE(core::equal(same1.begin(), same1.end(), same2.begin(), same2.end()));
+
+    // Case 3: Different elements
+    std::vector<int> diff = {1, 2, 3, 4, 6}; // Last element differs
+    EXPECT_FALSE(core::equal(same1.begin(), same1.end(), diff.begin(), diff.end()));
+
+    // Case 4: Different lengths (should return false immediately for random access)
+    std::vector<int> longer = {1, 2, 3, 4, 5, 6};
+    std::vector<int> shorter = {1, 2, 3, 4};
+    EXPECT_FALSE(core::equal(same1.begin(), same1.end(), longer.begin(), longer.end()));
+    EXPECT_FALSE(core::equal(same1.begin(), same1.end(), shorter.begin(), shorter.end()));
+
+    // Case 5: Non-random access container (std::list)
+    std::list<int> list1 = {10, 20, 30, 40, 50};
+    std::list<int> list2 = {10, 20, 30, 40, 50};
+    EXPECT_TRUE(core::equal(list1.begin(), list1.end(), list2.begin(), list2.end()));
+
+    // Case 6: Non-random access container with different lengths (should return false)
+    std::list<int> list3 = {10, 20, 30, 40};
+    EXPECT_FALSE(core::equal(list1.begin(), list1.end(), list3.begin(), list3.end()));
+
+    // Case 7: Custom predicate - case insensitive string comparison
+    std::string str1 = "Hello";
+    std::string str2 = "hello";
+    auto case_insensitive = [](char a, char b) { return std::tolower(a) == std::tolower(b); };
+    EXPECT_TRUE(core::equal(str1.begin(), str1.end(), str2.begin(), str2.end(), case_insensitive));
+
+    // Case 8: Custom predicate - absolute value comparison
+    std::vector<int> abs1 = {1, -2, 3, -4, 5};
+    std::vector<int> abs2 = {1, 2, 3, 4, 5};
+    auto abs_compare = [](int a, int b) { return std::abs(a) == std::abs(b); };
+    EXPECT_TRUE(core::equal(abs1.begin(), abs1.end(), abs2.begin(), abs2.end(), abs_compare));
+
+    // Case 9: Custom predicate - floating-point comparison with tolerance
+    std::vector<double> float1 = {1.00001, 2.00002, 3.00003};
+    std::vector<double> float2 = {1.00002, 2.00003, 3.00004};
+    auto float_tolerance = [](double a, double b) { return std::fabs(a - b) < 0.0001; };
+    EXPECT_TRUE(core::equal(float1.begin(), float1.end(), float2.begin(), float2.end(), float_tolerance));
+
+    // Case 10: Non-random access container with custom predicate (check even/odd equivalence)
+    std::list<int> list4 = {4, 6, 9, 10, 12};
+    std::list<int> list5 = {2, 4, 5, 8, 10};
+    auto odd_even_equivalent = [](int a, int b) { return (a % 2) == (b % 2); };
+    EXPECT_TRUE(core::equal(list4.begin(), list4.end(), list5.begin(), list5.end(), odd_even_equivalent));
+
+    // Case 11: Verify optimizations for random access
+    std::vector<int> vec1 = {1, 2, 3, 4, 5};
+    std::vector<int> vec2 = {1, 2, 3, 4};  // Shorter than vec1
+    std::vector<int> vec3 = {1, 2, 3, 4, 5, 6}; // Longer than vec1
+    int cnt = 0;
+    auto counter = [&](int a, int b) { 
+        cnt++;
+        return a == b;
+    };
+    EXPECT_FALSE(core::equal(vec1.begin(), vec1.end(), vec2.begin(), vec2.end(), counter));
+    EXPECT_FALSE(core::equal(vec1.begin(), vec1.end(), vec3.begin(), vec3.end(), counter));
+    EXPECT_EQ(cnt, 0); // should fail early, never check predicate
+}
+
+TEST(AlgorithmTests, Equal_constexpr) {
+    constexpr std::array<int,3> a1{1,2,3};
+    constexpr std::array<int,3> a2{1,2,4};
+    static_assert(core::equal(a1.begin(), a1.end(), a1.begin()));
+    static_assert(core::equal(a1.begin(), a1.end(), a1.begin(), a1.end()));
+    static_assert(core::equal(a1.begin(), a1.end(), a1.begin(),
+                  [](int a, int b){return a == b;}));
+    static_assert(core::equal(a1.begin(), a1.end(), a1.begin(), a1.end(),
+                  [](int a, int b){return a == b;}));
+
+    static_assert(!core::equal(a1.begin(), a1.end(), a2.begin(), a2.end()));
+    static_assert(!core::equal(a1.begin(), a1.end(), a2.begin(), a2.begin()+1));
+    static_assert(!core::equal(a1.begin(), a1.end(), a2.begin(), a2.end(),
+                   [](int a, int b){return a == b;}));
+    static_assert(!core::equal(a1.begin(), a1.end(), a2.begin(), a2.begin()+1,
+                   [](int a, int b){return a == b;}));
+}
+
