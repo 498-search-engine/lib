@@ -2,6 +2,7 @@
 #define LIB_ARRAY_H
 
 #include <cstddef>
+#include <utility>
 
 namespace core {
 
@@ -33,6 +34,8 @@ struct Array {
             __elements_[i] = val;
         }
     }
+
+    void Swap(Array& other) { std::swap(__elements_, other.__elements_); }
 };
 
 }  // namespace core

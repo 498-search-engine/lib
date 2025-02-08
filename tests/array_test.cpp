@@ -50,3 +50,17 @@ TEST(Array, Iterator) {
     ++it;
     ASSERT_EQ(it, a.end());
 }
+
+TEST(Array, Swap) {
+    Array<int, 3> a = {1, 2, 3};
+    Array<int, 3> b = {4, 5, 6};
+
+    a.Swap(b);
+
+    ASSERT_EQ(a[0], 4);
+    ASSERT_EQ(a[1], 5);
+    ASSERT_EQ(a[2], 6);
+    ASSERT_EQ(b[0], 1);
+    ASSERT_EQ(b[1], 2);
+    ASSERT_EQ(b[2], 3);
+}
