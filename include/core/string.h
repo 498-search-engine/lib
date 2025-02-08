@@ -560,6 +560,7 @@ private:
             }
 
             delete[] internal_.heap_string.ptr;
+            internal_.heap_string.ptr = newBuffer;
             internal_.heap_string.capacity = new_capacity;
         }
     }
