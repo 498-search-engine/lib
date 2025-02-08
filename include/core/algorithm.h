@@ -292,6 +292,27 @@ constexpr bool equal(InputIt1 first1, InputIt1 last1,
     }
 }
 
+template<class ForwardIt, class Size, class T>
+constexpr ForwardIt search_n(ForwardIt first, ForwardIt last,
+                             Size count, const T& value)
+{
+    if (count <= 0) return first;
+
+    first = ::core::find(first, last, value);
+    while (first != last) {
+        Size cur_count{0};
+        const auto candidate = first;
+        while (first != last && *first == value && cur_count < count) {
+            ++cur_count;
+            ++first;
+        }
+        if (cur_count == count) return candidate;
+        first = ::core::find(first, last, value);
+    }
+    return last;
+}
+
+
 }  // core
 
 #endif
