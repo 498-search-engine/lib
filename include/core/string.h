@@ -503,10 +503,7 @@ public:
         if (IsShort() && new_capacity < StackStringSize) {
             // Cannot make short representation smaller
             if (Size() > new_capacity) {
-                for (size_t i = new_capacity; i < StackStringSize; ++i) {
-                    internal_.stack_string.data[i] = '\0';
-                }
-                ShortSetSize(new_capacity);
+                ShortResize(new_capacity);
             }
 
             return;
@@ -520,7 +517,7 @@ public:
 
     void Clear() {
         if (IsShort()) {
-            ShortSetSize(0);
+            ShortResize(0);
         } else {
             internal_.heap_string.size = 0;
         }
@@ -587,6 +584,18 @@ private:
             internal_.heap_string.ptr = newBuffer;
             internal_.heap_string.capacity = new_capacity;
         }
+    }
+
+    /*
+    * This also ensures we 0 out everything else while shrinking.
+    * If not shrinking, use ShortSetSize directly.
+    */
+    void ShortResize(size_t new_size) {
+        for (size_t i = new_size; i < StackStringSize; ++i) {
+            internal_.stack_string.data[i] = 0;
+        }
+
+        ShortSetSize(new_size);
     }
 
     inline void ShortSetSize(size_t new_size) {
