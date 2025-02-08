@@ -539,6 +539,30 @@ TEST(StringTest, Destructor) {
     EXPECT_TRUE(true);  // Just to ensure the test passes
 }
 
+TEST(StringTest, OperatorPlus) {
+    // const String& + const String&
+    auto s1 = String{"abc"};
+    auto s2 = String{"123"};
+    auto s3 = s1 + s2;
+    EXPECT_STREQ(s3.Cstr(), "abc123");
+
+    // const String& + char
+    auto s4 = s1 + '!';
+    EXPECT_STREQ(s4.Cstr(), "abc!");
+
+    // String&& + String&&
+    auto s5 = String{"abc"} + String{"123"};
+    EXPECT_STREQ(s5.Cstr(), "abc123");
+
+    // String&& + const String&
+    auto s6 = String{"wow"} + s2;
+    EXPECT_STREQ(s6.Cstr(), "wow123");
+
+    // String&& + char
+    auto s7 = String{"abc"} + '!';
+    EXPECT_STREQ(s7.Cstr(), "abc!");
+}
+
 // Test building a string dynamically using PushBack
 TEST(StringIntegrationTest, DynamicStringBuilding) {
     String s;

@@ -627,6 +627,33 @@ std::ostream& operator<<(std::ostream& os, const String& s) {
     return os;
 }
 
-} // namespace core
+inline String operator+(const String& lhs, const String& rhs) {
+    String s = lhs;
+    s.Append(rhs);
+    return s;
+}
+
+inline String operator+(const String& lhs, char rhs) {
+    String s = lhs;
+    s.PushBack(rhs);
+    return s;
+}
+
+inline String operator+(String&& lhs, String&& rhs) {
+    lhs.Append(rhs);
+    return std::move(lhs);
+}
+
+inline String operator+(String&& lhs, const String& rhs) {
+    lhs.Append(rhs);
+    return std::move(lhs);
+}
+
+inline String operator+(String&& lhs, char rhs) {
+    lhs.PushBack(rhs);
+    return std::move(lhs);
+}
+
+}  // namespace core
 
 #endif
