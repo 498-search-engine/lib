@@ -431,6 +431,10 @@ TEST(StringTest, PushBack) {
     s.PushBack('o');
     EXPECT_EQ(s.Size(), 5);
     EXPECT_STREQ(s.Cstr(), "Hello");
+
+    s += '!';
+    EXPECT_EQ(s.Size(), 6);
+    EXPECT_STREQ(s.Cstr(), "Hello!");
 }
 
 // Test PopBack() function

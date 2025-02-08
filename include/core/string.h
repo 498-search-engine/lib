@@ -342,6 +342,10 @@ public:
         }
     }
 
+    void operator+=(char c) {
+        PushBack(c);
+    }
+
     // Pop Back
     // REQUIRES: string is not empty
     // MODIFIES: *this
