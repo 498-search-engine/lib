@@ -1,6 +1,8 @@
 #ifndef LIB_ALGORITHM_H
 #define LIB_ALGORITHM_H
 
+#include <iterator>
+
 namespace core {
 
 // Non-modifying sequence operations
@@ -202,7 +204,27 @@ constexpr ForwardIt adjacent_find(ForwardIt first, ForwardIt last, BinaryPred p)
     return last;
 }
 
+template<class InputIt, class T>
+constexpr typename std::iterator_traits<InputIt>::difference_type
+    count(InputIt first, InputIt last, const T& value)
+{
+    typename std::iterator_traits<InputIt>::difference_type count = 0;
+    for (; first != last; ++first) {
+        if (*first == value) ++count;
+    }
+    return count;
+}
 
+template<class InputIt, class UnaryPred>
+constexpr typename std::iterator_traits<InputIt>::difference_type
+    count_if(InputIt first, InputIt last, UnaryPred p)
+{
+    typename std::iterator_traits<InputIt>::difference_type count = 0;
+    for (; first != last; ++first) {
+        if (p(*first)) ++count;
+    }
+    return count;
+}
 
 }  // core
 

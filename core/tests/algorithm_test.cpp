@@ -325,3 +325,74 @@ TEST(AlgorithmTests, AdjacentFind_constexpr) {
     static_assert(
         core::adjacent_find(arr2.begin(), arr2.end(), pred) == arr2.begin() + 3);
 }
+
+TEST(AlgorithmTests, Count) {
+    // Case 1: Empty range
+    std::vector<int> empty;
+    EXPECT_EQ(core::count(empty.begin(), empty.end(), 42), 0);
+
+    // Case 2: No occurrences of the target element
+    std::vector<int> no_match = {1, 2, 3, 4, 5};
+    EXPECT_EQ(core::count(no_match.begin(), no_match.end(), 10), 0);
+
+    // Case 3: Single occurrence of the target element
+    std::vector<int> single_occurrence = {1, 2, 3, 4, 5};
+    EXPECT_EQ(core::count(single_occurrence.begin(), single_occurrence.end(), 3), 1);
+
+    // Case 4: Multiple occurrences of the target element
+    std::vector<int> multiple_occurrences = {1, 3, 3, 3, 4, 5};
+    EXPECT_EQ(core::count(multiple_occurrences.begin(), multiple_occurrences.end(), 3), 3);
+
+    // Case 5: All elements match the target
+    std::vector<int> all_match = {7, 7, 7, 7, 7};
+    EXPECT_EQ(core::count(all_match.begin(), all_match.end(), 7), 5);
+
+    // Case 6: Target element appears at the beginning and end
+    std::vector<int> boundary_match = {2, 3, 4, 2};
+    EXPECT_EQ(core::count(boundary_match.begin(), boundary_match.end(), 2), 2);
+
+    // Case 7: String test case
+    std::string str_test = "hello world";
+    EXPECT_EQ(core::count(str_test.begin(), str_test.end(), 'o'), 2);
+}
+
+TEST(AlgorithmTests, CountIf) {
+    // Case 1: Empty range
+    std::vector<int> empty;
+    EXPECT_EQ(core::count_if(empty.begin(), empty.end(), [](int) { return true; }), 0);
+
+    // Case 2: No elements satisfy the predicate
+    std::vector<int> no_match = {1, 2, 3, 4, 5};
+    EXPECT_EQ(core::count_if(no_match.begin(), no_match.end(), [](int x) { return x > 10; }), 0);
+
+    // Case 3: Single element satisfies the predicate
+    std::vector<int> single_match = {1, 2, 3, 4, 5};
+    EXPECT_EQ(core::count_if(single_match.begin(), single_match.end(), [](int x) { return x == 3; }), 1);
+
+    // Case 4: Multiple elements satisfy the predicate
+    std::vector<int> multiple_matches = {1, 2, 3, 4, 5, 6};
+    EXPECT_EQ(core::count_if(multiple_matches.begin(), multiple_matches.end(), [](int x) { return x % 2 == 0; }), 3);
+
+    // Case 5: All elements satisfy the predicate
+    std::vector<int> all_match = {7, 7, 7, 7, 7};
+    EXPECT_EQ(core::count_if(all_match.begin(), all_match.end(), [](int x) { return x == 7; }), 5);
+
+    // Case 6: Some elements satisfy the predicate (odd numbers)
+    std::vector<int> mixed_values = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    EXPECT_EQ(core::count_if(mixed_values.begin(), mixed_values.end(), [](int x) { return x % 2 != 0; }), 5);
+
+    // Case 7: Predicate checks for positive numbers
+    std::vector<int> positive_negative = {-5, -3, 0, 2, 4, 6};
+    EXPECT_EQ(core::count_if(positive_negative.begin(), positive_negative.end(), [](int x) { return x > 0; }), 3);
+
+    // Case 8: String test case (count vowels)
+    std::string str_test = "hello world";
+    EXPECT_EQ(core::count_if(str_test.begin(), str_test.end(), [](char c) { return c == 'o'; }), 2);
+}
+
+TEST(AlgorithmTests, CountX_constexpr) {
+    constexpr std::array<int,6> arr{-5, -3, 0, 2, 4, 6};
+    static_assert(
+        core::count_if(arr.begin(), arr.end(), [](int x) { return x > 0; }) == 3);
+    static_assert(core::count(arr.begin(), arr.end(), 0) == 1);
+}
