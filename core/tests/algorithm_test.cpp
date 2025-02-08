@@ -542,3 +542,46 @@ TEST(AlgorithmTests, Equal_constexpr) {
                    [](int a, int b){return a == b;}));
 }
 
+TEST(AlgorithmTests, SearchN) {
+    // Case 1: Empty range
+    std::vector<int> empty;
+    EXPECT_EQ(core::search_n(empty.begin(), empty.end(), 3, 5), empty.end());
+
+    // Case 2: Single match at the beginning
+    std::vector<int> vec1 = {5, 5, 5, 1, 2, 3, 4};
+    EXPECT_EQ(core::search_n(vec1.begin(), vec1.end(), 3, 5), vec1.begin());
+
+    // Case 3: Match in the middle
+    std::vector<int> vec2 = {1, 2, 3, 5, 5, 5, 4, 6};
+    EXPECT_EQ(core::search_n(vec2.begin(), vec2.end(), 3, 5), vec2.begin() + 3);
+
+    // Case 4: Match at the end
+    std::vector<int> vec3 = {1, 2, 3, 4, 5, 5, 5};
+    EXPECT_EQ(core::search_n(vec3.begin(), vec3.end(), 3, 5), vec3.begin() + 4);
+
+    // Case 5: No match
+    std::vector<int> vec4 = {1, 2, 3, 4, 6, 6, 6};
+    EXPECT_EQ(core::search_n(vec4.begin(), vec4.end(), 1, 5), vec4.end());
+
+    // Case 6: Searching for more occurrences than exist
+    std::vector<int> vec5 = {1, 2, 5, 5, 3, 5, 5};
+    EXPECT_EQ(core::search_n(vec5.begin(), vec5.end(), 3, 5), vec5.end());
+
+    // Case 7: Searching for exactly 1 occurrence
+    std::vector<int> vec6 = {1, 2, 3, 5, 4, 6};
+    EXPECT_EQ(core::search_n(vec6.begin(), vec6.end(), 1, 5), vec6.begin() + 3);
+
+    // Case 8: Works with non-random access container (std::list)
+    std::list<int> list1 = {1, 2, 3, 4, 5, 5, 5, 6, 7};
+    auto list_it = core::search_n(list1.begin(), list1.end(), 3, 5);
+    auto expected_it = std::next(list1.begin(), 4);  // Should point to the first '5'
+    EXPECT_EQ(list_it, expected_it);
+
+    // Case 9: Match at the very start in a list
+    std::list<int> list2 = {5, 5, 5, 2, 3, 4};
+    EXPECT_EQ(core::search_n(list2.begin(), list2.end(), 3, 5), list2.begin());
+
+    // Case 10: Match for non-positive size
+    EXPECT_EQ(core::search_n(vec1.begin(), vec1.end(), 0, 5), vec1.begin());
+    EXPECT_EQ(core::search_n(vec1.begin(), vec1.end(), -1, 5), vec1.begin());
+}
