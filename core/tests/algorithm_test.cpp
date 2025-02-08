@@ -265,6 +265,7 @@ TEST(AlgorithmTests, FindFirstOf) {
 }
 
 TEST(AlgorithmTests, FindFirstOf_constexpr) {
+    // Ensure it all work in constexpr context
     constexpr std::array<int,3> needles = {6, 10, 11};
     constexpr std::array<int,5> haystack = {4, 5, 6, 7, 8};
     auto isequal = [](int a, int b){ return a == b; };
@@ -272,4 +273,50 @@ TEST(AlgorithmTests, FindFirstOf_constexpr) {
                             needles.begin(), needles.end()) == haystack.begin() + 2);
     static_assert(core::find_first_of(haystack.begin(), haystack.end(),
                             needles.begin(), needles.end(), isequal) == haystack.begin() + 2);
+}
+
+TEST(AlgorithmTests, AdjacentFind) {
+    // Case 1: Empty range
+    std::vector<int> empty;
+    EXPECT_EQ(core::adjacent_find(empty.begin(), empty.end()), empty.end());
+
+    // Case 2: No adjacent duplicates
+    std::vector<int> no_adjacent_duplicates = {1, 2, 3, 4, 5};
+    EXPECT_EQ(core::adjacent_find(no_adjacent_duplicates.begin(), no_adjacent_duplicates.end()),
+              no_adjacent_duplicates.end());
+
+    // Case 3: Adjacent duplicates at the beginning
+    std::vector<int> begin_duplicates = {2, 2, 3, 4, 5};
+    EXPECT_EQ(core::adjacent_find(begin_duplicates.begin(), begin_duplicates.end()), begin_duplicates.begin());
+
+    // Case 4: Adjacent duplicates in the middle
+    std::vector<int> middle_duplicates = {1, 2, 3, 3, 4, 5};
+    EXPECT_EQ(core::adjacent_find(middle_duplicates.begin(), middle_duplicates.end()), middle_duplicates.begin() + 2);
+
+    // Case 5: Adjacent duplicates at the end
+    std::vector<int> end_duplicates = {1, 2, 3, 4, 5, 5};
+    EXPECT_EQ(core::adjacent_find(end_duplicates.begin(), end_duplicates.end()), end_duplicates.begin() + 4);
+
+    // Case 6: All elements are the same
+    std::vector<int> all_same = {7, 7, 7, 7, 7};
+    EXPECT_EQ(core::adjacent_find(all_same.begin(), all_same.end()), all_same.begin());
+
+    // Case 7: Custom predicate - consecutive even numbers
+    std::vector<int> custom_pred = {1, 3, 5, 6, 8, 9};
+    auto pred = [](int a, int b) { return (a % 2 == 0) && (b % 2 == 0); };
+    EXPECT_EQ(core::adjacent_find(custom_pred.begin(), custom_pred.end(), pred), custom_pred.begin() + 3);
+
+    // Case 8: Custom predicate - no match
+    std::vector<int> no_match = {1, 3, 5, 7, 9};
+    EXPECT_EQ(core::adjacent_find(no_match.begin(), no_match.end(), pred), no_match.end());
+
+    // Case 9: Single element range
+    std::vector<int> single_element = {42};
+    EXPECT_EQ(core::adjacent_find(single_element.begin(), single_element.end()), single_element.end());
+}
+
+TEST(AlgorithmTests, AdjacentFind_constexpr) {
+    // Ensure constexpr works ok
+    constexpr std::array<int,6> arr{1, 2, 3, 3, 4, 5};
+    static_assert(core::adjacent_find(arr.begin(), arr.end()) == arr.begin() + 2);
 }
