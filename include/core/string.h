@@ -518,6 +518,14 @@ public:
         ResizePriv(new_capacity);
     }
 
+    void Clear() {
+        if (IsShort()) {
+            ShortSetSize(0);
+        } else {
+            internal_.heap_string.size = 0;
+        }
+    }
+
 private:
     string_t internal_;
 

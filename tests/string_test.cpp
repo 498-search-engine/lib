@@ -563,6 +563,33 @@ TEST(StringTest, OperatorPlus) {
     EXPECT_STREQ(s7.Cstr(), "abc!");
 }
 
+TEST(StringTest, Clear) {
+    auto s1 = String{"abc123"};
+
+    EXPECT_EQ(s1.Size(), 6);
+    s1.Clear();
+
+    EXPECT_EQ(s1.Size(), 0);
+
+    s1.Append("hello");
+    EXPECT_EQ(s1.Size(), 5);
+
+    s1.Append(" world this is actually pretty long");
+    EXPECT_EQ(s1.Size(), 40);
+
+    auto s2 = String{"hello world this is actually pretty long"};
+    EXPECT_EQ(s2.Size(), 40);
+    s2.Clear();
+
+    EXPECT_EQ(s2.Size(), 0);
+
+    s2.Append("hello");
+    EXPECT_EQ(s2.Size(), 5);
+
+    s2.Append(" world this is actually pretty long!!!");
+    EXPECT_EQ(s2.Size(), 43);
+}
+
 // Test building a string dynamically using PushBack
 TEST(StringIntegrationTest, DynamicStringBuilding) {
     String s;
