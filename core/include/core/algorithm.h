@@ -226,6 +226,8 @@ constexpr typename std::iterator_traits<InputIt>::difference_type
     return count;
 }
 
+// TODO: std::mismatch() (requires std::pair)
+
 }  // core
 
 #endif
