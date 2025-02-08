@@ -11,21 +11,21 @@ public:
     using iterator = T*;
     using const_iterator = const T*;
 
-    Span() : ptr_(nullptr), size_(0) {}
-    Span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
+    constexpr Span() : ptr_(nullptr), size_(0) {}
+    constexpr Span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
 
-    T* data() const { return ptr_; }
-    size_t size() const { return size_; }
-    bool empty() const { return size_ == 0; }
+    constexpr T* Data() const { return ptr_; }
+    constexpr size_t Size() const { return size_; }
+    constexpr bool Empty() const { return size_ == 0; }
 
-    iterator begin() const { return ptr_; }
-    iterator end() const { return ptr_ + size_; }
-    const_iterator cbegin() const { return begin(); }
-    const_iterator cend() const { return end(); }
+    constexpr iterator begin() const { return ptr_; }
+    constexpr iterator end() const { return ptr_ + size_; }
+    constexpr const_iterator cbegin() const { return begin(); }
+    constexpr const_iterator cend() const { return end(); }
 
-    T& operator[](size_t n) const { return *(ptr_ + n); }
+    constexpr T& operator[](size_t n) const { return *(ptr_ + n); }
 
-    [[nodiscard]] Span subspan(size_t offset, size_t size) const { return Span{ptr_ + offset, size}; }
+    [[nodiscard]] constexpr Span Subspan(size_t offset, size_t size) const { return Span{ptr_ + offset, size}; }
 
 private:
     T* ptr_;
