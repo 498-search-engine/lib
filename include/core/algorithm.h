@@ -202,6 +202,8 @@ constexpr ForwardIt adjacent_find(ForwardIt first, ForwardIt last, BinaryPred p)
     return last;
 }
 
+
+
 }  // core
 
 #endif

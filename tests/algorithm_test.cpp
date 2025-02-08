@@ -319,4 +319,9 @@ TEST(AlgorithmTests, AdjacentFind_constexpr) {
     // Ensure constexpr works ok
     constexpr std::array<int,6> arr{1, 2, 3, 3, 4, 5};
     static_assert(core::adjacent_find(arr.begin(), arr.end()) == arr.begin() + 2);
+
+    constexpr std::array<int,6> arr2{1, 3, 5, 6, 8, 9};
+    auto pred = [](int a, int b) { return (a % 2 == 0) && (b % 2 == 0); };
+    static_assert(
+        core::adjacent_find(arr2.begin(), arr2.end(), pred) == arr2.begin() + 3);
 }
