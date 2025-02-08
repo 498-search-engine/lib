@@ -70,12 +70,12 @@ public:
     String(const char* cstr) {
         // set it as short string
         for (size_t i = 0; i < StackArrSize; ++i) {
-          internal_.stack_string.data[i] = 0;
+            internal_.stack_string.data[i] = 0;
         }
         // memset(internal_.stack_string.data, 0, StackArrSize);
         internal_.stack_string.data[StackCharSize] = 1;
 
-        char *buf = internal_.stack_string.data;
+        char* buf = internal_.stack_string.data;
 
         // avoid calls to size() & Capacity() as we already know this is a short string at the beginning in constructor
         size_t ssize = 0;
@@ -94,7 +94,7 @@ public:
             cstr++;
             ssize++;
         }
-        
+
         if (scapacity > StackStringSize) {
             // heap string
             internal_.heap_string.size = ssize;
@@ -135,12 +135,12 @@ public:
     String(const String& other) : String(other.Cstr(), other.Size()) {}
 
     // Copy assignment
-    String& operator=(const String &other) {
+    String& operator=(const String& other) {
         if (this == &other) {
             return *this;
         }
-        
-        const char *cstr = other.Cstr();
+
+        const char* cstr = other.Cstr();
         size_t n = other.Size();
 
         Resize(n);
@@ -166,7 +166,7 @@ public:
     }
 
     // Move constructor
-    String(String &&other) noexcept {
+    String(String&& other) noexcept {
         if (other.IsShort()) {
             for (size_t i = 0; i < StackArrSize; ++i) {
                 this->internal_.stack_string.data[i] = other.internal_.stack_string.data[i];
@@ -184,7 +184,7 @@ public:
     }
 
     // Move assignment constructor
-    String& operator=(String &&other) noexcept {
+    String& operator=(String&& other) noexcept {
         if (other.IsShort()) {
             for (size_t i = 0; i < StackArrSize; ++i) {
                 this->internal_.stack_string.data[i] = other.internal_.stack_string.data[i];
@@ -204,9 +204,7 @@ public:
         return *this;
     }
 
-    bool Empty() const {
-        return Size() == 0;
-    }
+    bool Empty() const { return Size() == 0; }
 
     // Size
     // REQUIRES: Nothing
@@ -247,9 +245,7 @@ public:
     // REQUIRES: Nothing
     // MODIFIES: Nothing
     // EFFECTS: Returns a random access iterator to the start of the string
-    const char* begin() const {
-        return Cstr();
-    }
+    const char* begin() const { return Cstr(); }
 
     char* begin() {
         if (IsShort()) {
@@ -263,9 +259,7 @@ public:
     // REQUIRES: Nothing
     // MODIFIES: Nothing
     // EFFECTS: Returns a random access iterator to the end of the string
-    const char* end() const {
-        return Cstr() + Size();
-    }
+    const char* end() const { return Cstr() + Size(); }
 
     // Element Access
     // REQUIRES: 0 <= i < size()
@@ -301,10 +295,10 @@ public:
         }
 
         // Copy over string
-        const auto *it = other.begin();
-        const auto *end = other.end();
+        const auto* it = other.begin();
+        const auto* end = other.end();
 
-        char *currIt = begin() + currentSize;
+        char* currIt = begin() + currentSize;
         while (it != end) {
             *currIt = *it;
             currIt++;
@@ -319,9 +313,7 @@ public:
         }
     }
 
-    void operator+=(const String& other) {
-        Append(other);
-    }
+    void operator+=(const String& other) { Append(other); }
 
     // Push Back
     // REQUIRES: Nothing
@@ -342,9 +334,7 @@ public:
         }
     }
 
-    void operator+=(char c) {
-        PushBack(c);
-    }
+    void operator+=(char c) { PushBack(c); }
 
     // Pop Back
     // REQUIRES: string is not empty
@@ -353,14 +343,14 @@ public:
     void PopBack() {
         const size_t ssize = Size();
         // assert(ssize > 0);
-        
+
         if (IsShort()) {
             internal_.stack_string.data[ssize - 1] = '\0';
             ShortSetSize(ssize - 1);
         } else {
             internal_.heap_string.ptr[ssize - 1] = '\0';
             internal_.heap_string.size = ssize - 1;
-        }    
+        }
     }
 
     // Equality Operator
@@ -374,11 +364,11 @@ public:
             return false;
         }
 
-        const char *curBuf = begin();
-        const char *otherBuf = other.begin();
+        const char* curBuf = begin();
+        const char* otherBuf = other.begin();
 
-        const char *curBufEnd = end();
-        const char *otherBufEnd = other.end();
+        const char* curBufEnd = end();
+        const char* otherBufEnd = other.end();
 
         while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
             if (*curBuf != *otherBuf) {
@@ -396,20 +386,18 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether at least one character differs between
     //    *this and other
-    bool operator!=(const String& other) const {
-        return !(*this == other);
-    }
+    bool operator!=(const String& other) const { return !(*this == other); }
 
     // Less Than Operator
     // REQUIRES: Nothing
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically less than other
     bool operator<(const String& other) const {
-        const char *curBuf = begin();
-        const char *otherBuf = other.begin();
+        const char* curBuf = begin();
+        const char* otherBuf = other.begin();
 
-        const char *curBufEnd = end();
-        const char *otherBufEnd = other.end();
+        const char* curBufEnd = end();
+        const char* otherBufEnd = other.end();
 
         while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
             if (*curBuf != *otherBuf) {
@@ -427,11 +415,11 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically greater than other
     bool operator>(const String& other) const {
-        const char *curBuf = begin();
-        const char *otherBuf = other.begin();
+        const char* curBuf = begin();
+        const char* otherBuf = other.begin();
 
-        const char *curBufEnd = end();
-        const char *otherBufEnd = other.end();
+        const char* curBufEnd = end();
+        const char* otherBufEnd = other.end();
 
         while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
             if (*curBuf != *otherBuf) {
@@ -449,11 +437,11 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically less or equal to other
     bool operator<=(const String& other) const {
-        const char *curBuf = begin();
-        const char *otherBuf = other.begin();
+        const char* curBuf = begin();
+        const char* otherBuf = other.begin();
 
-        const char *curBufEnd = end();
-        const char *otherBufEnd = other.end();
+        const char* curBufEnd = end();
+        const char* otherBufEnd = other.end();
 
         while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
             if (*curBuf != *otherBuf) {
@@ -471,11 +459,11 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically less or equal to other
     bool operator>=(const String& other) const {
-        const char *curBuf = begin();
-        const char *otherBuf = other.begin();
+        const char* curBuf = begin();
+        const char* otherBuf = other.begin();
 
-        const char *curBufEnd = end();
-        const char *otherBufEnd = other.end();
+        const char* curBufEnd = end();
+        const char* otherBufEnd = other.end();
 
         while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
             if (*curBuf != *otherBuf) {
@@ -537,9 +525,7 @@ private:
     // REQUIRES: Nothing
     // MODIFIES: nothing
     // EFFECTS: nothing
-    bool IsShort() const {
-        return (internal_.stack_string.data[StackCharSize] & RepFlagMask) == 1;
-    }
+    bool IsShort() const { return (internal_.stack_string.data[StackCharSize] & RepFlagMask) == 1; }
 
     // Resizes the capacity of the string to straight up new_capacity
     // trusty resize function for internal use after Grow
@@ -549,18 +535,18 @@ private:
     void ResizePriv(size_t new_capacity) {
         // Allocate new memory for it
         // the +1 for nullcharacter
-        char *newBuffer = new char[new_capacity + 1]{};
+        char* newBuffer = new char[new_capacity + 1]{};
 
         // Copy over old stuff
         if (IsShort()) {
             // copy first 23 characters including null character
             for (size_t i = 0; i < StackCharSize; ++i) {
-              newBuffer[i] = internal_.stack_string.data[i];
+                newBuffer[i] = internal_.stack_string.data[i];
             }
             // memcpy(newBuffer, internal_.stack_string.data, StackCharSize);
 
             const size_t oldSize = Size();
-        
+
             internal_.heap_string.ptr = newBuffer;
             internal_.heap_string.capacity = new_capacity;
             internal_.heap_string.size = oldSize;
@@ -568,17 +554,17 @@ private:
             if (internal_.heap_string.capacity < new_capacity) {
                 // Grows
                 for (size_t i = 0; i < internal_.heap_string.capacity; ++i) {
-                  newBuffer[i] = internal_.heap_string.ptr[i];
+                    newBuffer[i] = internal_.heap_string.ptr[i];
                 }
-                // memcpy(newBuffer, internal_.heap_string.ptr, internal_.heap_string.capacity); 
-        
+                // memcpy(newBuffer, internal_.heap_string.ptr, internal_.heap_string.capacity);
+
             } else {
                 // Shrinks
                 for (size_t i = 0; i < new_capacity; ++i) {
-                  newBuffer[i] = internal_.heap_string.ptr[i];
+                    newBuffer[i] = internal_.heap_string.ptr[i];
                 }
 
-                // memcpy(newBuffer, internal_.heap_string.ptr, new_capacity); 
+                // memcpy(newBuffer, internal_.heap_string.ptr, new_capacity);
 
                 // Set ending to \0
                 *(newBuffer + new_capacity) = '\0';
