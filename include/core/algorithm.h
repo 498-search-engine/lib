@@ -180,6 +180,28 @@ constexpr InputIt find_first_of(InputIt first, InputIt last,
     return last;
 }
 
+template<class ForwardIt>
+constexpr ForwardIt adjacent_find(ForwardIt first, ForwardIt last) {
+    if (first == last) return last;
+    ForwardIt it = first;
+    ++it;
+    for (; it != last; ++it, ++first) {
+        if (*it == *first) return first;
+    }
+    return last;
+}
+
+template<class ForwardIt, class BinaryPred>
+constexpr ForwardIt adjacent_find(ForwardIt first, ForwardIt last, BinaryPred p) {
+    if (first == last) return last;
+    ForwardIt it = first;
+    ++it;
+    for (; it != last; ++it, ++first) {
+        if (p(*it, *first)) return first;
+    }
+    return last;
+}
+
 }  // core
 
 #endif
