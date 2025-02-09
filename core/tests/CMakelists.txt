@@ -18,7 +18,11 @@ target_link_libraries(optional_test
 )
 add_test(NAME optional_test COMMAND optional_test)
 
-add_executable(algorithm_test algorithm_test.cpp)
+set(ALGORITHM_TEST_SOURCES
+    algorithm-modify_test.cpp
+    algorithm_test.cpp
+)
+add_executable(algorithm_test ${ALGORITHM_TEST_SOURCES})
 target_link_libraries(algorithm_test
     PRIVATE
         gtest_main   # from googletest

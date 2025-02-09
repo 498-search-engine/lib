@@ -312,6 +312,29 @@ constexpr ForwardIt search_n(ForwardIt first, ForwardIt last,
     return last;
 }
 
+// Modifying sequence operations
+
+// Copy operations
+
+template<class InputIt, class OutputIt>
+constexpr OutputIt copy(InputIt first, InputIt last, OutputIt d_first) {
+    for (; first != last; ++first, ++d_first)
+        *d_first = *first;
+    return d_first;
+}
+
+template<class InputIt, class OutputIt, class UnaryPred>
+constexpr OutputIt copy_if(InputIt first, InputIt last,
+                           OutputIt d_first, UnaryPred pred)
+{
+    for (; first != last; ++first) {
+        if (pred(*first)) {
+            *d_first = *first;
+            ++d_first;
+        }
+    }
+    return d_first;
+}
 
 }  // core
 
