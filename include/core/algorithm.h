@@ -347,6 +347,14 @@ constexpr OutputIt copy_n(InputIt first, Size count, OutputIt result)
     return result;
 }
 
+template<class BidirIt1, class BidirIt2>
+constexpr BidirIt2 copy_backward(BidirIt1 first, BidirIt1 last, BidirIt2 d_last) {
+    while (last != first) {
+        *(--d_last) = *(--last);
+    }
+    return d_last;
+}
+
 }  // core
 
 #endif
