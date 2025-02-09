@@ -336,6 +336,17 @@ constexpr OutputIt copy_if(InputIt first, InputIt last,
     return d_first;
 }
 
+template<class InputIt, class Size, class OutputIt>
+constexpr OutputIt copy_n(InputIt first, Size count, OutputIt result)
+{
+    while (count > 0) {
+        *result = *first;
+        ++result, ++first;
+        --count;
+    }
+    return result;
+}
+
 }  // core
 
 #endif
