@@ -146,3 +146,32 @@ TEST(AlgorithmTests, CopyN_constexpr) {
     constexpr array<int,4> a3{0,1,2,0};
     static_assert(a2 == a3);
 }
+
+TEST(AlgorithmTests, CopyBackward) {
+    const vector<int> v1{1,2,3,4};
+    list<int> l1{0,0,0,0};
+    auto lit = core::copy_backward(v1.begin(),std::prev(v1.end()), l1.end());
+    EXPECT_EQ(lit, std::next(l1.begin()));
+    EXPECT_EQ(l1, (list<int>{0,1,2,3}));
+
+    const list<int> l2{1,2,3,4};
+    vector<int> v2{0,0,0,0};
+    auto vit = core::copy_backward(l2.begin(),std::prev(l2.end()), v2.end());
+    EXPECT_EQ(vit, std::next(v2.begin()));
+    EXPECT_EQ(v2, (vector<int>{0,1,2,3}));
+
+    list<int> e1{};
+    vector<int> e2{};
+    EXPECT_EQ(core::copy_backward(e1.begin(), e1.end(), e2.end()), e2.end());
+}
+
+TEST(AlgorithmTests, CopyBackward_constexpr) {
+    constexpr array<int,4> a1{1,2,3,4};
+    constexpr array<int,5> a2 = [&]() {
+        array<int,5> tmp{0};
+        core::copy_backward(a1.begin(), a1.end(), tmp.end());
+        return tmp;
+    }();
+    constexpr array<int,5> a3{0,1,2,3,4};
+    static_assert(a2 == a3);
+}
