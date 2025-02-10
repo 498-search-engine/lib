@@ -292,3 +292,19 @@ TEST(AlgorithmTests, Fill_constexpr) {
     static_assert(a == (array<int,5>{1,1,1,1,1}));
 }
 
+TEST(AlgorithmTests, FillN) {
+    list<int> v{0,0,0,0,0};
+    core::fill_n(v.begin(), 3, 1);
+    core::fill_n(v.begin(), 0, 2); // do nothing
+    core::fill_n(v.begin(), -1, 2); // do nothing
+    EXPECT_EQ(v, (list<int>{1,1,1,0,0}));
+}
+
+TEST(AlgorithmTests, FillN_constexpr) {
+    constexpr array<int,5> a = [](){
+        array<int,5> v{0,0,0,0,0};
+        core::fill_n(v.begin(), 4, 1);
+        return v;
+    }();
+    static_assert(a == (array<int,5>{1,1,1,1,0}));
+}
