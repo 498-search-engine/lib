@@ -9,10 +9,12 @@
 #include <algorithm>
 #include <string>
 #include <iterator>
+#include <forward_list>
 
 using std::vector;
 using std::array;
 using std::list;
+template <typename T> using slist = std::forward_list<T>;
 
 constexpr bool iseven(int i) { return i % 2 == 0; }
 constexpr bool isodd(int i) { return !iseven(i); }
@@ -307,4 +309,40 @@ TEST(AlgorithmTests, FillN_constexpr) {
         return v;
     }();
     static_assert(a == (array<int,5>{1,1,1,1,0}));
+}
+
+TEST(AlgorithmTests, Transform) {
+    const list<int> src = {1, 2, 3, 4};
+    slist<int> dest(src.size());
+    auto slit = core::transform(src.begin(), src.end(), dest.begin(),
+                                [](int x) { return x * x; });
+    EXPECT_EQ(slit, dest.end());
+    EXPECT_EQ(dest, (slist<int>{1, 4, 9, 16}));
+
+    const slist<int> src2 = {0, 2, 0, 2};
+    vector<int> dest2(src.size());
+    auto vit = core::transform(src.begin(), src.end(), src2.begin(), dest2.begin(),
+                               [](int a, int b) { return a * b; });
+    EXPECT_EQ(vit, dest2.end());
+    EXPECT_EQ(dest2, (vector<int>{0, 4, 0, 8}));
+}
+
+TEST(AlgorithmTests, Transform_constexpr) {
+    constexpr array<int,4> src = {1, 2, 3, 4};
+    constexpr array<int,4> da = [&](){
+        array<int,4> dest;
+        core::transform(src.begin(), src.end(), dest.begin(),
+                        [](int x) { return x * x; });
+        return dest;
+    }();
+    static_assert(da == (array<int,4>{1, 4, 9, 16}));
+
+    constexpr array<int,4> src2 = {0, 2, 0, 2};
+    constexpr array<int,4> da2 = [&](){
+        array<int,4> dest2;
+        core::transform(src.begin(), src.end(), src2.begin(), dest2.begin(),
+                        [](int a, int b) { return a * b; });
+        return dest2;
+    }();
+    static_assert(da2 == (array<int,4>{0, 4, 0, 8}));
 }
