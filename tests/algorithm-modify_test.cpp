@@ -231,3 +231,46 @@ TEST(AlgorithmTests, Move_constexpr) {
     }();
     static_assert(valid);
 }
+
+TEST(AlgorithmTests, MoveBackward) {
+    vector<std::string> src_str = {"one", "two", "three", "four"};
+    vector<std::string> dest_str = {"a", "b", "c", "d", "e"};
+    auto sit = core::move_backward(src_str.begin(), src_str.begin()+3, dest_str.end());
+    EXPECT_EQ(sit, dest_str.end()-3);
+    EXPECT_EQ(dest_str, (vector<std::string>{"a", "b", "one", "two", "three"}));
+
+    list<MoveOnly> l1;
+    vector<MoveOnly> v1;
+    for (int i = 0; i < 3; i++) {
+        l1.emplace_back(i);
+        v1.emplace_back(-1);
+    }
+    v1.emplace_back(-1); // v1={-1, -1, -1, -1}
+
+    auto vit = core::move_backward(l1.begin(), l1.end(), v1.end());
+    EXPECT_EQ(vit, v1.begin()+1);
+    auto lit = l1.begin();
+    EXPECT_EQ(v1[0].data, -1); // v1={-1, 0, 1, 2}
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(v1[i+1].data, i);
+        EXPECT_FALSE(v1[i].moved);
+        EXPECT_TRUE(lit->moved);
+        ++lit;
+    }
+}
+
+TEST(AlgorithmTests, MoveBackward_constexpr) {
+    constexpr bool valid = []() constexpr {
+        array<MoveOnly,2> a1{MoveOnly(1), MoveOnly(2)};
+        array<MoveOnly,3> a2{MoveOnly(-1), MoveOnly(-1), MoveOnly(-1)};
+        bool b = (core::move_backward(a1.begin(), a1.end(), a2.end()) == a2.begin()+1);
+        b &= (a2[0].data == -1);
+        for (int i = 1; i <= 2; i++) {
+            b &= (a2[i].data == i);
+            b &= (a2[i].moved == false);
+            b &= (a1[i-1].moved == true);
+        }
+        return b;
+    }();
+    static_assert(valid);
+}
