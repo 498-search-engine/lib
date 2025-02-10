@@ -17,6 +17,23 @@ using std::list;
 constexpr bool iseven(int i) { return i % 2 == 0; }
 constexpr bool isodd(int i) { return !iseven(i); }
 
+struct MoveOnly {
+    int data;
+    bool moved;
+    constexpr MoveOnly(int value) : data(value), moved(false) {}
+    MoveOnly(const MoveOnly&) = delete;
+    constexpr MoveOnly(MoveOnly&& m) : data (m.data), moved(false) { m.moved = true; }
+    MoveOnly& operator=(const MoveOnly&) = delete;
+    constexpr MoveOnly& operator=(MoveOnly&& m) {
+        if (this != &m) {
+            data = m.data;
+            moved = false;
+            m.moved = true;
+        }
+        return *this;
+    }
+};
+
 TEST(AlgorithmTests, Copy) {
     const vector<int> v1{1,2,3,4};
     vector<int> v2(v1.size());
@@ -174,4 +191,43 @@ TEST(AlgorithmTests, CopyBackward_constexpr) {
     }();
     constexpr array<int,5> a3{0,1,2,3,4};
     static_assert(a2 == a3);
+}
+
+TEST(AlgorithmTests, Move) {
+    vector<std::string> src_str = {"one", "two", "three", "four"};
+    vector<std::string> dest_str = {"a", "b", "c", "d", "e"};
+    auto sit = core::move(src_str.begin(), src_str.begin()+3, dest_str.begin());
+    EXPECT_EQ(sit, dest_str.begin()+3);
+    EXPECT_EQ(dest_str, (vector<std::string>{"one", "two", "three", "d", "e"}));
+
+    list<MoveOnly> l1;
+    vector<MoveOnly> v1;
+    for (int i = 0; i < 3; i++) {
+        l1.emplace_back(i);
+        v1.emplace_back(-1);
+    }
+    auto vit = core::move(l1.begin(), l1.end(), v1.begin());
+    EXPECT_EQ(vit, v1.end());
+    auto lit = l1.begin();
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(v1[i].data, i);
+        EXPECT_FALSE(v1[i].moved);
+        EXPECT_TRUE(lit->moved);
+        ++lit;
+    }
+}
+
+TEST(AlgorithmTests, Move_constexpr) {
+    constexpr bool valid = []() constexpr {
+        array<MoveOnly,2> a1{MoveOnly(1), MoveOnly(2)};
+        array<MoveOnly,2> a2{MoveOnly(-1), MoveOnly(-1)};
+        bool b = (core::move(a1.begin(), a1.end(), a2.begin()) == a2.end());
+        for (int i = 0; i < 2; i++) {
+            b &= (a2[i].data == i+1);
+            b &= (a2[i].moved == false);
+            b &= (a1[i].moved == true);
+        }
+        return b;
+    }();
+    static_assert(valid);
 }
