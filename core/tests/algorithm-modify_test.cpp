@@ -294,9 +294,9 @@ TEST(AlgorithmTests, Fill_constexpr) {
 
 TEST(AlgorithmTests, FillN) {
     list<int> v{0,0,0,0,0};
-    core::fill_n(v.begin(), 3, 1);
-    core::fill_n(v.begin(), 0, 2); // do nothing
-    core::fill_n(v.begin(), -1, 2); // do nothing
+    EXPECT_EQ(core::fill_n(v.begin(), 3, 1), std::next(v.begin(),3));
+    EXPECT_EQ(core::fill_n(v.begin(), 0, 2), v.begin()); // do nothing
+    EXPECT_EQ(core::fill_n(v.begin(), -1, 2), v.begin()); // do nothing
     EXPECT_EQ(v, (list<int>{1,1,1,0,0}));
 }
 
