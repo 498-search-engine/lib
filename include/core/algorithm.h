@@ -384,6 +384,24 @@ constexpr OutputIt fill_n(OutputIt first, Size count, const T& value) {
     return first;
 }
 
+template<class InputIt, class OutputIt, class UnaryOp>
+constexpr OutputIt transform(InputIt first1, InputIt last1,
+                             OutputIt d_first, UnaryOp unary_op)
+{
+    for (; first1 != last1; ++first1, ++d_first)
+        *d_first = unary_op(*first1);
+    return d_first;
+}
+
+template<class InputIt1, class InputIt2, class OutputIt, class BinaryOp>
+constexpr OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2,
+                             OutputIt d_first, BinaryOp binary_op)
+{
+    for (; first1 != last1; ++first1, ++first2, ++d_first)
+        *d_first = binary_op(*first1, *first2);
+    return d_first;
+}
+
 }  // core
 
 #endif
