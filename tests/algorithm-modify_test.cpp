@@ -274,3 +274,21 @@ TEST(AlgorithmTests, MoveBackward_constexpr) {
     }();
     static_assert(valid);
 }
+
+TEST(AlgorithmTests, Fill) {
+    list<int> v{0,0,0,0,0};
+    core::fill(v.begin(), v.end(), 1);
+    EXPECT_EQ(v, (list<int>{1,1,1,1,1}));
+    core::fill(v.begin(), v.begin(), 2);
+    EXPECT_EQ(v, (list<int>{1,1,1,1,1}));
+}
+
+TEST(AlgorithmTests, Fill_constexpr) {
+    constexpr array<int,5> a = [](){
+        array<int,5> v{0,0,0,0,0};
+        core::fill(v.begin(), v.end(), 1);
+        return v;
+    }();
+    static_assert(a == (array<int,5>{1,1,1,1,1}));
+}
+
