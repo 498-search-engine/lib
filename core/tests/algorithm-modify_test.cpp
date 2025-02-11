@@ -390,3 +390,23 @@ TEST(AlgorithmTests, GenerateN_constexpr) {
     }();
     static_assert(a == array<int,5>{0,1,2,3,-1});
 }
+
+TEST(AlgorithmTests, Remove) {
+    list<int> l1{1,2,3,2,4,5};
+    auto lend = core::remove(l1.begin(), l1.end(), -1);
+    EXPECT_EQ(lend, l1.end());
+    EXPECT_EQ(l1, (list<int>{1,2,3,2,4,5}));
+    lend = core::remove(l1.begin(), l1.end(), 2);
+    EXPECT_EQ(lend, std::next(l1.begin(),4));
+    list<int> l3(l1.begin(), lend);
+    EXPECT_EQ(l3, (list<int>{1,3,4,5}));
+}
+
+TEST(AlgorithmTests, Remove_constexpr) {
+    constexpr array<int,4> a = []() {
+        array<int,6> a1{1,2,3,2,4,5};
+        auto it = core::remove(a1.begin(), a1.end(), 2);
+        return array<int,4>{a1[0], a1[1], a1[2], a1[3]};
+    }();
+    static_assert(a == array<int,4>{1,3,4,5});
+}
