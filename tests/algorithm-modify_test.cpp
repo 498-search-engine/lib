@@ -627,3 +627,20 @@ TEST(AlgorithmTests, SwapRanges_constexpr) {
     }();
     static_assert(valid);
 }
+
+TEST(AlgorithmTests, Reverse) {
+    std::string str = "12345";
+    core::reverse(str.begin(), str.begin());
+    EXPECT_EQ(str, "12345");
+    core::reverse(str.begin(), str.begin()+1);
+    EXPECT_EQ(str, "12345");
+    core::reverse(str.begin(), str.end());
+    EXPECT_EQ(str, "54321");
+
+    list<int> l{1,2,3};
+    core::reverse(l.begin(), l.begin());
+    core::reverse(l.begin(), std::next(l.begin(),1));
+    EXPECT_EQ(l, (list<int>{1,2,3}));
+    core::reverse(l.begin(), l.end());
+    EXPECT_EQ(l, (list<int>{3,2,1}));
+}
