@@ -410,3 +410,23 @@ TEST(AlgorithmTests, Remove_constexpr) {
     }();
     static_assert(a == array<int,4>{1,3,4,5});
 }
+
+TEST(AlgorithmTests, RemoveIf) {
+    list<int> l1{1,2,3,4,5,6};
+    auto lend = core::remove_if(l1.begin(), l1.end(), [](int i){return false; });
+    EXPECT_EQ(lend, l1.end());
+    EXPECT_EQ(l1, (list<int>{1,2,3,4,5,6}));
+    lend = core::remove_if(l1.begin(), l1.end(), iseven);
+    EXPECT_EQ(lend, std::next(l1.begin(),3));
+    list<int> l3(l1.begin(), lend);
+    EXPECT_EQ(l3, (list<int>{1,3,5}));
+}
+
+TEST(AlgorithmTests, RemoveIf_constexpr) {
+    constexpr array<int,3> a = []() {
+        array<int,6> a1{1,2,3,2,4,5};
+        core::remove_if(a1.begin(), a1.end(), iseven);
+        return array<int,3>{a1[0], a1[1], a1[2]};
+    }();
+    static_assert(a == array<int,3>{1,3,5});
+}
