@@ -644,3 +644,12 @@ TEST(AlgorithmTests, Reverse) {
     core::reverse(l.begin(), l.end());
     EXPECT_EQ(l, (list<int>{3,2,1}));
 }
+
+TEST(AlgorithmTests, Reverse_constexpr) {
+    constexpr array<int,4> a = [](){
+        array<int,4> a1{1,2,3,4};
+        core::reverse(a1.begin(), a1.end());
+        return a1;
+    }();
+    static_assert(a == (array<int,4>{4,3,2,1}));
+}
