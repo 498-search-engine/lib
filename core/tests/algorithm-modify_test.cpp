@@ -346,3 +346,25 @@ TEST(AlgorithmTests, Transform_constexpr) {
     }();
     static_assert(da2 == (array<int,4>{0, 4, 0, 8}));
 }
+
+TEST(AlgorithmTests, Generate) {
+    vector<int> vec(5);
+    list<int> lst(5);
+    int counter = 0;
+    auto generator = [&counter]() { return counter++; };
+    core::generate(vec.begin(), vec.end(), generator);
+    counter = 0;
+    core::generate(lst.begin(), lst.end(), generator);
+    EXPECT_EQ(vec, (vector<int>{0,1,2,3,4}));
+    EXPECT_EQ(lst, (list<int>{0,1,2,3,4}));
+}
+
+TEST(AlgorithmTests, Generate_constexpr) {
+    constexpr array<int,5> a = [](){
+        array<int,5> a1;
+        int i = 0;
+        core::generate(a1.begin(), a1.end(), [&](){return i++;});
+        return a1;
+    }();
+    static_assert(a == array<int,5>{0,1,2,3,4});
+}
