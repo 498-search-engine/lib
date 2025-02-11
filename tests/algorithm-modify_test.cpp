@@ -578,3 +578,26 @@ TEST(AlgorithmTests, Swap_constexpr) {
     }();
     static_assert(valid);
 }
+
+TEST(AlgorithmTests, IterSwap) {
+    vector<int> v{1,2};
+    list<int> l{3,4};
+    core::iter_swap(v.begin(), v.begin()+1);
+    EXPECT_EQ(v, (vector<int>{2,1}));
+    v = {1,2};
+    core::iter_swap(v.begin(), l.begin());
+    EXPECT_EQ(v, (vector<int>{3,2}));
+    EXPECT_EQ(l, (list<int>{1,4}));
+    array<MoveOnly,2> a{MoveOnly(1), MoveOnly(2)};
+    core::iter_swap(a.begin(),a.begin()+1);
+    EXPECT_TRUE(a[0].data == 2 && a[1].data == 1); 
+}
+
+TEST(AlgorithmTests, IterSwap_constexpr) {
+    constexpr bool valid = []() {
+        array<MoveOnly,2> a{MoveOnly(1), MoveOnly(2)};
+        core::iter_swap(a.begin(),a.begin()+1);
+        return (a[0].data == 2 && a[1].data == 1); 
+    }();
+    static_assert(valid);
+}
