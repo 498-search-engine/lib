@@ -427,6 +427,18 @@ constexpr ForwardIt remove(ForwardIt first, ForwardIt last, const T& value) {
     return first;
 }
 
+template<class ForwardIt, class UnaryPred>
+constexpr ForwardIt remove_if(ForwardIt first, ForwardIt last, UnaryPred p) {
+    first = core::find_if(first, last, p);
+    for (ForwardIt it = first; it != last; ++it) {
+        if (!p(*it)) {
+            *first = std::move(*it);
+            ++first;
+        }
+    }
+    return first;
+}
+
 }  // core
 
 #endif
