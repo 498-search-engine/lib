@@ -508,6 +508,11 @@ requires (std::is_move_constructible_v<T> && std::is_move_assignable_v<T>)
     b = std::move(t);
 }
 
+template<class ForwardIt1, class ForwardIt2>
+constexpr void iter_swap(ForwardIt1 a, ForwardIt2 b) {
+    core::swap(*a, *b);
+}
+
 }  // core
 
 #endif
