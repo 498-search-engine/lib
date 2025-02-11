@@ -518,3 +518,39 @@ TEST(AlgorithmTests, ReplaceIf_constexpr) {
     }();
     static_assert(a == array<int,5>{1,0,3,0,5});
 }
+
+TEST(AlgorithmTests, ReplaceCopy) {
+    const list<int> l1{1,2,3,2,4,5,2};
+    list<int> l2(l1.size()+1, 0);
+    auto it = core::replace_copy(l1.begin(), l1.end(), l2.begin(), 2, 0);
+    EXPECT_EQ(it, std::next(l2.begin(), l1.size()));
+    EXPECT_EQ(l2, (list<int>{1,0,3,0,4,5,0,0}));
+}
+
+TEST(AlgorithmTests, ReplaceCopy_constexpr) {
+    constexpr array<int,6> src{1,2,3,2,5,2};
+    constexpr array<int,6> a = [&](){
+        array<int,6> a1{0,0,0,0,0,0};
+        core::replace_copy(src.begin(), src.end(), a1.begin(), 2, 0);
+        return a1;
+    }();
+    static_assert(a == array<int,6>{1,0,3,0,5,0});
+}
+
+TEST(AlgorithmTests, ReplaceCopyIf) {
+    const list<int> l1{1,2,3,2,4,5,2};
+    list<int> l2(l1.size()+1, -1);
+    auto it = core::replace_copy_if(l1.begin(), l1.end(), l2.begin(), iseven, 0);
+    EXPECT_EQ(it, std::next(l2.begin(), l1.size()));
+    EXPECT_EQ(l2, (list<int>{1,0,3,0,0,5,0,-1}));
+}
+
+TEST(AlgorithmTests, ReplaceCopyIf_constexpr) {
+    constexpr array<int,6> src{1,2,3,4,5,6};
+    constexpr array<int,6> a = [&](){
+        array<int,6> a1{0,0,0,0,0,0};
+        core::replace_copy_if(src.begin(), src.end(), a1.begin(), iseven, 0);
+        return a1;
+    }();
+    static_assert(a == array<int,6>{1,0,3,0,5,0});
+}
