@@ -415,6 +415,18 @@ constexpr OutputIt generate_n(OutputIt first, Size count, Generator g) {
     return first;
 }
 
+template<class ForwardIt, class T>
+constexpr ForwardIt remove(ForwardIt first, ForwardIt last, const T& value) {
+    first = core::find(first, last, value);
+    for (ForwardIt it = first; it != last; ++it) {
+        if (!(*it == value)) {
+            *first = std::move(*it);
+            ++first;
+        }
+    }
+    return first;
+}
+
 }  // core
 
 #endif
