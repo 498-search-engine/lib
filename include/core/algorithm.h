@@ -460,6 +460,25 @@ constexpr OutputIt remove_copy_if(InputIt first, InputIt last,
     return d_first;
 }
 
+template<class ForwardIt, class T>
+constexpr void replace(ForwardIt first, ForwardIt last,
+                       const T& old_value, const T& new_value)
+{
+    for (; first != last; ++first) {
+        if (*first == old_value)
+            *first = new_value;
+    }
+}
+
+template<class ForwardIt, class UnaryPred, class T>
+constexpr void replace_if(ForwardIt first, ForwardIt last,
+                          UnaryPred p, const T& new_value)
+{
+    for (; first != last; ++first) {
+        if (p(*first)) *first = new_value;
+    }
+}
+
 }  // core
 
 #endif
