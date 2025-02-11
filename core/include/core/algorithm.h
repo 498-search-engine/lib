@@ -522,6 +522,22 @@ constexpr ForwardIt2 swap_ranges(ForwardIt1 first1, ForwardIt1 last1,
     return first2;
 }
 
+template<class BidirIt>
+constexpr void reverse(BidirIt first, BidirIt last) {
+    // optimize random access it into for loop for compiler
+    if constexpr (std::random_access_iterator<BidirIt>) {
+        if (first == last) return;
+        --last; // decrement from end() to inside the range
+        for (; first < last; ++first, --last) // normal for-loop
+            core::iter_swap(first, last);
+    } else {
+        while (first != last && first != --last) {
+            core::iter_swap(first, last);
+            ++first;
+        }
+    }
+}
+
 }  // core
 
 #endif
