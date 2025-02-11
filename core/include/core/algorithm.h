@@ -439,6 +439,27 @@ constexpr ForwardIt remove_if(ForwardIt first, ForwardIt last, UnaryPred p) {
     return first;
 }
 
+template<class InputIt, class OutputIt, class T>
+constexpr OutputIt remove_copy(InputIt first, InputIt last,
+                               OutputIt d_first, const T& value)
+{
+    for (; first != last; ++first) {
+        if (!(*first == value))
+            *d_first++ = *first;
+    }
+    return d_first;
+}
+
+template<class InputIt, class OutputIt, class UnaryPred>
+constexpr OutputIt remove_copy_if(InputIt first, InputIt last,
+                                  OutputIt d_first, UnaryPred p)
+{
+    for (; first != last; ++first)
+        if (!p(*first))
+            *d_first++ = *first;
+    return d_first;
+}
+
 }  // core
 
 #endif
