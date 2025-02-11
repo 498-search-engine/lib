@@ -554,3 +554,27 @@ TEST(AlgorithmTests, ReplaceCopyIf_constexpr) {
     }();
     static_assert(a == array<int,6>{1,0,3,0,5,0});
 }
+
+TEST(AlgorithmTests, Swap) {
+    MoveOnly a(1);
+    MoveOnly b(2);
+    core::swap(a,b);
+    EXPECT_EQ(a.data, 2);
+    EXPECT_EQ(b.data, 1);
+    EXPECT_FALSE(a.moved || b.moved);
+
+    MoveOnly c(3);
+    core::swap(c,c);
+    EXPECT_EQ(c.data, 3);
+    EXPECT_FALSE(c.moved);
+}
+
+TEST(AlgorithmTests, Swap_constexpr) {
+    constexpr bool valid = []() {
+        MoveOnly a(1);
+        MoveOnly b(2);
+        core::swap(a,b);
+        return (a.data == 2 && b.data == 1); 
+    }();
+    static_assert(valid);
+}
