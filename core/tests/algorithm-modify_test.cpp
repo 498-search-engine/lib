@@ -488,3 +488,33 @@ TEST(AlgorithmTests, RemoveCopyIf_constexpr) {
     }();
     static_assert(a == array<int,5>{1,3,0,0,0});
 }
+
+TEST(AlgorithmTests, Replace) {
+    list<int> l1{1,2,3,2,4,5,2};
+    core::replace(l1.begin(), l1.end(), 2, 0);
+    EXPECT_EQ(l1, (list<int>{1,0,3,0,4,5,0}));
+}
+
+TEST(AlgorithmTests, Replace_constexpr) {
+    constexpr array<int,5> a = [](){
+        array<int,5> a1{1,2,3,4,5};
+        core::replace(a1.begin(), a1.end(), 2, 0);
+        return a1;
+    }();
+    static_assert(a == array<int,5>{1,0,3,4,5});
+}
+
+TEST(AlgorithmTests, ReplaceIf) {
+    list<int> l1{1,2,3,4,5};
+    core::replace_if(l1.begin(), l1.end(), iseven, 0);
+    EXPECT_EQ(l1, (list<int>{1,0,3,0,5}));
+}
+
+TEST(AlgorithmTests, ReplaceIf_constexpr) {
+    constexpr array<int,5> a = [](){
+        array<int,5> a1{1,2,3,4,5};
+        core::replace_if(a1.begin(), a1.end(), iseven, 0);
+        return a1;
+    }();
+    static_assert(a == array<int,5>{1,0,3,0,5});
+}
