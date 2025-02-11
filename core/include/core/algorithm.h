@@ -479,6 +479,24 @@ constexpr void replace_if(ForwardIt first, ForwardIt last,
     }
 }
 
+template< class InputIt, class OutputIt, class T >
+constexpr OutputIt replace_copy(InputIt first, InputIt last, OutputIt d_first,
+                                const T& old_value, const T& new_value)
+{
+    for (; first != last; ++first, ++d_first)
+        *d_first = (*first == old_value) ? new_value : *first;
+    return d_first;
+}
+
+template<class InputIt, class OutputIt, class UnaryPred, class T>
+constexpr OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first,
+                                   UnaryPred p, const T& new_value)
+{
+    for (; first != last; ++first, ++d_first)
+        *d_first = p(*first) ? new_value : *first;
+    return d_first;
+}
+
 }  // core
 
 #endif
