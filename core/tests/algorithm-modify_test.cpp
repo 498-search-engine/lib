@@ -601,3 +601,29 @@ TEST(AlgorithmTests, IterSwap_constexpr) {
     }();
     static_assert(valid);
 }
+
+TEST(AlgorithmTests, SwapRanges) {
+    vector<char> v{'a', 'b', 'c', 'd', 'e'};
+    list<char> l{'1', '2', '3', '4', '5'};
+    auto it = core::swap_ranges(v.begin(), v.begin()+3, l.begin());
+    EXPECT_EQ(it, std::next(l.begin(), 3));
+    EXPECT_EQ(v, (vector<char>{'1','2','3','d','e'}));
+    EXPECT_EQ(l, (list<char>{'a','b','c','4','5'}));
+
+    array<MoveOnly,1> a{MoveOnly(1)};
+    array<MoveOnly,1> b{MoveOnly(2)};
+    core::swap_ranges(a.begin(),a.end(), b.begin());
+    EXPECT_EQ(a[0].data, 2);
+    EXPECT_EQ(b[0].data, 1);
+    EXPECT_FALSE(a[0].moved || b[0].moved);
+}
+
+TEST(AlgorithmTests, SwapRanges_constexpr) {
+    constexpr bool valid = []() {
+        array<MoveOnly,1> a{MoveOnly(1)};
+        array<MoveOnly,1> b{MoveOnly(2)};
+        core::swap_ranges(a.begin(),a.end(), b.begin());
+        return (a[0].data == 2 && b[0].data == 1);
+    }();
+    static_assert(valid);
+}
