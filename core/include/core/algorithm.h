@@ -2,6 +2,7 @@
 #define LIB_ALGORITHM_H
 
 #include <iterator>
+#include <type_traits>
 
 namespace core {
 
@@ -495,6 +496,16 @@ constexpr OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first
     for (; first != last; ++first, ++d_first)
         *d_first = p(*first) ? new_value : *first;
     return d_first;
+}
+
+template<class T>
+constexpr void swap(T& a, T& b) 
+noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>)
+requires (std::is_move_constructible_v<T> && std::is_move_assignable_v<T>)
+{
+    T t(std::move(a));
+    a = std::move(b);
+    b = std::move(t);
 }
 
 }  // core
