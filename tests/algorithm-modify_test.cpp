@@ -368,3 +368,25 @@ TEST(AlgorithmTests, Generate_constexpr) {
     }();
     static_assert(a == array<int,5>{0,1,2,3,4});
 }
+
+TEST(AlgorithmTests, GenerateN) {
+    vector<int> vec(5,-1);
+    list<int> lst(5,-1);
+    int counter = 0;
+    auto generator = [&counter]() { return counter++; };
+    EXPECT_EQ(core::generate_n(vec.begin(), 4, generator), vec.begin()+4);
+    counter = 0;
+    EXPECT_EQ(core::generate_n(lst.begin(), 4, generator), std::next(lst.begin(),4));
+    EXPECT_EQ(vec, (vector<int>{0,1,2,3,-1}));
+    EXPECT_EQ(lst, (list<int>{0,1,2,3,-1}));
+}
+
+TEST(AlgorithmTests, GenerateN_constexpr) {
+    constexpr array<int,5> a = [](){
+        array<int,5> a1{-1,-1,-1,-1,-1};
+        int i = 0;
+        core::generate_n(a1.begin(), 4, [&](){return i++;});
+        return a1;
+    }();
+    static_assert(a == array<int,5>{0,1,2,3,-1});
+}

@@ -408,6 +408,13 @@ constexpr void generate(ForwardIt first, ForwardIt last, Generator g) {
         *first = g();
 }
 
+template<class OutputIt, class Size, class Generator>
+constexpr OutputIt generate_n(OutputIt first, Size count, Generator g) {
+    for (Size i = 0; i < count; ++i, ++first)
+        *first = g();
+    return first;
+}
+
 }  // core
 
 #endif
