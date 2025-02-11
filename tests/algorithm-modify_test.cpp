@@ -430,3 +430,61 @@ TEST(AlgorithmTests, RemoveIf_constexpr) {
     }();
     static_assert(a == array<int,3>{1,3,5});
 }
+
+TEST(AlgorithmTests, RemoveCopy) {
+    list<int> source = {1, 2, 3, 2, 4};
+    list<int> dest(source.size(), 0);
+    auto new_end = core::remove_copy(source.begin(), source.end(), dest.begin(), 2);
+    list<int> expected = {1, 3, 4};
+    EXPECT_EQ(std::distance(dest.begin(), new_end), expected.size());
+    auto i1 = dest.begin(), i2 = expected.begin();
+    for (size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_EQ(*i1, *i2);
+        ++i1, ++i2;
+    }
+
+    std::vector<int> source2{};
+    std::vector<int> dest2{};
+    auto new_end2 = core::remove_copy(source2.begin(), source2.end(), dest2.begin(), 42);
+    EXPECT_EQ(new_end2, dest2.begin());
+}
+
+TEST(AlgorithmTests, RemoveCopy_constexpr) {
+    constexpr array<int, 5> source = {1, 2, 3, 2, 4};
+    constexpr array<int, 5> a = [&]() {
+        array<int,5> dest{0,0,0,0,0};
+        core::remove_copy(source.begin(), source.end(), dest.begin(), 2);
+        return dest;
+    }();
+    static_assert(a == array<int,5>{1,3,4,0,0});
+}
+
+TEST(AlgorithmTests, RemoveCopyIf) {
+    list<int> source = {1, 2, 3, 4, 5};
+    list<int> dest(source.size(), 0);
+    auto is_even = [](int x) { return x % 2 == 0; };
+    auto new_end = core::remove_copy_if(source.begin(), source.end(), dest.begin(), is_even);
+    list<int> expected = {1, 3, 5};
+    EXPECT_EQ(std::distance(dest.begin(), new_end), expected.size());
+    auto i1 = dest.begin(), i2 = expected.begin();
+    for (size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_EQ(*i1, *i2);
+        ++i1, ++i2;
+    }
+
+    std::vector<int> source2 = {2, 4, 6, 8};
+    std::vector<int> dest2(source.size(), 0);
+    auto new_end2 = core::remove_copy_if(source2.begin(), source2.end(), dest2.begin(),
+                                        [](int x) { return x % 2 == 0; });
+    EXPECT_EQ(std::distance(dest2.begin(), new_end2), 0);
+}
+
+TEST(AlgorithmTests, RemoveCopyIf_constexpr) {
+    constexpr array<int, 5> source = {1, 2, 3, 2, 4};
+    constexpr array<int, 5> a = [&]() {
+        array<int,5> dest{0,0,0,0,0};
+        core::remove_copy_if(source.begin(), source.end(), dest.begin(), iseven);
+        return dest;
+    }();
+    static_assert(a == array<int,5>{1,3,0,0,0});
+}
