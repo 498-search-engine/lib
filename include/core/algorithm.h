@@ -538,6 +538,15 @@ constexpr void reverse(BidirIt first, BidirIt last) {
     }
 }
 
+template<class BidirIt, class OutputIt>
+constexpr OutputIt reverse_copy(BidirIt first, BidirIt last,
+                                OutputIt d_first)
+{
+    for (; first != last; ++d_first)
+        *d_first = *(--last); // must decrement last before assignment
+    return d_first;
+}
+
 }  // core
 
 #endif

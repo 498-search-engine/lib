@@ -653,3 +653,27 @@ TEST(AlgorithmTests, Reverse_constexpr) {
     }();
     static_assert(a == (array<int,4>{4,3,2,1}));
 }
+
+TEST(AlgorithmTests, ReverseCopy) {
+    std::string src = "12345";
+    std::string dst = "$_____$";
+    auto it = core::reverse_copy(src.begin(), src.end(), dst.begin()+1);
+    EXPECT_EQ(it, dst.end()-1);
+    EXPECT_EQ(dst, "$54321$");
+
+    list<int> l1{1,2,3};
+    list<int> l2{0,0,0};
+    EXPECT_EQ(core::reverse_copy(l1.begin(), l1.begin(), l2.begin()), l2.begin());
+    core::reverse_copy(l1.begin(), l1.end(), l2.begin());
+    EXPECT_EQ(l2, (list<int>{3,2,1}));
+}
+
+TEST(AlgorithmTests, ReverseCopy_constexpr) {
+    constexpr array<int,4> a = [](){
+        array<int,4> a1{1,2,3,4};
+        array<int,4> b1{0,0,0,0};
+        core::reverse_copy(a1.begin(), a1.end(), b1.begin());
+        return b1;
+    }();
+    static_assert(a == (array<int,4>{4,3,2,1}));
+}
