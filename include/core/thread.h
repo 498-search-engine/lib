@@ -25,9 +25,6 @@ public:
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     explicit Thread(Function&& f, Args&&... args) : end_decided_(false) {
-        /*
-         * static_cast<Args&&> is equivalent to std::forward here
-         */
         auto lambda = [func = std::forward<Function>(f), ...capturedArgs = std::forward<Args>(args)]() mutable {
             func(std::forward<Args>(capturedArgs)...);
         };
