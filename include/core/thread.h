@@ -9,7 +9,7 @@
 
 template<typename T>
 static void* ThreadEntry(void* arg) {
-    core::unique_ptr<T> task(static_cast<T*>(arg));
+    core::UniquePtr<T> task(static_cast<T*>(arg));
     (*task)();
     return nullptr;
 }

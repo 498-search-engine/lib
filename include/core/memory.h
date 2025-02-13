@@ -5,64 +5,64 @@
 
 namespace core {
 template <typename T>
-class unique_ptr {
+class UniquePtr {
 public:
-    explicit unique_ptr(T* ptr = nullptr) : ptr(ptr) {};
+    explicit UniquePtr(T* ptr = nullptr) : ptr_(ptr) {};
 
-    ~unique_ptr() {
-        delete ptr;
+    ~UniquePtr() {
+        delete ptr_;
     }
 
-    unique_ptr(const unique_ptr&) = delete;
-    unique_ptr& operator=(const unique_ptr&) = delete;
+    UniquePtr(const UniquePtr&) = delete;
+    UniquePtr& operator=(const UniquePtr&) = delete;
 
-    unique_ptr(unique_ptr&& other) noexcept : ptr(other.ptr) {
-        other.ptr = nullptr;
+    UniquePtr(UniquePtr&& other) noexcept : ptr_(other.ptr_) {
+        other.ptr_ = nullptr;
     }
 
-    unique_ptr& operator=(unique_ptr&& other) noexcept {
+    UniquePtr& operator=(UniquePtr&& other) noexcept {
         if (this != &other) {
-            delete ptr;
-            ptr = other.ptr;
-            other.ptr = nullptr;
+            delete ptr_;
+            ptr_ = other.ptr_;
+            other.ptr_ = nullptr;
         }
 
         return *this;
     }
 
-    T* get() const noexcept {
-        return ptr;
+    T* Get() const noexcept {
+        return ptr_;
     }
 
-    T* release() noexcept {
-        T* tmp = ptr;
-        ptr = nullptr;
+    T* Release() noexcept {
+        T* tmp = ptr_;
+        ptr_ = nullptr;
 
-        return ptr;
+        return ptr_;
     }
 
-    T* reset(T* rptr) noexcept {
-        delete ptr;
+    T* Reset(T* rptr) noexcept {
+        delete ptr_;
 
-        ptr = rptr; 
+        ptr_ = rptr; 
     }
 
-    void swap(unique_ptr<T>& other) noexcept {
-        T* temp = ptr;
-        ptr = other.ptr;
-        other.ptr = temp;
+    void Swap(UniquePtr<T>& other) noexcept {
+        T* temp = ptr_;
+        ptr_ = other.ptr_;
+        other.ptr_ = temp;
     }
 
     T& operator*() const noexcept {
-        return *ptr;
+        return *ptr_;
     }
 
     T* operator->() const noexcept {
-        return ptr;
+        return ptr_;
     }
 
 private:
-    T* ptr;
+    T* ptr_;
 
 };
 
