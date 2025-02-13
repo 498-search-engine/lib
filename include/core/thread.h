@@ -1,21 +1,38 @@
 #ifndef THREAD_H
 #define THREAD_H
 
+#include <exception>
 #include <pthread.h>
+#include <core/memory.h>
+#include <stdexcept>
+#include <utility>
+
+template<typename T>
+static void* threadEntry(void* arg) {
+    core::unique_ptr<T> task(static_cast<T*>(arg));
+    (*task)();
+    return nullptr;
+}
+
+namespace core {
 
 template <typename Function, typename ... Args>
 class thread {
 public:
-    thread(Function &&func, Args&&... args) : end_decided(false) {
+    explicit thread(Function &&f, Args&&... args) : end_decided(false) {
         /*
         * static_cast<Args&&> is equivalent to std::forward here
         */
-        auto wrapper = [&func, ...args = static_cast<Args&&>(args)](void *arg) -> void * {
-            func(args...);
-            return nullptr;
+        auto lambda = [func = static_cast<Function &&>(f), ...capturedArgs = static_cast<Args &&>(args)]() mutable {
+            func(capturedArgs...);
         };
 
-        pthread_create(&thread_id, nullptr, wrapper, nullptr);
+        using Lambda_t = decltype(lambda);
+        Lambda_t* task = new Lambda_t(std::move(lambda));
+        int result = pthread_create(&thread_id, nullptr, &threadEntry<Lambda_t>, task);
+        if (result != 0) {
+            throw std::runtime_error("failed to create pthread");
+        }
     }
 
     ~thread() {
@@ -65,4 +82,5 @@ private:
 
 };
 
+} // namespace core
 #endif

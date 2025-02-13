@@ -53,8 +53,16 @@ public:
         other.ptr = temp;
     }
 
+    T& operator*() const noexcept {
+        return *ptr;
+    }
+
+    T* operator->() const noexcept {
+        return ptr;
+    }
+
 private:
-    T *ptr;
+    T* ptr;
 
 };
 

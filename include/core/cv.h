@@ -1,18 +1,29 @@
 #ifndef CV_H
 #define CV_H 
 
-#include "mutex.h"
+#include <core/mutex.h>
+
+namespace core {
 
 class cv {
 public:
-    cv();
+    cv() {
+        pthread_cond_init(&_cv, NULL);
+    };
+
     ~cv();
 
-    void wait(mutex&);                  // wait on this condition variable
-    void signal();                      // wake up one thread on this condition
-                                        // variable
-    void broadcast();                   // wake up all threads on this condition
-                                        // variable
+    void wait(mutex& mut) {
+        pthread_cond_wait(&_cv, &mut._mutex);
+    }
+
+    void signal() {
+        pthread_cond_signal(&_cv);
+    }
+
+    void broadcast() {
+        pthread_cond_broadcast(&_cv);
+    }
 
     /*
      * Disable the copy constructor and copy assignment operator.
@@ -23,8 +34,12 @@ public:
     /*
      * Move constructor and move assignment operator.
      */
-    cv(cv&&);
-    cv& operator=(cv&&);
+    cv(cv&&) = delete;
+    cv& operator=(cv&&) = delete;
+
+private:
+    pthread_cond_t _cv;
 };
 
+} // namespace core
 #endif
