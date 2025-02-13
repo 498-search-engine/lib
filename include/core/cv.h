@@ -1,5 +1,5 @@
 #ifndef CV_H
-#define CV_H 
+#define CV_H
 
 #include <core/mutex.h>
 
@@ -7,23 +7,16 @@ namespace core {
 
 class cv {
 public:
-    cv() {
-        pthread_cond_init(&_cv, NULL);
-    };
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+    cv() { pthread_cond_init(&cv_, NULL); };
 
-    ~cv();
+    ~cv() = default;
 
-    void wait(mutex& mut) {
-        pthread_cond_wait(&_cv, &mut._mutex);
-    }
+    void Wait(Mutex& mut) { pthread_cond_wait(&cv_, &mut.mutex_); }
 
-    void signal() {
-        pthread_cond_signal(&_cv);
-    }
+    void Signal() { pthread_cond_signal(&cv_); }
 
-    void broadcast() {
-        pthread_cond_broadcast(&_cv);
-    }
+    void Broadcast() { pthread_cond_broadcast(&cv_); }
 
     /*
      * Disable the copy constructor and copy assignment operator.
@@ -38,8 +31,8 @@ public:
     cv& operator=(cv&&) = delete;
 
 private:
-    pthread_cond_t _cv;
+    pthread_cond_t cv_;
 };
 
-} // namespace core
+}  // namespace core
 #endif

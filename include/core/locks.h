@@ -5,18 +5,14 @@
 
 namespace core {
 
-class lock_guard {
-    lock_guard(mutex &m) : mut(m) {
-        mut.lock();
-    }
+class LockGuard {
+    LockGuard(Mutex& m) : mut_(m) { mut_.Lock(); }
 
-    ~lock_guard() {
-        mut.unlock();
-    }
+    ~LockGuard() { mut_.Unlock(); }
 
 private:
-    mutex &mut;
+    Mutex& mut_;
 };
 
-} // namespace core
+}  // namespace core
 #endif

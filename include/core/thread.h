@@ -1,14 +1,14 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include <exception>
-#include <pthread.h>
 #include <core/memory.h>
+#include <pthread.h>
 #include <stdexcept>
 #include <utility>
 
+
 template<typename T>
-static void* threadEntry(void* arg) {
+static void* ThreadEntry(void* arg) {
     core::unique_ptr<T> task(static_cast<T*>(arg));
     (*task)();
     return nullptr;
@@ -16,71 +16,71 @@ static void* threadEntry(void* arg) {
 
 namespace core {
 
-template <typename Function, typename ... Args>
-class thread {
+template<typename Function, typename... Args>
+class Thread {
 public:
-    explicit thread(Function &&f, Args&&... args) : end_decided(false) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+    explicit Thread(Function&& f, Args&&... args) : end_decided_(false) {
         /*
-        * static_cast<Args&&> is equivalent to std::forward here
-        */
-        auto lambda = [func = static_cast<Function &&>(f), ...capturedArgs = static_cast<Args &&>(args)]() mutable {
+         * static_cast<Args&&> is equivalent to std::forward here
+         */
+        auto lambda = [func = static_cast<Function&&>(f), ... capturedArgs = static_cast<Args&&>(args)]() mutable {
             func(capturedArgs...);
         };
 
         using Lambda_t = decltype(lambda);
         Lambda_t* task = new Lambda_t(std::move(lambda));
-        int result = pthread_create(&thread_id, nullptr, &threadEntry<Lambda_t>, task);
+        int result = pthread_create(&thread_id_, nullptr, &ThreadEntry<Lambda_t>, task);
         if (result != 0) {
             throw std::runtime_error("failed to create pthread");
         }
     }
 
-    ~thread() {
-        if (!end_decided) {
-            pthread_detach(thread_id);
+    ~Thread() {
+        if (!end_decided_) {
+            pthread_detach(thread_id_);
         }
     }
 
-    void join() {
-        pthread_join(thread_id, nullptr);
-        end_decided = true;
-    }                      
+    void Join() {
+        pthread_join(thread_id_, nullptr);
+        end_decided_ = true;
+    }
 
-    void detach() {
-        pthread_detach(thread_id);
-        end_decided = true;
+    void Detach() {
+        pthread_detach(thread_id_);
+        end_decided_ = true;
     }
 
     /*
      * Disable the copy constructor and copy assignment operator.
      */
-    thread(const thread&) = delete;
-    thread& operator=(const thread&) = delete;
+    Thread(const Thread&) = delete;
+    Thread& operator=(const Thread&) = delete;
 
     /*
      * Move constructor and move assignment operator.
      */
-    thread(thread&& other) {
-        thread_id = other.thread_id;
-        end_decided = other.end_decided;
+    Thread(Thread&& other) noexcept {
+        thread_id_ = other.thread_id_;
+        end_decided_ = other.end_decided_;
 
-        other.thread_id = 0;
-        other.end_decided = true;
+        other.thread_id_ = 0;
+        other.end_decided_ = true;
     }
 
-    thread& operator=(thread&& other) {
-        thread_id = other.thread_id;
-        end_decided = other.end_decided;
+    Thread& operator=(Thread&& other) noexcept {
+        thread_id_ = other.thread_id_;
+        end_decided_ = other.end_decided_;
 
-        other.thread_id = 0;
-        other.end_decided = true;
+        other.thread_id_ = 0;
+        other.end_decided_ = true;
     }
 
 private:
-    pthread_t thread_id;
-    bool end_decided;
-
+    pthread_t thread_id_;
+    bool end_decided_;
 };
 
-} // namespace core
+}  // namespace core
 #endif
