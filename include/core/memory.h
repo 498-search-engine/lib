@@ -2,6 +2,8 @@
 #define MEMORY_H
 
 // To do: Custom deleter?
+
+namespace core {
 template <typename T>
 class unique_ptr {
 public:
@@ -56,4 +58,5 @@ private:
 
 };
 
+}  // namespace core
 #endif
