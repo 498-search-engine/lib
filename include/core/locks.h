@@ -6,25 +6,37 @@
 namespace core {
 
 class LockGuard {
-    LockGuard(Mutex& m) : mut_(m), locked_(true) { mut_.Lock(); }
+    LockGuard(Mutex& m) : mut_(&m), locked_(true) { mut_->Lock(); }
 
     ~LockGuard() {
-        if (locked_) {
-            mut_.Unlock();
+        if ((mut_ != nullptr) && locked_) {
+            mut_->Unlock();
         }
     }
 
     void Lock() {
-        mut_.Lock();
+        mut_->Lock();
         locked_ = true;
     }
+
     void Unlock() {
-        mut_.Unlock();
+        mut_->Unlock();
         locked_ = false;
     }
 
+    LockGuard(LockGuard&& other) noexcept : mut_(other.mut_), locked_(other.locked_) { other.mut_ = nullptr; }
+
+    LockGuard& operator=(LockGuard&& other) noexcept {
+        mut_ = other.mut_;
+        locked_ = other.locked_;
+
+        other.mut_ = nullptr;
+
+        return *this;
+    }
+
 private:
-    Mutex& mut_;
+    Mutex* mut_;
     bool locked_;
 };
 
