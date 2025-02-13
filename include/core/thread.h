@@ -1,3 +1,6 @@
+// wrapper for pthreads in C++ style
+// authors: @Anubhav652
+
 #ifndef THREAD_H
 #define THREAD_H
 
@@ -19,13 +22,14 @@ namespace core {
 template<typename Function, typename... Args>
 class Thread {
 public:
+
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     explicit Thread(Function&& f, Args&&... args) : end_decided_(false) {
         /*
          * static_cast<Args&&> is equivalent to std::forward here
          */
-        auto lambda = [func = static_cast<Function&&>(f), ... capturedArgs = static_cast<Args&&>(args)]() mutable {
-            func(capturedArgs...);
+        auto lambda = [func = std::forward<Function>(f), ...capturedArgs = std::forward<Args>(args)]() mutable {
+            func(std::forward<Args>(capturedArgs)...);
         };
 
         using Lambda_t = decltype(lambda);

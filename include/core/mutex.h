@@ -1,9 +1,10 @@
+// wrapper for pthread mutexes in C++ styles
+// authors: @Anubhav652
+
 #ifndef MUTEX_H
 #define MUTEX_H
 
 #include <pthread.h>
-
-class cv;
 
 namespace core {
 class Mutex {
@@ -12,7 +13,7 @@ public:
     ~Mutex() = default;
 
     void Lock() { pthread_mutex_lock(&mutex_); };
-    void Unlock() { pthread_mutex_lock(&mutex_); };
+    void Unlock() { pthread_mutex_unlock(&mutex_); };
 
     /*
      * Disable the copy constructor and copy assignment operator.

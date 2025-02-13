@@ -1,3 +1,6 @@
+// various smart pointer implementations
+// authors: @Anubhav652
+
 #ifndef MEMORY_H
 #define MEMORY_H
 

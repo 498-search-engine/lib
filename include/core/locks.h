@@ -1,3 +1,6 @@
+// wrapper for RAII style locking for pthread mutexes
+// authors: @Anubhav652
+
 #ifndef THREAD_LOCKS_H
 #define THREAD_LOCKS_H
 
@@ -6,6 +9,7 @@
 namespace core {
 
 class LockGuard {
+public:
     LockGuard(Mutex& m) : mut_(&m), locked_(true) { mut_->Lock(); }
 
     ~LockGuard() {
