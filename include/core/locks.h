@@ -6,12 +6,26 @@
 namespace core {
 
 class LockGuard {
-    LockGuard(Mutex& m) : mut_(m) { mut_.Lock(); }
+    LockGuard(Mutex& m) : mut_(m), locked_(true) { mut_.Lock(); }
 
-    ~LockGuard() { mut_.Unlock(); }
+    ~LockGuard() {
+        if (locked_) {
+            mut_.Unlock();
+        }
+    }
+
+    void Lock() {
+        mut_.Lock();
+        locked_ = true;
+    }
+    void Unlock() {
+        mut_.Unlock();
+        locked_ = false;
+    }
 
 private:
     Mutex& mut_;
+    bool locked_;
 };
 
 }  // namespace core
