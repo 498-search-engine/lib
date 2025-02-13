@@ -16,13 +16,13 @@ int hi_thread(char a) {
 }
 
 int main() {
-    core::thread th(hi_thread, 'a');
-    th.join();
+    core::Thread th(hi_thread, 'a');
+    th.Join();
 
-    core::thread th3(hi_thread, 'c');
+    core::Thread th3(hi_thread, 'c');
 
     std::cout << "12345" << std::endl;
 
-    core::thread th2(hi_thread, 'b');
-    th2.join();
+    core::Thread th2(hi_thread, 'b');
+    th2.Join();
 }

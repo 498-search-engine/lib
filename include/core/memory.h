@@ -32,10 +32,10 @@ public:
         T* tmp = ptr_;
         ptr_ = nullptr;
 
-        return ptr_;
+        return tmp;
     }
 
-    T* Reset(T* rptr) noexcept {
+    void Reset(T* rptr) noexcept {
         delete ptr_;
 
         ptr_ = rptr;
