@@ -22,10 +22,9 @@ namespace core {
 template<typename Function, typename... Args>
 class Thread {
 public:
-
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     explicit Thread(Function&& f, Args&&... args) : end_decided_(false) {
-        auto lambda = [func = std::forward<Function>(f), ...capturedArgs = std::forward<Args>(args)]() mutable {
+        auto lambda = [func = std::forward<Function>(f), ... capturedArgs = std::forward<Args>(args)]() mutable {
             func(std::forward<Args>(capturedArgs)...);
         };
 
