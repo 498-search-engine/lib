@@ -42,6 +42,8 @@ public:
 private:
     Mutex* mut_;
     bool locked_;
+
+    friend class cv;
 };
 
 }  // namespace core

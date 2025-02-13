@@ -1,6 +1,7 @@
 #ifndef CV_H
 #define CV_H
 
+#include <core/locks.h>
 #include <core/mutex.h>
 
 namespace core {
@@ -13,6 +14,22 @@ public:
     ~cv() = default;
 
     void Wait(Mutex& mut) { pthread_cond_wait(&cv_, &mut.mutex_); }
+
+    template<class Predicate>
+    void Wait(Mutex& mut, Predicate pred) {
+        while (!pred()) {
+            Wait(mut);
+        }
+    }
+
+    void Wait(LockGuard& guard) { pthread_cond_wait(&cv_, &guard.mut_->mutex_); }
+
+    template<class Predicate>
+    void Wait(LockGuard& mut, Predicate pred) {
+        while (!pred()) {
+            Wait(mut);
+        }
+    }
 
     void Signal() { pthread_cond_signal(&cv_); }
 
