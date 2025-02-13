@@ -65,7 +65,6 @@ public:
         thread_id_ = other.thread_id_;
         end_decided_ = other.end_decided_;
 
-        other.thread_id_ = 0;
         other.end_decided_ = true;
     }
 
@@ -73,7 +72,6 @@ public:
         thread_id_ = other.thread_id_;
         end_decided_ = other.end_decided_;
 
-        other.thread_id_ = 0;
         other.end_decided_ = true;
     }
 
