@@ -547,6 +547,48 @@ constexpr OutputIt reverse_copy(BidirIt first, BidirIt last,
     return d_first;
 }
 
+template<class ForwardIt>
+constexpr ForwardIt rotate(ForwardIt first, ForwardIt middle, ForwardIt last) {
+    if (first == middle) return last;
+    if (middle == last) return first;
+    // Optimize for different iterator categories
+    if constexpr (std::random_access_iterator<ForwardIt>) {
+        core::reverse(first, middle);
+        core::reverse(middle, last);
+        core::reverse(first, last);
+        return first + (last - middle);
+    } else if constexpr (std::bidirectional_iterator<ForwardIt>) {
+        core::reverse(first, middle);
+        core::reverse(middle, last);
+        while(first != middle && last != middle) {
+            --last;
+            core::iter_swap(first, last);
+            ++first;
+        }
+        core::reverse(first, last);
+        return (first != middle) ? first : last;
+    } else { // Forwards only iterator
+        auto cur = first, next = middle;
+        do {
+            core::iter_swap(cur, next);
+            ++cur;
+            ++next;
+            if (cur == middle) middle = next;
+        } while (next != last);
+        first = cur; // update new first pos
+        while (middle != last) {
+            next = middle;
+            do {
+                core::iter_swap(cur, next);
+                ++cur;
+                ++next;
+                if (cur == middle) middle = next;
+            } while (next != last);
+        }
+    }
+    return first;
+}
+
 }  // core
 
 #endif
