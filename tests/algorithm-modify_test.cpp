@@ -10,6 +10,8 @@
 #include <string>
 #include <iterator>
 #include <forward_list>
+#include <initializer_list>
+#include <utility>
 
 using std::vector;
 using std::array;
@@ -676,4 +678,44 @@ TEST(AlgorithmTests, ReverseCopy_constexpr) {
         return b1;
     }();
     static_assert(a == (array<int,4>{4,3,2,1}));
+}
+
+TEST(AlgorithmTests, Rotate) {
+    const vector<std::tuple<std::initializer_list<int>,int,
+                 std::initializer_list<int>>> cases = {
+        {{1,2,3,4,5}, 0, {1,2,3,4,5}},
+        {{1,2,3,4,5}, 1, {2,3,4,5,1}},
+        {{1,2,3,4,5}, 2, {3,4,5,1,2}},
+        {{1,2,3,4,5}, 3, {4,5,1,2,3}},
+        {{1,2,3,4,5}, 4, {5,1,2,3,4}},
+        {{1,2,3,4,5}, 5, {1,2,3,4,5}},
+        {{}, 0, {}},
+        {{1}, 0, {1}},
+        {{1}, 1, {1}},
+        {{1,2}, 1, {2,1}}
+    };
+
+    auto tester = [&]<class Container>() -> bool {
+        for (const auto& [src, k, ans]: cases) {
+            Container c = src, cans = ans;
+            auto it = core::rotate(c.begin(), std::next(c.begin(),k), c.end());
+            if(c != cans || std::distance(it, c.end()) != k)
+                return false;
+        }
+        return true;
+    };
+
+    // Test random-access, bidirectional, and forward-only iterators
+    EXPECT_TRUE(tester.template operator()<vector<int>>());
+    EXPECT_TRUE(tester.template operator()<list<int>>());
+    EXPECT_TRUE(tester.template operator()<std::forward_list<int>>());
+}
+
+TEST(AlgorithmTests, Rotate_constexpr) {
+    constexpr auto arr = []() {
+        array<int,4> a{1,2,3,4};
+        core::rotate(a.begin(), a.begin()+1, a.end());
+        return a;
+    }();
+    static_assert(arr == array<int,4>{2,3,4,1});
 }
