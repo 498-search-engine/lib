@@ -8,9 +8,32 @@
 
 namespace core {
 
+/*
+    Tags for lock guard constructor
+*/
+struct DeferLockT {
+    explicit DeferLockT() = default;
+};
+struct TryToLockT {
+    explicit TryToLockT() = default;
+};
+struct AdoptLockT {
+    explicit AdoptLockT() = default;
+};
+
+constexpr DeferLockT DeferLock{};
+constexpr TryToLockT TryToLock{};
+constexpr AdoptLockT AdoptLock{};
+
 class LockGuard {
 public:
     LockGuard(Mutex& m) : mut_(&m), locked_(true) { mut_->Lock(); }
+    // NOLINTNEXTLINE(misc-unused-parameters)
+    LockGuard(Mutex& m, core::DeferLockT _) : mut_(&m) { locked_ = false; }
+    // NOLINTNEXTLINE(misc-unused-parameters)
+    LockGuard(Mutex& m, core::TryToLockT _) : mut_(&m) { locked_ = mut_->TryLock(); }
+    // NOLINTNEXTLINE(misc-unused-parameters)
+    LockGuard(Mutex& m, core::AdoptLockT _) : mut_(&m) { locked_ = true; }
 
     ~LockGuard() {
         if ((mut_ != nullptr) && locked_) {
@@ -21,6 +44,11 @@ public:
     void Lock() {
         mut_->Lock();
         locked_ = true;
+    }
+
+    bool TryLock() {
+        locked_ = mut_->TryLock();
+        return locked_;
     }
 
     void Unlock() {
