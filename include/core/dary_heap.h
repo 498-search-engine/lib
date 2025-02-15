@@ -152,6 +152,15 @@ public:
             throw std::out_of_range("heap is empty");
         return heap_.front().value;
     }
+
+    dary_heap<T, Priority>(const char* filename){
+        
+    }
+
+    void serialize(const char* filename){
+
+    }
+
 };
 
 } // namespace core
