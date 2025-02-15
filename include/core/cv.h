@@ -1,5 +1,5 @@
-#ifndef CV_H
-#define CV_H
+#ifndef LIB_CV_H
+#define LIB_CV_H
 
 #include <core/locks.h>
 #include <core/mutex.h>

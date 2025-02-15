@@ -1,8 +1,8 @@
 // wrapper for pthread mutexes in C++ styles
 // authors: @Anubhav652
 
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef LIB_MUTEX_H
+#define LIB_MUTEX_H
 
 #include <pthread.h>
 

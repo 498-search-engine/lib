@@ -1,8 +1,8 @@
 // various smart pointer implementations
 // authors: @Anubhav652
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef LIB_MEMORY_H
+#define LIB_MEMORY_H
 
 // To do: Custom deleter?
 

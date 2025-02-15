@@ -1,8 +1,8 @@
 // wrapper for pthreads in C++ style
 // authors: @Anubhav652
 
-#ifndef THREAD_H
-#define THREAD_H
+#ifndef LIB_THREAD_H
+#define LIB_THREAD_H
 
 #include <core/memory.h>
 #include <pthread.h>

@@ -1,8 +1,8 @@
 // wrapper for RAII style locking for pthread mutexes
 // authors: @Anubhav652
 
-#ifndef THREAD_LOCKS_H
-#define THREAD_LOCKS_H
+#ifndef LIB_THREAD_LOCKS_H
+#define LIB_THREAD_LOCKS_H
 
 #include <core/mutex.h>
 
