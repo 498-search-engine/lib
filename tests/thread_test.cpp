@@ -174,6 +174,85 @@ TEST(LockGuardTest, RAIIBehavior) {
     EXPECT_EQ(counter, 2 * numIterations);
 }
 
+// Test DeferLock tag: LockGuard does not lock on construction
+TEST(LockGuardTest, DeferLockTag) {
+    Mutex mutex;
+    {
+        // Create guard with DeferLock (mutex remains unlocked)
+        LockGuard guard(mutex, DeferLock);
+        // Verify mutex is still unlocked
+        EXPECT_TRUE(mutex.TryLock());  // Succeeds because mutex was not locked
+        mutex.Unlock();
+    }
+    // Guard destroyed; no action taken since it was never locked
+    EXPECT_TRUE(mutex.TryLock());  // Verify cleanup
+    mutex.Unlock();
+}
+
+// Test TryToLock tag: LockGuard tries to lock without blocking
+TEST(LockGuardTest, TryToLockTagSucceedsWhenUnlocked) {
+    Mutex mutex;
+    {
+        LockGuard guard(mutex, TryToLock);
+        // Mutex should be locked if TryLock succeeded
+        EXPECT_FALSE(mutex.TryLock());  // Verify locked
+    }
+    // Guard destroyed; mutex unlocked
+    EXPECT_TRUE(mutex.TryLock());  // Verify cleanup
+    mutex.Unlock();
+}
+
+TEST(LockGuardTest, TryToLockTagFailsWhenLocked) {
+    Mutex mutex;
+    mutex.Lock();  // Manually lock first
+    {
+        LockGuard guard(mutex, TryToLock);
+        // TryLock should fail (mutex already locked)
+        EXPECT_FALSE(mutex.TryLock());  // Fails, but we check via Mutex::TryLock
+        mutex.Unlock();                // Cleanup for test
+    }
+    mutex.Unlock();  // Release manual lock
+}
+
+// Test AdoptLock tag: LockGuard takes ownership of an already locked mutex
+TEST(LockGuardTest, AdoptLockTag) {
+    Mutex mutex;
+    mutex.Lock();  // Manually lock
+    {
+        LockGuard guard(mutex, AdoptLock);
+        // Verify mutex remains locked
+        EXPECT_FALSE(mutex.TryLock());
+    }
+    // Guard destroyed; mutex unlocked
+    EXPECT_TRUE(mutex.TryLock());  // Verify cleanup
+    mutex.Unlock();
+}
+
+// Test LockGuard::TryLock method
+TEST(LockGuardTest, TryLockMethod) {
+    Mutex mutex;
+    LockGuard guard(mutex, DeferLock);
+    // Initially unlocked
+    EXPECT_TRUE(guard.TryLock());   // Acquire lock
+    EXPECT_FALSE(mutex.TryLock());  // Verify locked
+    guard.Unlock();                 // Explicitly release
+    EXPECT_TRUE(mutex.TryLock());   // Verify unlocked
+    mutex.Unlock();
+}
+
+// Test move operations
+TEST(LockGuardTest, MoveOperations) {
+    Mutex mutex;
+    LockGuard guard1(mutex, DeferLock);
+    guard1.Lock();                         // Acquire lock
+    LockGuard guard2 = std::move(guard1);  // Transfer ownership
+    // Original guard1 no longer manages the mutex
+    EXPECT_FALSE(mutex.TryLock());  // Still locked by guard2
+    guard2.Unlock();                // Release
+    EXPECT_TRUE(mutex.TryLock());   // Verify unlocked
+    mutex.Unlock();
+}
+
 // Test mutex.h (Mutex)
 TEST(MutexTest, LockAndUnlock) {
     Mutex mut;
@@ -204,13 +283,13 @@ TEST(MutexTest, ThreadContention) {
 
 TEST(MutexTest, TryLockSucceedsWhenUnlocked) {
     Mutex mutex;
-    EXPECT_TRUE(mutex.TryLock()); // Should succeed
-    mutex.Unlock(); // Release the mutex
+    EXPECT_TRUE(mutex.TryLock());  // Should succeed
+    mutex.Unlock();                // Release the mutex
 }
 
 TEST(MutexTest, TryLockFailsWhenLocked) {
     Mutex mutex;
-    mutex.Lock(); // Acquire the mutex
-    EXPECT_FALSE(mutex.TryLock()); // Should fail
-    mutex.Unlock(); // Release the mutex
+    mutex.Lock();                   // Acquire the mutex
+    EXPECT_FALSE(mutex.TryLock());  // Should fail
+    mutex.Unlock();                 // Release the mutex
 }
