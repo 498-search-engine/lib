@@ -1,31 +1,26 @@
 // wrapper for pthreads in C++ style
-// authors: @Anubhav652
+// authors: @Anubhav652, @chrsdavis
 
 #ifndef LIB_THREAD_H
 #define LIB_THREAD_H
 
+#include <concepts>
 #include <core/memory.h>
 #include <pthread.h>
 #include <stdexcept>
 #include <utility>
 
 
-template<typename T>
-static void* ThreadEntry(void* arg) {
-    core::UniquePtr<T> task(static_cast<T*>(arg));
-    (*task)();
-    return nullptr;
-}
-
 namespace core {
 
-template<typename Function, typename... Args>
 class Thread {
 public:
+    template<typename Function, typename... Args>
+        requires std::invocable<Function, Args...>
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     explicit Thread(Function&& f, Args&&... args) : end_decided_(false) {
         auto lambda = [func = std::forward<Function>(f), ... capturedArgs = std::forward<Args>(args)]() mutable {
-            func(std::forward<Args>(capturedArgs)...);
+            func(capturedArgs...);
         };
 
         using Lambda_t = decltype(lambda);
@@ -51,6 +46,8 @@ public:
         pthread_detach(thread_id_);
         end_decided_ = true;
     }
+
+    bool Joinable() const noexcept { return end_decided_; }
 
     /*
      * Disable the copy constructor and copy assignment operator.
@@ -78,6 +75,13 @@ public:
 private:
     pthread_t thread_id_;
     bool end_decided_;
+
+    template<typename T>
+    static void* ThreadEntry(void* arg) {
+        core::UniquePtr<T> task(static_cast<T*>(arg));
+        (*task)();
+        return nullptr;
+    }
 };
 
 }  // namespace core
