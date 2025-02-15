@@ -10,6 +10,92 @@
 
 using namespace core;
 
+void IncrementCounter(std::atomic<int>& counter) {
+    counter += 1;
+}
+
+// Test thread.h (Threads)
+TEST(ThreadTest, CreateAndJoin) {
+    std::atomic<int> counter{0};
+
+    {
+        core::Thread t{IncrementCounter, std::ref(counter)};
+        t.Join();
+    }
+
+    // Verify that the thread ran and incremented the counter
+    EXPECT_EQ(counter.load(std::memory_order_relaxed), 1);
+}
+
+TEST(ThreadTest, CreateAndDetach) {
+    std::atomic<int> counter{0};
+
+    {
+        core::Thread t{IncrementCounter, std::ref(counter)};
+        t.Detach();
+        // After Detach, we can't Join. We'll just wait a bit to ensure it ran.
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    EXPECT_EQ(counter.load(std::memory_order_relaxed), 1);
+}
+
+// This test checks that we can capture parameters correctly in the lambda
+TEST(ThreadTest, CaptureLambda) {
+    std::atomic<int> counter{0};
+    int incrementValue = 5;
+
+    auto lambda = [&](int times) {
+        for (int i = 0; i < times; ++i) {
+            counter.fetch_add(incrementValue, std::memory_order_relaxed);
+        }
+    };
+
+    {
+        core::Thread t(lambda, 3);  // increments 5 * 3 times
+        t.Join();
+    }
+
+    EXPECT_EQ(counter.load(std::memory_order_relaxed), 15);
+}
+
+TEST(ThreadTest, MoveConstructor) {
+    std::atomic<int> counter{0};
+
+    core::Thread t1{IncrementCounter, std::ref(counter)};
+    core::Thread t2(std::move(t1));
+    t2.Join();
+
+    EXPECT_EQ(counter.load(std::memory_order_relaxed), 1);
+}
+
+TEST(ThreadTest, MoveAssignment) {
+    std::atomic<int> counter{0};
+
+    core::Thread t1{IncrementCounter, std::ref(counter)};
+    core::Thread t2{[] {} }; // Start with a do-nothing thread so we have something to move from
+    t2.Join();
+    t2 = std::move(t1);
+    t2.Join();
+
+    EXPECT_EQ(counter.load(std::memory_order_relaxed), 1);
+}
+
+// This test checks that the destructor detaches if neither Join() nor Detach() is explicitly called
+TEST(ThreadTest, DestructorAutoDetach) {
+    std::atomic<int> counter{0};
+
+    {
+        core::Thread t{IncrementCounter, std::ref(counter)};
+        // We neither call t.Join() nor t.Detach().
+        // The destructor will auto-detach the thread.
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    EXPECT_EQ(counter.load(std::memory_order_relaxed), 1);
+}
+
 // Test cv.h (Condition Variable)
 TEST(ConditionVariableTest, WaitAndSignal) {
     Mutex mut;

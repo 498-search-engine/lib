@@ -70,6 +70,8 @@ public:
         end_decided_ = other.end_decided_;
 
         other.end_decided_ = true;
+
+        return *this;
     }
 
 private:
