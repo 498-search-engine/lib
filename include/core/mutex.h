@@ -15,6 +15,8 @@ public:
     void Lock() { pthread_mutex_lock(&mutex_); };
     void Unlock() { pthread_mutex_unlock(&mutex_); };
 
+    bool TryLock() { return pthread_mutex_trylock(&mutex_) == 0; };
+
     /*
      * Disable the copy constructor and copy assignment operator.
      */

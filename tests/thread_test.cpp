@@ -201,3 +201,16 @@ TEST(MutexTest, ThreadContention) {
 
     EXPECT_EQ(sharedValue, 2000);
 }
+
+TEST(MutexTest, TryLockSucceedsWhenUnlocked) {
+    Mutex mutex;
+    EXPECT_TRUE(mutex.TryLock()); // Should succeed
+    mutex.Unlock(); // Release the mutex
+}
+
+TEST(MutexTest, TryLockFailsWhenLocked) {
+    Mutex mutex;
+    mutex.Lock(); // Acquire the mutex
+    EXPECT_FALSE(mutex.TryLock()); // Should fail
+    mutex.Unlock(); // Release the mutex
+}
