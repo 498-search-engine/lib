@@ -589,6 +589,24 @@ constexpr ForwardIt rotate(ForwardIt first, ForwardIt middle, ForwardIt last) {
     return first;
 }
 
+template<class ForwardIt>
+constexpr ForwardIt shift_left(ForwardIt first, ForwardIt last,
+                               typename std::iterator_traits<ForwardIt>::difference_type n)
+{
+    if (n <= 0) return last;
+    if constexpr (std::random_access_iterator<ForwardIt>) {
+        if (n >= last - first) return first;
+        return core::move(first + n, last, first);
+    } else {
+        auto new_first = first;  // find new first
+        for (auto i = 0; i < n; ++i) {
+            if (new_first == last) return first; // n >= dist(first,last)
+            ++new_first;
+        }
+        return core::move(new_first, last, first);
+    }
+}
+
 }  // core
 
 #endif
