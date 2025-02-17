@@ -607,6 +607,28 @@ constexpr ForwardIt shift_left(ForwardIt first, ForwardIt last,
     }
 }
 
+template<class ForwardIt>
+constexpr ForwardIt shift_right(ForwardIt first, ForwardIt last,
+                               typename std::iterator_traits<ForwardIt>::difference_type n)
+{
+    if (n <= 0) return first;
+    if constexpr (std::random_access_iterator<ForwardIt>) {
+        if (n >= last - first) return last;
+        return core::move_backward(first, last - n, last);
+    } else if constexpr (std::bidirectional_iterator<ForwardIt>) {
+        auto new_last = last;
+        for (auto i = 0; i < n; ++i) {
+            if (new_last == first) return last;
+            --new_last;
+        }
+        return core::move_backward(first, new_last, last);
+    } else {
+        // TODO: requires vector for external buffering
+        static_assert(false, "Not Implemented");
+        return last;
+    }
+}
+
 }  // core
 
 #endif

@@ -778,3 +778,46 @@ TEST(AlgorithmTests, ShiftLeft_constexpr) {
     }();
     static_assert(arr == array<int,4>{2,3,4,0});
 }
+
+TEST(AlgorithmTests, ShiftRight) {
+    // Move semantics
+    auto tester = [&]<class Container>() {
+        Container v2; // {0,1,2,3,4}
+        for (int i = 0; i < 5; i++)
+            v2.emplace_back(i);
+        auto vit = core::shift_right(v2.begin(),v2.end(),2);
+        EXPECT_EQ(vit, std::next(v2.begin(),2)); // {_,_,0,1,2}
+        for (int i = 2; i < 5; i++) {
+            EXPECT_FALSE(std::next(v2.begin(),i)->moved);
+            EXPECT_EQ(std::next(v2.begin(),i)->data, i-2);
+        }
+        for (int i = 0; i < 2; i++) {
+            EXPECT_TRUE(std::next(v2.begin(),i)->moved);
+        }
+
+        // invalid n
+        Container c2;
+        for(int i = 0; i < 2; i++) c2.emplace_back(i);
+        EXPECT_EQ(core::shift_right(c2.begin(), c2.end(),0), c2.begin()); // n = 0
+        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
+        EXPECT_EQ(core::shift_right(c2.begin(), c2.end(),2), c2.end()); // n >= size
+        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.end(),i)->moved, false);
+        EXPECT_EQ(core::shift_right(c2.begin(), c2.end(),3), c2.end()); // n > size
+        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
+
+        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->data, i);
+    };
+    // Test different iterator types
+    tester.template operator()<vector<MoveOnly>>();
+    tester.template operator()<list<MoveOnly>>();
+}
+
+TEST(AlgorithmTests, ShiftRight_constexpr) {
+    constexpr auto arr = []() {
+        array<int,4> a{1,2,3,4};
+        core::shift_right(a.begin(),a.end(),1);
+        a.front() = 0;
+        return a;
+    }();
+    static_assert(arr == array<int,4>{0,1,2,3});
+}
