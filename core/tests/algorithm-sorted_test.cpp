@@ -53,3 +53,9 @@ TEST(AlgorithmTests, LowerBound) {
     vector<int> v3{};
     EXPECT_EQ(core::lower_bound(v3.begin(), v3.end(), 0), v3.end());
 }
+
+TEST(AlgorithmTests, LowerBound_constexpr) {
+    constexpr array<int,4> a{1,2,3,4};
+    static_assert(core::lower_bound(a.begin(), a.end(), 1) == a.begin());
+    static_assert(core::lower_bound(a.begin(), a.end(), 1, std::less{}) == a.begin());
+}
