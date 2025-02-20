@@ -13,8 +13,6 @@
 #include <initializer_list>
 #include <utility>
 
-#include <algorithm>
-
 using std::vector;
 using std::array;
 using std::list;
@@ -738,7 +736,7 @@ TEST(AlgorithmTests, Rotate_constexpr) {
 
 TEST(AlgorithmTests, ShiftLeft) {
     // Move semantics
-    auto tester = [&]<class Container>() {
+    auto tester = []<class Container>() {
         Container v2; // {0,1,2,3,4}
         for (int i = 0; i < 5; i++)
             v2.emplace_back(i);
@@ -758,7 +756,7 @@ TEST(AlgorithmTests, ShiftLeft) {
         EXPECT_EQ(core::shift_left(c2.begin(), c2.end(),0), c2.end()); // n = 0
         for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
         EXPECT_EQ(core::shift_left(c2.begin(), c2.end(),2), c2.begin()); // n >= size
-        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.end(),i)->moved, false);
+        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
         EXPECT_EQ(core::shift_left(c2.begin(), c2.end(),3), c2.begin()); // n > size
         for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
 
@@ -801,7 +799,7 @@ TEST(AlgorithmTests, ShiftRight) {
         EXPECT_EQ(core::shift_right(c2.begin(), c2.end(),0), c2.begin()); // n = 0
         for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
         EXPECT_EQ(core::shift_right(c2.begin(), c2.end(),2), c2.end()); // n >= size
-        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.end(),i)->moved, false);
+        for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
         EXPECT_EQ(core::shift_right(c2.begin(), c2.end(),3), c2.end()); // n > size
         for (int i = 0; i < 2; i++) EXPECT_EQ(std::next(c2.begin(),i)->moved, false);
 

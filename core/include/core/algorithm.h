@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <type_traits>
+#include <functional>
 
 namespace core {
 
@@ -627,6 +628,36 @@ constexpr ForwardIt shift_right(ForwardIt first, ForwardIt last,
         static_assert(false, "Not Implemented");
         return last;
     }
+}
+
+// Sorted Ranges
+
+// Binary Search
+
+template< class ForwardIt, class T, class Compare >
+constexpr ForwardIt lower_bound(ForwardIt first, ForwardIt last,
+                                const T& value, Compare comp)
+{
+    if constexpr (std::random_access_iterator<ForwardIt>) {
+        while (first < last) {
+            auto mid = first + (last - first) / 2;
+            if (comp(*mid, value)) {
+                first = mid + 1;
+            } else {
+                last = mid;
+            }
+        }
+        return first;
+    } else {
+        return core::find_if(first, last, [&](auto elem){ return !comp(elem, value); });
+    }
+}
+
+template<class ForwardIt, class T>
+constexpr ForwardIt lower_bound(ForwardIt first, ForwardIt last,
+                                const T& value)
+{
+    return core::lower_bound(first, last, value, std::less{});
 }
 
 }  // core
