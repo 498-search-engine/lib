@@ -649,7 +649,7 @@ constexpr ForwardIt lower_bound(ForwardIt first, ForwardIt last,
         }
         return first;
     } else {
-        return core::find_if(first, last, [&](auto elem){ return !comp(elem, value); });
+        return core::find_if(first, last, [&](const auto& elem){ return !comp(elem, value); });
     }
 }
 
@@ -658,6 +658,32 @@ constexpr ForwardIt lower_bound(ForwardIt first, ForwardIt last,
                                 const T& value)
 {
     return core::lower_bound(first, last, value, std::less{});
+}
+
+template<class ForwardIt, class T, class Compare>
+constexpr ForwardIt upper_bound(ForwardIt first, ForwardIt last,
+                                const T& value, Compare comp)
+{
+    if constexpr (std::random_access_iterator<ForwardIt>) {
+        while (first < last) {
+            auto mid = first + (last - first) / 2;
+            if (comp(value, *mid)) {
+                last = mid;
+            } else {
+                first = mid + 1;
+            }
+        }
+        return first;
+    } else {
+        return core::find_if(first, last, [&](const auto& elem){ return comp(value, elem); });
+    }
+}
+
+template<class ForwardIt, class T>
+constexpr ForwardIt upper_bound(ForwardIt first, ForwardIt last,
+                                const T& value)
+{
+    return core::upper_bound(first, last, value, std::less{});
 }
 
 }  // core
