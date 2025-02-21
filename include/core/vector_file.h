@@ -131,6 +131,11 @@ public:
     const T* begin() const { return Data(); }
     const T* end() const { return Data()[size_]; }
 
+    /**
+     * @brief Reserves enough space for a number of elements. May over-reserve.
+     *
+     * @param capacity Capacity to reserve for
+     */
     void Reserve(size_t capacity) {
         if (capacity_ >= capacity) {
             return;
@@ -173,12 +178,21 @@ public:
 private:
     FileHeader* Header() const { return static_cast<FileHeader*>(mapped_); }
 
+    /**
+     * @brief Forcibly resize the capacity of the vector to the next multiple of
+     * PageSize capable of holding new_capacity elements.
+     *
+     * @param new_capacity Minimum number of elements for capacity
+     */
     void ForceResize(size_t new_capacity) {
         if (mapped_ != nullptr) {
             munmap(mapped_, file_size_);
         }
 
-        size_t new_file_size = FileHeaderSpace + (new_capacity * sizeof(T));
+        // Round file size up to next multiple of a page
+        size_t data_size = FileHeaderSpace + (new_capacity * sizeof(T));
+        size_t new_file_size = (data_size + PageSize - 1) & ~(PageSize - 1);
+
         if (ftruncate(fd_, static_cast<off_t>(new_file_size)) == -1) {
             throw std::runtime_error("failed to resize file");
         }
@@ -188,9 +202,13 @@ private:
             throw std::runtime_error("failed to remap file after resize");
         }
 
+        // Compute new capacity based on rounded file size
+        size_t available_space = new_file_size - FileHeaderSpace;
+        size_t adjusted_capacity = available_space / sizeof(T);
+
         file_size_ = new_file_size;
-        capacity_ = new_capacity;
-        Header()->capacity = new_capacity;
+        capacity_ = adjusted_capacity;
+        Header()->capacity = adjusted_capacity;
     }
 
     int fd_{-1};
