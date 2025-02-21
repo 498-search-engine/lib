@@ -103,3 +103,28 @@ TEST(AlgorithmTests, UpperBound_constexpr) {
     static_assert(core::upper_bound(a.begin(), a.end(), 1) == a.begin()+1);
     static_assert(core::upper_bound(a.begin(), a.end(), 1, std::less{}) == a.begin()+1);
 }
+
+TEST(AlgorithmTests, BinarySearch) {
+    vector<int> v1{1,2,3,4,7};
+    for (int i = 1; i <= 4; i++)
+        EXPECT_TRUE(core::binary_search(v1.begin(), v1.end(), i));
+    EXPECT_FALSE(core::binary_search(v1.begin(), v1.end(),0));
+    EXPECT_FALSE(core::binary_search(v1.begin(), v1.end(),5));
+    EXPECT_FALSE(core::binary_search(v1.begin(), v1.end(),8));
+
+    vector<int> v2{7,4,3,2,1};
+    for (int i = 1; i <= 4; i++)
+        EXPECT_TRUE(core::binary_search(v2.begin(), v2.end(), i, std::greater{}));
+    EXPECT_FALSE(core::binary_search(v2.begin(), v2.end(),0, std::greater{}));
+    EXPECT_FALSE(core::binary_search(v2.begin(), v2.end(),5, std::greater{}));
+    EXPECT_FALSE(core::binary_search(v2.begin(), v2.end(),8, std::greater{}));
+
+    vector<int> e{};
+    EXPECT_FALSE(core::binary_search(e.begin(),e.end(),0));
+}
+
+TEST(AlgorithmTests, BinarySearch_constexpr) {
+    constexpr array<int,4> a{1,2,3,4};
+    static_assert(core::binary_search(a.begin(),a.end(),2));
+    static_assert(core::binary_search(a.begin(),a.end(),2,std::less{}));
+}
