@@ -686,6 +686,21 @@ constexpr ForwardIt upper_bound(ForwardIt first, ForwardIt last,
     return core::upper_bound(first, last, value, std::less{});
 }
 
+template<class ForwardIt, class T, class Compare>
+constexpr bool binary_search(ForwardIt first, ForwardIt last,
+                             const T& value, Compare comp)
+{
+    first = core::lower_bound(first, last, value, comp);
+    return (first != last && !comp(value, *first));
+}
+
+template<class ForwardIt, class T>
+constexpr bool binary_search(ForwardIt first, ForwardIt last,
+                             const T& value)
+{
+    return core::binary_search(first, last, value, std::less{});
+}
+
 }  // core
 
 #endif
