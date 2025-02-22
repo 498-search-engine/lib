@@ -55,7 +55,7 @@ TEST_F(OrderedMapFileTest, InsertAndRead) {
     EXPECT_EQ(tree.Size(), 1);
 
     auto find = tree.Find(1);
-    ASSERT_TRUE(find.has_value());
+    ASSERT_TRUE(find.HasValue());
     EXPECT_EQ(*find->key, 1);
     EXPECT_EQ(*find->value, 100);
 }
@@ -194,7 +194,7 @@ TEST_F(OrderedMapFileTest, LargeNumberOfInserts) {
     // Verify all elements
     for (uint32_t i = 0; i < n; i++) {
         auto it = tree.Find(i);
-        ASSERT_TRUE(it.has_value()) << "Failed to find key " << i;
+        ASSERT_TRUE(it.HasValue()) << "Failed to find key " << i;
         EXPECT_EQ(*it->key, i);
         EXPECT_EQ(*it->value, i * 2);
     }
@@ -202,8 +202,8 @@ TEST_F(OrderedMapFileTest, LargeNumberOfInserts) {
     // Verify elements outside range don't exist
     EXPECT_FALSE(tree.Contains(n));
     EXPECT_FALSE(tree.Contains(n + 1));
-    EXPECT_FALSE(tree.Find(n).has_value());
-    EXPECT_FALSE(tree.Find(n + 1).has_value());
+    EXPECT_FALSE(tree.Find(n).HasValue());
+    EXPECT_FALSE(tree.Find(n + 1).HasValue());
 }
 
 TEST_F(OrderedMapFileTest, InsertAfterSplit) {

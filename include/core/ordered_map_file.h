@@ -1,11 +1,11 @@
 #ifndef CORE_ORDERED_MAP_FILE_H
 #define CORE_ORDERED_MAP_FILE_H
 
+#include "core/optional.h"
 #include "core/vector_file.h"
 
 #include <array>
 #include <concepts>
-#include <optional>
 
 namespace core {
 
@@ -56,7 +56,7 @@ class OrderedMapFile {
 
     struct InsertionResult {
         bool inserted;
-        std::optional<Split> split;
+        core::Optional<Split> split;
     };
 
     struct FindResult {
@@ -137,14 +137,14 @@ public:
      */
     template<typename ComparableKey>
         requires TotalOrderComparator<Compare, K, ComparableKey>
-    std::optional<Pair> Find(const ComparableKey& key) {
+    core::Optional<Pair> Find(const ComparableKey& key) {
         if (auto found = FindImpl(key)) {
             return Pair{
                 .key = &nodes_[found->node].entries[found->entry].key,
                 .value = &nodes_[found->node].entries[found->entry].value,
             };
         }
-        return std::nullopt;
+        return core::nullopt;
     }
 
     /**
@@ -155,14 +155,14 @@ public:
      */
     template<typename ComparableKey>
         requires TotalOrderComparator<Compare, K, ComparableKey>
-    std::optional<ConstPair> Find(const ComparableKey& key) const {
+    core::Optional<ConstPair> Find(const ComparableKey& key) const {
         if (auto found = FindImpl(key)) {
             return ConstPair{
                 .key = &nodes_[found->node].entries[found->entry].key,
                 .value = &nodes_[found->node].entries[found->entry].value,
             };
         }
-        return std::nullopt;
+        return core::nullopt;
     }
 
     /**
@@ -174,7 +174,7 @@ public:
     template<typename ComparableKey>
         requires TotalOrderComparator<Compare, K, ComparableKey>
     bool Contains(const ComparableKey& key) const {
-        return FindImpl(key).has_value();
+        return FindImpl(key).HasValue();
     }
 
 private:
@@ -183,9 +183,9 @@ private:
      */
     template<typename ComparableKey>
         requires TotalOrderComparator<Compare, K, ComparableKey>
-    std::optional<FindResult> FindImpl(const ComparableKey& key) const {
+    core::Optional<FindResult> FindImpl(const ComparableKey& key) const {
         if (Empty()) {
-            return std::nullopt;
+            return core::nullopt;
         }
 
         uint32_t node_index = 0;
@@ -199,7 +199,7 @@ private:
                 if (compare_(node.entries[pos].key, key) == 0) {
                     return {FindResult{.node = node_index, .entry = pos}};
                 } else {
-                    return std::nullopt;
+                    return core::nullopt;
                 }
             } else {
                 bool exact_key_match = pos < node.keyCount && compare_(node.entries[pos].key, key) == 0;
@@ -212,7 +212,7 @@ private:
                 node_index = node.entries[pos].childIndex;
             }
         }
-        return std::nullopt;
+        return core::nullopt;
     }
 
     /**
@@ -269,7 +269,7 @@ private:
             auto pos = FindPosition(*node, key);
             if (pos < node->keyCount && compare_(node->entries[pos].key, key) == 0) {
                 // Key already exists
-                return {false, std::nullopt};
+                return {false, core::nullopt};
             }
 
             if (node->keyCount == N) {
@@ -285,7 +285,7 @@ private:
                 return {true, {split}};
             } else {
                 InsertKVAtPosition(node_index, pos, KV{.key = key, .value = value});
-                return {true, std::nullopt};
+                return {true, core::nullopt};
             }
         } else {
             auto pos = FindPosition(*node, key);
@@ -294,12 +294,12 @@ private:
 
             auto result = InsertInto(target_child, key, value);
             if (!result.inserted) {
-                return {false, std::nullopt};
+                return {false, core::nullopt};
             }
 
             if (!result.split) {
                 // No split occurred
-                return {true, std::nullopt};
+                return {true, core::nullopt};
             }
 
             // Rebind address of node -- it may have changed due to memory
@@ -319,7 +319,7 @@ private:
                 auto current_node_split = SplitInternal(node_index);
                 return {true, {current_node_split}};
             } else {
-                return {true, std::nullopt};
+                return {true, core::nullopt};
             }
         }
     }
