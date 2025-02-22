@@ -172,3 +172,26 @@ TEST_F(VectorFileTest, LargeFile) {
     EXPECT_EQ(list[count / 2], count / 2);
     EXPECT_EQ(list[count - 1], count - 1);
 }
+
+TEST_F(VectorFileTest, CustomData) {
+    struct SpecialData {
+        uint32_t sum;
+    };
+
+    {
+        CustomVectorFile<int, SpecialData> list(VectorFileName);
+        list.PushBack(1);
+        list.PushBack(2);
+        list.PushBack(3);
+        list.CustomData()->sum = 6;
+    }
+
+    {
+        CustomVectorFile<int, SpecialData> list(VectorFileName);
+        ASSERT_EQ(list.Size(), 3);
+        EXPECT_EQ(list[0], 1);
+        EXPECT_EQ(list[1], 2);
+        EXPECT_EQ(list[2], 3);
+        EXPECT_EQ(list.CustomData()->sum, 6);
+    }
+}

@@ -5,6 +5,7 @@
 
 #include <array>
 #include <concepts>
+#include <optional>
 
 namespace core {
 
@@ -28,6 +29,10 @@ class OrderedMapFile {
     static_assert(std::is_trivially_copyable_v<V>, "V must be trivially copyable to persist to disk");
 
     using index_t = uint32_t;
+
+    struct Metadata {
+        uint32_t size;
+    };
 
     struct KV {
         K key;
@@ -85,6 +90,9 @@ public:
         }
     }
 
+    size_t Size() const { return nodes_.CustomData()->size; }
+    bool Empty() const { return Size() == 0; }
+
     /**
      * @brief Attempts to insert a key-value pair into the map.
      *
@@ -114,6 +122,9 @@ public:
             nodes_.PushBack(new_root);
             std::swap(nodes_.Front(), nodes_.Back());
         }
+
+        // Increment number of elements in map
+        ++nodes_.CustomData()->size;
 
         return true;
     }
@@ -173,6 +184,10 @@ private:
     template<typename ComparableKey>
         requires TotalOrderComparator<Compare, K, ComparableKey>
     std::optional<FindResult> FindImpl(const ComparableKey& key) const {
+        if (Empty()) {
+            return std::nullopt;
+        }
+
         uint32_t node_index = 0;
         while (true) {
             const Node& node = nodes_[node_index];
@@ -401,7 +416,7 @@ private:
         return left;
     }
 
-    VectorFile<Node> nodes_;
+    CustomVectorFile<Node, Metadata> nodes_;
     Compare compare_;
 };
 

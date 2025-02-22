@@ -11,6 +11,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/unistd.h>
+#include <type_traits>
 #include <unistd.h>
 
 namespace core {
@@ -23,9 +24,14 @@ constexpr size_t PageSize = 4096;
  * Insertions and removals at arbitrary indicies are not permitted.
  *
  * @tparam T Vector element type
+ * @tparam CustomDataType Structure of custom data to be stored in file header.
+ * If void, no custom data will be stored.
  */
-template<typename T>
-class VectorFile {
+template<typename T, typename CustomDataType>
+class CustomVectorFile {
+    struct Empty {};
+    using CustomDataT = std::conditional_t<std::is_same_v<CustomDataType, void>, Empty, CustomDataType>;
+
     struct FileHeader {
         size_t capacity;
         size_t size;
@@ -34,12 +40,26 @@ class VectorFile {
     static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable to persist to disk");
     static_assert(std::has_unique_object_representations_v<FileHeader>,
                   "FileHeader must have a unique object representation (no padding)");
-
-    // Round sizeof(FileHeader) up to multiple of alignof(T)
-    static constexpr size_t FileHeaderSpace = (sizeof(FileHeader) + alignof(T) - 1) & ~(alignof(T) - 1);
-    static_assert(sizeof(FileHeader) <= FileHeaderSpace);
+    static_assert(std::is_same_v<CustomDataType, void> || std::is_trivially_copyable_v<CustomDataT>,
+                  "CustomDataT must be trivially copyable to persist to disk");
+    static_assert(std::is_same_v<CustomDataType, void> || std::has_unique_object_representations_v<CustomDataT>,
+                  "CustomDataT must have a unique object representation (no padding)");
 
 public:
+    static constexpr size_t CustomDataSize = std::is_same_v<CustomDataType, void> ? 0 : sizeof(CustomDataT);
+
+    static constexpr size_t FileHeaderSpace =
+        std::is_same_v<CustomDataType, void>
+            ? (sizeof(FileHeader) + alignof(T) - 1) & ~(alignof(T) - 1)
+            : (sizeof(FileHeader) + alignof(CustomDataT) - 1) & ~(alignof(CustomDataT) - 1);
+
+    static constexpr size_t HeaderSpace = std::is_same_v<CustomDataType, void>
+                                              ? FileHeaderSpace
+                                              : (FileHeaderSpace + CustomDataSize + alignof(T) - 1) & ~(alignof(T) - 1);
+
+    static_assert(sizeof(FileHeader) <= FileHeaderSpace);
+    static_assert(FileHeaderSpace + CustomDataSize <= HeaderSpace);
+
     static constexpr size_t EntriesPerPage = PageSize / sizeof(T);
     static constexpr size_t InitialCapacity = EntriesPerPage;
 
@@ -48,7 +68,7 @@ public:
      *
      * @param path Path of backing file
      */
-    VectorFile(const char* path) {
+    CustomVectorFile(const char* path) {
         bool exists = access(path, F_OK) != -1;
 
         // Create/open file
@@ -67,7 +87,7 @@ public:
             file_size_ = st.st_size;
         } else {
             // Initialize file
-            file_size_ = FileHeaderSpace + (InitialCapacity * sizeof(T));
+            file_size_ = HeaderSpace + (InitialCapacity * sizeof(T));
             if (ftruncate(fd_, file_size_) == -1) {
                 close(fd_);
                 throw std::runtime_error("failed to initialize file");
@@ -91,7 +111,7 @@ public:
         size_ = Header()->size;
     }
 
-    ~VectorFile() {
+    ~CustomVectorFile() {
         if (mapped_ != nullptr) {
             munmap(mapped_, file_size_);
             mapped_ = nullptr;
@@ -106,8 +126,8 @@ public:
     size_t Capacity() const { return capacity_; }
     bool Empty() const { return size_ == 0; }
 
-    T* Data() { return reinterpret_cast<T*>(static_cast<char*>(mapped_) + FileHeaderSpace); }
-    const T* Data() const { return reinterpret_cast<const T*>(static_cast<char*>(mapped_) + FileHeaderSpace); }
+    T* Data() { return reinterpret_cast<T*>(static_cast<char*>(mapped_) + HeaderSpace); }
+    const T* Data() const { return reinterpret_cast<const T*>(static_cast<char*>(mapped_) + HeaderSpace); }
 
     T& operator[](size_t n) {
         if (n >= size_) {
@@ -175,6 +195,15 @@ public:
         }
     }
 
+    /**
+     * @brief Gets a pointer to the custom data block in the file header, if
+     * configured.
+     */
+    CustomDataT* CustomData() { return reinterpret_cast<CustomDataT*>(static_cast<char*>(mapped_) + FileHeaderSpace); }
+    const CustomDataT* CustomData() const {
+        return reinterpret_cast<CustomDataT*>(static_cast<char*>(mapped_) + FileHeaderSpace);
+    }
+
 private:
     FileHeader* Header() const { return static_cast<FileHeader*>(mapped_); }
 
@@ -190,7 +219,7 @@ private:
         }
 
         // Round file size up to next multiple of a page
-        size_t data_size = FileHeaderSpace + (new_capacity * sizeof(T));
+        size_t data_size = HeaderSpace + (new_capacity * sizeof(T));
         size_t new_file_size = (data_size + PageSize - 1) & ~(PageSize - 1);
 
         if (ftruncate(fd_, static_cast<off_t>(new_file_size)) == -1) {
@@ -203,7 +232,7 @@ private:
         }
 
         // Compute new capacity based on rounded file size
-        size_t available_space = new_file_size - FileHeaderSpace;
+        size_t available_space = new_file_size - HeaderSpace;
         size_t adjusted_capacity = available_space / sizeof(T);
 
         file_size_ = new_file_size;
@@ -219,6 +248,18 @@ private:
     size_t size_{0};      // vector size
 };
 
+// Alignment of int data -> 4 byte boundary
+static_assert(CustomVectorFile<int, int>::CustomDataSize == 4);
+static_assert(CustomVectorFile<int, int>::FileHeaderSpace == 16);
+static_assert(CustomVectorFile<int, int>::HeaderSpace == 20);
+
+// Alignment of long data -> 8 byte boundary
+static_assert(CustomVectorFile<long, int>::CustomDataSize == 4);
+static_assert(CustomVectorFile<long, int>::FileHeaderSpace == 16);
+static_assert(CustomVectorFile<long, int>::HeaderSpace == 24);
+
+template<typename T>
+using VectorFile = CustomVectorFile<T, void>;
 
 }  // namespace core
 

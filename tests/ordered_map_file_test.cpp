@@ -40,6 +40,7 @@ TEST_F(OrderedMapFileTest, EmptyTreeContainsFalse) {
     auto compare = U32Compare{};
     auto tree = OrderedMapFile<uint32_t, uint32_t, 5, decltype(compare)>{OrderedMapFileName, compare};
     EXPECT_FALSE(tree.Contains(1));
+    EXPECT_TRUE(tree.Empty());
 }
 
 TEST_F(OrderedMapFileTest, InsertAndRead) {
@@ -49,6 +50,9 @@ TEST_F(OrderedMapFileTest, InsertAndRead) {
     EXPECT_TRUE(tree.Insert(1, 100));
     EXPECT_TRUE(tree.Contains(1));
     EXPECT_FALSE(tree.Contains(2));
+
+    EXPECT_FALSE(tree.Empty());
+    EXPECT_EQ(tree.Size(), 1);
 
     auto find = tree.Find(1);
     ASSERT_TRUE(find.has_value());
@@ -72,6 +76,7 @@ TEST_F(OrderedMapFileTest, Persistence) {
         auto compare = U32Compare{};
         auto tree = OrderedMapFile<uint32_t, uint32_t, 5, decltype(compare)>{OrderedMapFileName, compare};
 
+        EXPECT_EQ(tree.Size(), 3);
         ASSERT_TRUE(tree.Contains(1));
         ASSERT_TRUE(tree.Contains(2));
         ASSERT_TRUE(tree.Contains(3));
@@ -88,6 +93,7 @@ TEST_F(OrderedMapFileTest, DuplicateInsert) {
     EXPECT_TRUE(tree.Insert(1, 100));
     EXPECT_FALSE(tree.Insert(1, 200));  // Duplicate should fail
     EXPECT_TRUE(tree.Contains(1));
+    EXPECT_EQ(tree.Size(), 1);
 }
 
 TEST_F(OrderedMapFileTest, MultipleInserts) {
@@ -182,6 +188,8 @@ TEST_F(OrderedMapFileTest, LargeNumberOfInserts) {
     for (uint32_t i = 0; i < n; i++) {
         EXPECT_TRUE(tree.Insert(i, i * 2));
     }
+
+    EXPECT_EQ(tree.Size(), n);
 
     // Verify all elements
     for (uint32_t i = 0; i < n; i++) {
