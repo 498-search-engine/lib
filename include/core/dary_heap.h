@@ -4,6 +4,7 @@
 #ifndef LIB_DARY_HEAP_H
 #define LIB_DARY_HEAP_H
 
+#include "core/serializer.h"
 #include <vector>
 #include <unordered_map>
 #include <functional>
@@ -152,6 +153,7 @@ public:
             throw std::out_of_range("heap is empty");
         return heap_.front().value;
     }
+
 };
 
 } // namespace core
