@@ -11,8 +11,6 @@
 #include <iterator>
 #include <utility>
 
-#include <iostream>
-
 using std::vector;
 using std::array;
 using std::list;
