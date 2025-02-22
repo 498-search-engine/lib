@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20250222-1658-Experimental"
+	Name="(empty)"
+	Generator="ctest-3.31.1"
+	CompilerName=""
+	CompilerVersion=""
+	OSName="macOS"
+	Hostname="Arnavs-MacBook-Pro-9.local"
+	OSRelease="14.5"
+	OSVersion="23F79"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="142"
+	ModelName="Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz"
+	ProcessorCacheSize="32768"
+	NumberOfLogicalCPU="8"
+	NumberOfPhysicalCPU="4"
+	TotalVirtualMemory="2048"
+	TotalPhysicalMemory="8192"
+	LogicalProcessorsPerPhysical="8"
+	ProcessorClockFrequency="2300"
+	>
+	<Testing>
+		<StartDateTime>Feb 22 11:58 EST</StartDateTime>
+		<StartTestTime>1740243509</StartTestTime>
+		<TestList/>
+		<EndDateTime>Feb 22 11:58 EST</EndDateTime>
+		<EndTestTime>1740243509</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>
