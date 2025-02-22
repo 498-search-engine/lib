@@ -7,6 +7,7 @@
 #include <core/thread.h>
 
 #include <gtest/gtest.h>
+#include <thread>
 
 using namespace core;
 
