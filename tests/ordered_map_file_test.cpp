@@ -257,3 +257,62 @@ TEST_F(OrderedMapFileTest, HybridStringContains) {
         EXPECT_FALSE(tree.Contains(s));
     }
 }
+
+struct FixedSizeRecord {
+    int id;
+    char description[100];  // Fixed-size char array
+};
+
+// Ensure the struct is trivially copyable
+static_assert(std::is_trivially_copyable_v<FixedSizeRecord>, "AnotherFixedSizeRecord must be trivially copyable");
+
+struct IntComparator {
+    int operator()(int a, int b) const {
+        return (a < b) ? -1 : (a > b) ? 1 : 0;
+    }
+};
+
+TEST_F(OrderedMapFileTest, AnotherFixedSizeRecordStorage) {
+    OrderedMapFile<int, FixedSizeRecord, 4, IntComparator> map(OrderedMapFileName, IntComparator{});
+
+    FixedSizeRecord record1 = {1, "Description One"};
+    FixedSizeRecord record2 = {2, "Description Two"};
+
+    EXPECT_TRUE(map.Insert(1, record1));
+    EXPECT_TRUE(map.Insert(2, record2));
+
+    auto found1 = map.Find(1);
+    ASSERT_TRUE(found1.HasValue());
+    EXPECT_EQ(found1->value->id, 1);
+    EXPECT_STREQ(found1->value->description, "Description One");
+
+    auto found2 = map.Find(2);
+    ASSERT_TRUE(found2.HasValue());
+    EXPECT_EQ(found2->value->id, 2);
+    EXPECT_STREQ(found2->value->description, "Description Two");
+}
+
+TEST_F(OrderedMapFileTest, AnotherFixedSizeRecordPersistence) {
+    // Write some records
+    {
+        OrderedMapFile<int, FixedSizeRecord, 4, IntComparator> map(OrderedMapFileName, IntComparator{});
+        FixedSizeRecord record1 = {1, "Persistent Description One"};
+        FixedSizeRecord record2 = {2, "Persistent Description Two"};
+        map.Insert(1, record1);
+        map.Insert(2, record2);
+    }
+
+    // Read them back in a new instance
+    {
+        OrderedMapFile<int, FixedSizeRecord, 4, IntComparator> map(OrderedMapFileName, IntComparator{});
+        auto found1 = map.Find(1);
+        ASSERT_TRUE(found1.HasValue());
+        EXPECT_EQ(found1->value->id, 1);
+        EXPECT_STREQ(found1->value->description, "Persistent Description One");
+
+        auto found2 = map.Find(2);
+        ASSERT_TRUE(found2.HasValue());
+        EXPECT_EQ(found2->value->id, 2);
+        EXPECT_STREQ(found2->value->description, "Persistent Description Two");
+    }
+}

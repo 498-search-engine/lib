@@ -31,6 +31,14 @@ struct TrivialStruct {
     char z;
 };
 
+struct FixedSizeRecord {
+    int id;
+    char name[100];  // Fixed-size char array
+};
+
+// Ensure the struct is trivially copyable
+static_assert(std::is_trivially_copyable_v<FixedSizeRecord>, "FixedSizeRecord must be trivially copyable");
+
 TEST_F(VectorFileTest, CreateNewFile) {
     VectorFile<int> list(VectorFileName);
     EXPECT_EQ(list.Size(), 0);
@@ -193,5 +201,62 @@ TEST_F(VectorFileTest, CustomData) {
         EXPECT_EQ(list[1], 2);
         EXPECT_EQ(list[2], 3);
         EXPECT_EQ(list.CustomData()->sum, 6);
+    }
+}
+
+TEST_F(VectorFileTest, CustomDataInitialization) {
+    struct CustomData {
+        int value;
+    };
+
+    {
+        CustomVectorFile<int, CustomData> list(VectorFileName);
+        list.CustomData()->value = 42;
+    }
+
+    {
+        CustomVectorFile<int, CustomData> list(VectorFileName);
+        EXPECT_EQ(list.CustomData()->value, 42);
+    }
+}
+
+TEST_F(VectorFileTest, FixedSizeRecordStorage) {
+    CustomVectorFile<FixedSizeRecord, void> list(VectorFileName);
+
+    FixedSizeRecord record1 = {1, "Record One"};
+    FixedSizeRecord record2 = {2, "Record Two"};
+
+    list.PushBack(record1);
+    list.PushBack(record2);
+
+    EXPECT_EQ(list.Size(), 2);
+
+    EXPECT_EQ(list[0].id, 1);
+    EXPECT_STREQ(list[0].name, "Record One");
+
+    EXPECT_EQ(list[1].id, 2);
+    EXPECT_STREQ(list[1].name, "Record Two");
+}
+
+TEST_F(VectorFileTest, FixedSizeRecordPersistence) {
+    // Write some records
+    {
+        CustomVectorFile<FixedSizeRecord, void> list(VectorFileName);
+        FixedSizeRecord record1 = {1, "Persistent One"};
+        FixedSizeRecord record2 = {2, "Persistent Two"};
+        list.PushBack(record1);
+        list.PushBack(record2);
+    }
+
+    // Read them back in a new instance
+    {
+        CustomVectorFile<FixedSizeRecord, void> list(VectorFileName);
+        ASSERT_EQ(list.Size(), 2);
+
+        EXPECT_EQ(list[0].id, 1);
+        EXPECT_STREQ(list[0].name, "Persistent One");
+
+        EXPECT_EQ(list[1].id, 2);
+        EXPECT_STREQ(list[1].name, "Persistent Two");
     }
 }
