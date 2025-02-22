@@ -1,10 +1,10 @@
 #ifndef CORE_ORDERED_MAP_FILE_H
 #define CORE_ORDERED_MAP_FILE_H
 
+#include "core/array.h"
 #include "core/optional.h"
 #include "core/vector_file.h"
 
-#include <array>
 #include <concepts>
 
 namespace core {
@@ -45,7 +45,7 @@ class OrderedMapFile {
     struct Node {
         uint32_t isLeaf;
         uint32_t keyCount;
-        std::array<KV, N> entries;
+        core::Array<KV, N> entries;
     };
 
     struct Split {
