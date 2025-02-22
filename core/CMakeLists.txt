@@ -13,10 +13,12 @@ target_include_directories(core
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         # If installing, they'll go to 'include'
         $<INSTALL_INTERFACE:include>
+        # template internals
+        ${CMAKE_CURRENT_SOURCE_DIR}/detail
 )
 
 # Set C++ standard for consuming targets
-target_compile_features(core INTERFACE cxx_std_17)
+target_compile_features(core INTERFACE cxx_std_20)
 
 # # Add strict warning flags
 # if(MSVC)
