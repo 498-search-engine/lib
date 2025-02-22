@@ -27,6 +27,7 @@ public:
         Lambda_t* task = new Lambda_t(std::move(lambda));
         int result = pthread_create(&thread_id_, nullptr, &ThreadEntry<Lambda_t>, task);
         if (result != 0) {
+            delete task;
             throw std::runtime_error("failed to create pthread");
         }
     }
