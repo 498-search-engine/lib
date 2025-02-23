@@ -24,10 +24,8 @@ concept TotalOrderComparator = requires(T t, A a, B b) {
  * @tparam Compare Comparator
  */
 template<typename K, typename V, size_t N, TotalOrderComparator<K, K> Compare>
+    requires std::is_trivially_copyable_v<K> && std::is_trivially_copyable_v<V>
 class OrderedMapFile {
-    static_assert(std::is_trivially_copyable_v<K>, "K must be trivially copyable to persist to disk");
-    static_assert(std::is_trivially_copyable_v<V>, "V must be trivially copyable to persist to disk");
-
     using index_t = uint32_t;
 
     struct Metadata {

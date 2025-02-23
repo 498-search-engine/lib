@@ -18,6 +18,14 @@ namespace core {
 
 constexpr size_t PageSize = 4096;
 
+namespace internal {
+
+template<typename T>
+concept ValidCustomData = std::is_trivially_copyable_v<T> && std::has_unique_object_representations_v<T>;
+struct Empty {};
+
+}  // namespace internal
+
 /**
  * @brief VectorFile is a vector-like data structure that is backed by a
  * memory-mapped file. It supports O(1) random access, push back, and pop back.
@@ -28,22 +36,20 @@ constexpr size_t PageSize = 4096;
  * If void, no custom data will be stored.
  */
 template<typename T, typename CustomDataType>
+    requires std::is_trivially_copyable_v<T> &&
+             (std::is_same_v<CustomDataType, void> ||
+              internal::ValidCustomData<
+                  std::conditional_t<std::is_same_v<CustomDataType, void>, internal::Empty, CustomDataType>>)
 class CustomVectorFile {
-    struct Empty {};
-    using CustomDataT = std::conditional_t<std::is_same_v<CustomDataType, void>, Empty, CustomDataType>;
+    using CustomDataT = std::conditional_t<std::is_same_v<CustomDataType, void>, internal::Empty, CustomDataType>;
 
     struct FileHeader {
         size_t capacity;
         size_t size;
     };
 
-    static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable to persist to disk");
     static_assert(std::has_unique_object_representations_v<FileHeader>,
                   "FileHeader must have a unique object representation (no padding)");
-    static_assert(std::is_same_v<CustomDataType, void> || std::is_trivially_copyable_v<CustomDataT>,
-                  "CustomDataT must be trivially copyable to persist to disk");
-    static_assert(std::is_same_v<CustomDataType, void> || std::has_unique_object_representations_v<CustomDataT>,
-                  "CustomDataT must have a unique object representation (no padding)");
 
 public:
     static constexpr size_t CustomDataSize = std::is_same_v<CustomDataType, void> ? 0 : sizeof(CustomDataT);
@@ -200,6 +206,11 @@ public:
      * configured.
      */
     CustomDataT* CustomData() { return reinterpret_cast<CustomDataT*>(static_cast<char*>(mapped_) + FileHeaderSpace); }
+
+    /**
+     * @brief Gets a pointer to the custom data block in the file header, if
+     * configured.
+     */
     const CustomDataT* CustomData() const {
         return reinterpret_cast<CustomDataT*>(static_cast<char*>(mapped_) + FileHeaderSpace);
     }
