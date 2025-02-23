@@ -705,6 +705,46 @@ constexpr bool binary_search(ForwardIt first, ForwardIt last,
     return core::binary_search(first, last, value, std::less{});
 }
 
+// Miscellaneous comparison operations
+
+template<class T>
+constexpr const T& max(const T& a, const T& b) {
+    return core::max(a, b, std::less{});
+}
+
+template<class T, class Compare>
+constexpr const T& max(const T& a, const T& b, Compare comp) {
+    return comp(a,b) ? b : a;
+}
+
+template<class T>
+constexpr T max(std::initializer_list<T> ilist) {
+    return *core::max_element(ilist.begin(), ilist.end());
+}
+
+template<class T, class Compare>
+constexpr T max(std::initializer_list<T> ilist, Compare comp) {
+    return *core::max_element(ilist.begin(), ilist.end(), comp);
+}
+
+template<class ForwardIt>
+constexpr ForwardIt max_element(ForwardIt first, ForwardIt last) {
+    return core::max_element(first, last, std::less{});
+}
+
+template<class ForwardIt, class Compare>
+constexpr ForwardIt max_element(ForwardIt first, ForwardIt last,
+                                Compare comp)
+{
+    if (first == last) return last;
+    ForwardIt it = first;
+    for (; first != last; ++first) {
+        if (comp(*it, *first)) 
+            it = first;
+    }
+    return it;
+}
+
 }  // core
 
 #endif
