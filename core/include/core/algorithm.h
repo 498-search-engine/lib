@@ -4,6 +4,7 @@
 #include <iterator>
 #include <type_traits>
 #include <functional>
+#include <initializer_list>
 
 namespace core {
 
@@ -234,6 +235,27 @@ constexpr bool binary_search(ForwardIt first, ForwardIt last,
 template<class ForwardIt, class T>
 constexpr bool binary_search(ForwardIt first, ForwardIt last,
                              const T& value);
+
+// Miscellaneous comparison operations
+
+template<class T>
+constexpr const T& max(const T& a, const T& b);
+
+template<class T, class Compare>
+constexpr const T& max(const T& a, const T& b, Compare comp);
+
+template<class T>
+constexpr T max(std::initializer_list<T> ilist);
+
+template<class T, class Compare>
+constexpr T max(std::initializer_list<T> ilist, Compare comp);
+
+template<class ForwardIt>
+constexpr ForwardIt max_element(ForwardIt first, ForwardIt last);
+
+template<class ForwardIt, class Compare>
+constexpr ForwardIt max_element(ForwardIt first, ForwardIt last,
+                                Compare comp);
 
 }  // core
 

@@ -21,6 +21,7 @@ add_test(NAME optional_test COMMAND optional_test)
 set(ALGORITHM_TEST_SOURCES
     algorithm-modify_test.cpp
     algorithm-sorted_test.cpp
+    algorithm-misc_test.cpp
     algorithm_test.cpp
 )
 add_executable(algorithm_test ${ALGORITHM_TEST_SOURCES})
