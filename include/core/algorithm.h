@@ -238,6 +238,7 @@ constexpr bool binary_search(ForwardIt first, ForwardIt last,
 
 // Miscellaneous comparison operations
 
+// Max
 template<class T>
 constexpr const T& max(const T& a, const T& b);
 
@@ -250,11 +251,33 @@ constexpr T max(std::initializer_list<T> ilist);
 template<class T, class Compare>
 constexpr T max(std::initializer_list<T> ilist, Compare comp);
 
+// Max Element
 template<class ForwardIt>
 constexpr ForwardIt max_element(ForwardIt first, ForwardIt last);
 
 template<class ForwardIt, class Compare>
 constexpr ForwardIt max_element(ForwardIt first, ForwardIt last,
+                                Compare comp);
+
+// Min
+template<class T>
+constexpr const T& min(const T& a, const T& b);
+
+template<class T, class Compare>
+constexpr const T& min(const T& a, const T& b, Compare comp);
+
+template<class T>
+constexpr T min(std::initializer_list<T> ilist);
+
+template<class T, class Compare>
+constexpr T min(std::initializer_list<T> ilist, Compare comp);
+
+// Min Element
+template<class ForwardIt>
+constexpr ForwardIt min_element(ForwardIt first, ForwardIt last);
+
+template<class ForwardIt, class Compare>
+constexpr ForwardIt min_element(ForwardIt first, ForwardIt last,
                                 Compare comp);
 
 }  // core

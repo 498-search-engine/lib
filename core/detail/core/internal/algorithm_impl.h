@@ -1,3 +1,14 @@
+/**
+ * @file algorithm_impl.h
+ * @author Christopher Davis
+ * @brief Implementation details of <core/algorithm.h>, do not include
+ * @version 1.0
+ * @date 2025-02-22
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
 #ifndef LIB_ALGORITHM_H
 #error "Do not include this file directly. Include <core/algorithm.h> instead."
 #endif
@@ -740,6 +751,44 @@ constexpr ForwardIt max_element(ForwardIt first, ForwardIt last,
     ForwardIt it = first;
     for (; first != last; ++first) {
         if (comp(*it, *first)) 
+            it = first;
+    }
+    return it;
+}
+
+template<class T>
+constexpr const T& min(const T& a, const T& b) {
+    return core::min(a, b, std::less{});
+}
+
+template<class T, class Compare>
+constexpr const T& min(const T& a, const T& b, Compare comp) {
+    return comp(a, b) ? a : b;
+}
+
+template<class T>
+constexpr T min(std::initializer_list<T> ilist) {
+    return *core::min_element(ilist.begin(), ilist.end());
+}
+
+template<class T, class Compare>
+constexpr T min(std::initializer_list<T> ilist, Compare comp) {
+    return *core::min_element(ilist.begin(), ilist.end(), comp);
+}
+
+template<class ForwardIt>
+constexpr ForwardIt min_element(ForwardIt first, ForwardIt last) {
+    return core::min_element(first, last, std::less{});
+}
+
+template<class ForwardIt, class Compare>
+constexpr ForwardIt min_element(ForwardIt first, ForwardIt last,
+                                Compare comp)
+{
+    if (first == last) return last;
+    ForwardIt it = first;
+    for (; first != last; ++first) {
+        if (comp(*first, *it)) 
             it = first;
     }
     return it;

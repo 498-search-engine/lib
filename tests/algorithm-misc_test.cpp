@@ -27,7 +27,6 @@ TEST(AlgorithmTests, Max) {
     EXPECT_EQ(core::max({1,2,3,4}, std::greater{}), 1);
 }
 
-
 TEST(AlgorithmTests, Max_constexpr) {
     static_assert(core::max(1,2) == 2);
     static_assert(core::max(1,2,std::greater{}) == 1);
@@ -56,4 +55,46 @@ TEST(AlgorithmTests, MaxElement_constexpr) {
     constexpr array<int,4> a{1,2,3,4};
     static_assert(core::max_element(a.begin(),a.end()) == a.begin()+3);
     static_assert(core::max_element(a.begin(),a.end(),std::less{}) == a.begin()+3);
+}
+
+TEST(AlgorithmTests, Min) {
+    int i1 = 1, i2 = 2;
+    EXPECT_EQ(core::min(i1, i2), i1);
+    EXPECT_EQ(core::min(-1,-2),-2);
+
+    EXPECT_EQ(core::min(i1, i2, std::greater{}), i2);
+    EXPECT_EQ(core::min(1,2, std::greater{}), 2);
+
+    EXPECT_EQ(core::min({1,2,3,4}), 1);
+    EXPECT_EQ(core::min({1,2,3,4}, std::greater{}), 4);
+}
+
+TEST(AlgorithmTests, Min_constexpr) {
+    static_assert(core::min(1,2) == 1);
+    static_assert(core::min(1,2,std::greater{}) == 2);
+    static_assert(core::min({1,2}) == 1);
+    static_assert(core::min({1,2},std::greater{}) == 2);
+}
+
+TEST(AlgorithmTests, MinElement) {
+    vector<int> v{5,4,3,2,1};
+    list<int> l{5,4,3,2,1};
+    slist<int> s{5,4,3,2,1};
+
+    EXPECT_EQ(core::min_element(v.begin(),v.end()), std::next(v.begin(),4));
+    EXPECT_EQ(core::min_element(v.begin(),v.end(),std::greater{}),v.begin());
+    EXPECT_EQ(core::min_element(l.begin(),l.end()), std::next(l.begin(),4));
+    EXPECT_EQ(core::min_element(l.begin(),l.end(),std::greater{}),l.begin());
+    EXPECT_EQ(core::min_element(s.begin(),s.end()), std::next(s.begin(),4));
+    EXPECT_EQ(core::min_element(s.begin(),s.end(),std::greater{}),s.begin());
+
+    vector<int> empty{};
+    EXPECT_EQ(core::max_element(empty.begin(), empty.end()), empty.end());
+    EXPECT_EQ(core::max_element(empty.begin(), empty.end(), std::greater{}), empty.end());
+}
+
+TEST(AlgorithmTests, MinElement_constexpr) {
+    constexpr array<int,4> a{4,3,2,1};
+    static_assert(core::min_element(a.begin(),a.end()) == a.begin()+3);
+    static_assert(core::min_element(a.begin(),a.end(),std::less{}) == a.begin()+3);
 }
