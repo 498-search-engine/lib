@@ -299,5 +299,6 @@ constexpr void clamp_range(ForwardIt first, ForwardIt last,
 }  // core
 
 #include "core/internal/algorithm_impl.h"
+#include "core/internal/swap.h"
 
 #endif

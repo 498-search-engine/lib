@@ -514,16 +514,6 @@ constexpr OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first
     return d_first;
 }
 
-template<class T>
-constexpr void swap(T& a, T& b) 
-noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>)
-requires (std::is_move_constructible_v<T> && std::is_move_assignable_v<T>)
-{
-    T t(std::move(a));
-    a = std::move(b);
-    b = std::move(t);
-}
-
 template<class ForwardIt1, class ForwardIt2>
 constexpr void iter_swap(ForwardIt1 a, ForwardIt2 b) {
     core::swap(*a, *b);

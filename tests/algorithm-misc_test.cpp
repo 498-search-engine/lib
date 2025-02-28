@@ -104,13 +104,13 @@ TEST(AlgorithmTests, Clamp) {
     EXPECT_EQ(core::clamp(1,1,1), 1);
     EXPECT_EQ(core::clamp(1,1,2), 1);
     EXPECT_EQ(core::clamp(0,1,2), 1);
-    EXPECT_EQ(core::clamp(2,1,2), 1);
+    EXPECT_EQ(core::clamp(2,1,2), 2);
     EXPECT_EQ(core::clamp(3,1,2), 2);
 
     EXPECT_EQ(core::clamp(1,1,1,std::less{}), 1);
     EXPECT_EQ(core::clamp(1,1,2,std::less{}), 1);
     EXPECT_EQ(core::clamp(0,1,2,std::less{}), 1);
-    EXPECT_EQ(core::clamp(2,1,2,std::less{}), 1);
+    EXPECT_EQ(core::clamp(2,1,2,std::less{}), 2);
     EXPECT_EQ(core::clamp(3,1,2,std::less{}), 2);
 }
 
@@ -127,7 +127,7 @@ TEST(AlgorithmTests, ClampRange) {
     auto abs = [](int a, int b){return std::abs(a) < std::abs(b); };
     slist<int> l2{-3,1,-2,3,-4,5};
     core::clamp_range(l2.begin(),l2.end(),2,3,abs);
-    EXPECT_EQ(l2, (slist<int>{-3,2,-2,3,-4,4}));
+    EXPECT_EQ(l2, (slist<int>{-3,2,-2,3,3,3}));
 
     vector<int> empty; // no error
     EXPECT_NO_THROW(core::clamp_range(empty.begin(), empty.end(), 0, 1));
