@@ -9,6 +9,7 @@
 #include <utility>
 #include <initializer_list>
 #include <functional>
+#include<cmath>
 
 using std::vector;
 using std::array;
@@ -97,4 +98,46 @@ TEST(AlgorithmTests, MinElement_constexpr) {
     constexpr array<int,4> a{4,3,2,1};
     static_assert(core::min_element(a.begin(),a.end()) == a.begin()+3);
     static_assert(core::min_element(a.begin(),a.end(),std::less{}) == a.begin()+3);
+}
+
+TEST(AlgorithmTests, Clamp) {
+    EXPECT_EQ(core::clamp(1,1,1), 1);
+    EXPECT_EQ(core::clamp(1,1,2), 1);
+    EXPECT_EQ(core::clamp(0,1,2), 1);
+    EXPECT_EQ(core::clamp(2,1,2), 1);
+    EXPECT_EQ(core::clamp(3,1,2), 2);
+
+    EXPECT_EQ(core::clamp(1,1,1,std::less{}), 1);
+    EXPECT_EQ(core::clamp(1,1,2,std::less{}), 1);
+    EXPECT_EQ(core::clamp(0,1,2,std::less{}), 1);
+    EXPECT_EQ(core::clamp(2,1,2,std::less{}), 1);
+    EXPECT_EQ(core::clamp(3,1,2,std::less{}), 2);
+}
+
+TEST(AlgorithmTests, Clamp_constexpr) {
+    static_assert(core::clamp(1,0,2) == 1);
+    static_assert(core::clamp(1,0,2,std::less{}) == 1);
+}
+
+TEST(AlgorithmTests, ClampRange) {
+    slist<int> l1{1,2,3,4,5};
+    core::clamp_range(l1.begin(), l1.end(), 2, 4);
+    EXPECT_EQ(l1, (slist<int>{2,2,3,4,4}));
+
+    auto abs = [](int a, int b){return std::abs(a) < std::abs(b); };
+    slist<int> l2{-3,1,-2,3,-4,5};
+    core::clamp_range(l2.begin(),l2.end(),2,3,abs);
+    EXPECT_EQ(l2, (slist<int>{-3,2,-2,3,-4,4}));
+
+    vector<int> empty; // no error
+    EXPECT_NO_THROW(core::clamp_range(empty.begin(), empty.end(), 0, 1));
+}
+
+TEST(AlgorithmTests, ClampRange_constexpr) {
+    constexpr auto valid = [](){
+        array<int,4> a{1,2,3,4};
+        core::clamp_range(a.begin(),a.end(),2,3);
+        return a == array<int,4>{2,2,3,3};
+    }();
+    static_assert(valid);
 }

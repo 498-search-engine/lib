@@ -280,6 +280,22 @@ template<class ForwardIt, class Compare>
 constexpr ForwardIt min_element(ForwardIt first, ForwardIt last,
                                 Compare comp);
 
+// Clamp
+template<class T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi);
+
+template<class T, class Compare>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi,
+                         Compare comp);
+
+// Clamp Range
+template<class ForwardIt, class T>
+constexpr void clamp_range(ForwardIt first, ForwardIt last, const T& lo, const T& hi);
+
+template<class ForwardIt, class T, class Compare>
+constexpr void clamp_range(ForwardIt first, ForwardIt last,
+                           const T& lo, const T& hi, Compare comp);
+
 }  // core
 
 #include "core/internal/algorithm_impl.h"

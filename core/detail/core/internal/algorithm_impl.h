@@ -794,6 +794,32 @@ constexpr ForwardIt min_element(ForwardIt first, ForwardIt last,
     return it;
 }
 
+template<class T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+    return core::clamp(v, lo, hi, std::less{});
+}
+
+template<class T, class Compare>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi,
+                         Compare comp)
+{
+    return comp(v, lo) ? lo : (comp(hi, v) ? hi : v);
+}
+
+template<class ForwardIt, class T>
+constexpr void clamp_range(ForwardIt first, ForwardIt last, const T& lo, const T& hi) {
+    for (; first != last; ++first)
+        *first = clamp(*first, lo, hi);
+}
+
+template<class ForwardIt, class T, class Compare>
+constexpr void clamp_range(ForwardIt first, ForwardIt last,
+                           const T& lo, const T& hi, Compare comp)
+{
+    for (; first != last; ++first)
+        *first = clamp(*first, lo, hi, comp);
+}
+
 }  // core
 
 #endif
