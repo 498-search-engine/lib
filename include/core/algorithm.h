@@ -1,3 +1,14 @@
+/**
+ * @file algorithm.h
+ * @author Christopher Davis chrsdavis
+ * @brief Algorithm Library Interface
+ * @version 1.0
+ * @date 2025-03-01
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
 #ifndef LIB_ALGORITHM_H
 #define LIB_ALGORITHM_H
 
