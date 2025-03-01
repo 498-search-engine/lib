@@ -1,6 +1,6 @@
 /**
  * @file algorithm_impl.h
- * @author Christopher Davis
+ * @author Christopher Davis chrsdavis
  * @brief Implementation details of <core/algorithm.h>, do not include
  * @version 1.0
  * @date 2025-02-22
