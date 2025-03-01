@@ -9,7 +9,7 @@
 #include <utility>
 #include <initializer_list>
 #include <functional>
-#include<cmath>
+#include <cmath>
 
 using std::vector;
 using std::array;
