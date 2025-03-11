@@ -2,6 +2,7 @@
 // authors: @Anubhav652
 
 #include <core/memory.h>
+#include <cstddef>
 #include <gtest/gtest.h>
 
 using namespace core;
@@ -86,4 +87,31 @@ TEST(UniquePtrTest, Swap) {
 TEST(UniquePtrTest, CustomObject) {
     UniquePtr<TestObject> obj(new TestObject(100));
     EXPECT_EQ(obj->GetValue(), 100);
+}
+
+// Test 9: Check whether null
+TEST(UniquePtrTest, CheckNull) {
+    bool test;
+    UniquePtr<TestObject> obj;
+
+    test = static_cast<bool>(obj);
+    EXPECT_FALSE(test);
+    EXPECT_EQ(obj, nullptr);
+    EXPECT_EQ(nullptr, obj);
+
+    obj = MakeUnique<TestObject>(100);
+
+    test = static_cast<bool>(obj);
+    EXPECT_TRUE(test);
+    EXPECT_NE(obj, nullptr);
+    EXPECT_NE(nullptr, obj);
+}
+
+// Test 10: MakeUnique
+TEST(UniquePtrTest, MakeUnique) {
+    auto obj = MakeUnique<TestObject>(100);
+    EXPECT_EQ(obj->GetValue(), 100);
+
+    auto num = MakeUnique<int>(50);
+    EXPECT_EQ(*num, 50);
 }

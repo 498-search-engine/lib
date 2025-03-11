@@ -6,6 +6,9 @@
 
 // To do: Custom deleter?
 
+#include <cstddef>
+#include <utility>
+
 namespace core {
 template<typename T>
 class UniquePtr {
@@ -54,9 +57,36 @@ public:
 
     T* operator->() const noexcept { return ptr_; }
 
+    operator bool() const noexcept { return ptr_ != nullptr; }
+
 private:
     T* ptr_;
 };
+
+template<typename T>
+bool operator==(const UniquePtr<T>& p, nullptr_t) noexcept {
+    return p.Get() == nullptr;
+}
+
+template<typename T>
+bool operator==(nullptr_t, const UniquePtr<T>& p) noexcept {
+    return p.Get() == nullptr;
+}
+
+template<typename T>
+bool operator!=(const UniquePtr<T>& p, nullptr_t) noexcept {
+    return p.Get() != nullptr;
+}
+
+template<typename T>
+bool operator!=(nullptr_t, const UniquePtr<T>& p) noexcept {
+    return p.Get() != nullptr;
+}
+
+template<typename T, typename... Args>
+UniquePtr<T> MakeUnique(Args&&... args) {
+    return UniquePtr<T>{new T(std::forward<Args>(args)...)};
+}
 
 }  // namespace core
 #endif
