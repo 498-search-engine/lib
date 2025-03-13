@@ -132,6 +132,7 @@ TEST_F(VectorFileTest, Shrink) {
     // Remove most elements to trigger shrink
     while (list.Size() > VectorFile<int>::EntriesPerPage) {
         list.PopBack();
+        ASSERT_LE(list.Size(), list.Capacity());
     }
 
     EXPECT_LT(list.Capacity(), peak_capacity);
