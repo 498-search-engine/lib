@@ -196,8 +196,8 @@ public:
         --size_;
         Header()->size = size_;
 
-        if (size_ < capacity_ / 4 && capacity_ > InitialCapacity) {
-            ForceResize(size_ / 2);
+        if (size_ < capacity_ / 4 && capacity_ > InitialCapacity * 2) {
+            ForceResize(capacity_ / 2);
         }
     }
 
