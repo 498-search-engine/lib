@@ -4,20 +4,21 @@
 #ifndef LIB_DARY_HEAP_H
 #define LIB_DARY_HEAP_H
 
-#include <vector>
-#include <unordered_map>
+#include <cassert>
+#include <concepts>
 #include <functional>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
-#include <concepts>
-#include <cassert>
+#include <vector>
 
 namespace core {
 
 // core type reqs
-template <typename T>
+template<typename T>
 concept HeapItem = std::movable<T> && std::equality_comparable<T> && requires(T a, T b) { std::swap(a, b); };
-template <typename T, typename Priority, size_t D = 4, typename Compare = std::less<Priority>> requires HeapItem<T>
+template<typename T, typename Priority, size_t D = 4, typename Compare = std::less<Priority>>
+    requires HeapItem<T>
 
 class dary_heap {
     static_assert(D >= 2, "D must be atleast 2");
@@ -27,9 +28,7 @@ class dary_heap {
         Priority priority;
         T value;
         HeapElement(Priority p, T v) : priority(std::move(p)), value(std::move(v)) {}
-        bool operator<(const HeapElement& other) const {
-            return Compare()(priority, other.priority);
-        }
+        bool operator<(const HeapElement& other) const { return Compare()(priority, other.priority); }
     };
 
     std::vector<HeapElement> heap_;
@@ -39,7 +38,7 @@ class dary_heap {
     // helpers for parent/child idx calculations
     [[nodiscard]] constexpr size_t parent(size_t i) const noexcept { return (i - 1) / D; }
     [[nodiscard]] constexpr size_t firstChild(size_t i) const noexcept { return i * D + 1; }
-    
+
     // Maintains heap property by floating elements up to their correct position
     // Updates index_map_ to track element positions
     void heapifyUp(size_t i) noexcept(std::is_nothrow_swappable_v<HeapElement>) {
@@ -64,7 +63,8 @@ class dary_heap {
                     min_index = j;
             }
 
-            if (min_index == i) break;
+            if (min_index == i)
+                break;
 
             std::swap(heap_[i], heap_[min_index]);
             index_map_[heap_[i].value] = i;
@@ -76,7 +76,8 @@ class dary_heap {
     // [debug] verify heap property, returns true valid heap
     [[nodiscard]] bool verifyHeap() const {
         for (size_t i = 1; i < heap_.size(); ++i) {
-            if (heap_[i] < heap_[parent(i)]) return false;
+            if (heap_[i] < heap_[parent(i)])
+                return false;
         }
         return true;
     }
@@ -84,7 +85,7 @@ class dary_heap {
 public:
     // create empty default heap - not thread safe, like most STL ctrs
     dary_heap() = default;
-    
+
     // pre-allocate space for faster insertions - good for when one knows rough size
     explicit dary_heap(size_t reservedSize) {
         heap_.reserve(reservedSize);
@@ -100,21 +101,21 @@ public:
     void push(U&& value, V&& priority) {
         if (index_map_.count(value))
             throw std::logic_error("duplicate element being pushed");
-        
+
         heap_.emplace_back(std::forward<V>(priority), std::forward<U>(value));
         index_map_[heap_.back().value] = heap_.size() - 1;
         heapifyUp(heap_.size() - 1);
-        assert(verifyHeap()); // can get away w/out it ?
+        assert(verifyHeap());  // can get away w/out it ?
     }
 
     void pop() {
         if (empty())
             throw std::out_of_range("heap is empty");
-        
-        index_map_.erase(heap_.front().value); // remove from the cache
+
+        index_map_.erase(heap_.front().value);  // remove from the cache
         if (heap_.size() > 1) {
-            heap_.front() = std::move(heap_.back()); // send to the back
-            index_map_[heap_.front().value] = 0; // reset priority
+            heap_.front() = std::move(heap_.back());  // send to the back
+            index_map_[heap_.front().value] = 0;      // reset priority
         }
         // actually, pop
         heap_.pop_back();
@@ -122,7 +123,7 @@ public:
         if (!empty())
             heapifyDown(0);
 
-        assert(verifyHeap()); // again, can get away w/out it ?
+        assert(verifyHeap());  // again, can get away w/out it ?
     }
 
     void updatePriority(const T& value, Priority newPriority) {
@@ -137,7 +138,7 @@ public:
             heapifyUp(idx);
         else if (comp_(oldPriority, newPriority))
             heapifyDown(idx);
-            
+
         assert(verifyHeap());
     }
 
@@ -154,6 +155,6 @@ public:
     }
 };
 
-} // namespace core
+}  // namespace core
 
-#endif 
+#endif

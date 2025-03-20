@@ -4,10 +4,10 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#include <openssl/md5.h>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <openssl/md5.h>
 
 namespace core {
 
@@ -126,6 +126,6 @@ private:
     }
 };
 
-} // namespace core
+}  // namespace core
 
 #endif

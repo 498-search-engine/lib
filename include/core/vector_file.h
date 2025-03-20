@@ -85,7 +85,7 @@ public:
 
         if (exists) {
             // Get size of file in bytes
-            struct stat st {};
+            struct stat st{};
             if (fstat(fd_, &st) == -1) {
                 close(fd_);
                 throw std::runtime_error("failed to get file size");

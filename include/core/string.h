@@ -587,9 +587,9 @@ private:
     }
 
     /*
-    * This also ensures we 0 out everything else while shrinking.
-    * If not shrinking, use ShortSetSize directly.
-    */
+     * This also ensures we 0 out everything else while shrinking.
+     * If not shrinking, use ShortSetSize directly.
+     */
     void ShortResize(size_t new_size) {
         for (size_t i = new_size; i < StackStringSize; ++i) {
             internal_.stack_string.data[i] = 0;

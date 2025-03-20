@@ -13,7 +13,7 @@ namespace core {
 template<typename T>
 class UniquePtr {
 public:
-    explicit UniquePtr(T* ptr = nullptr) : ptr_(ptr){};
+    explicit UniquePtr(T* ptr = nullptr) : ptr_(ptr) {};
 
     ~UniquePtr() { delete ptr_; }
 
