@@ -7,26 +7,27 @@
 
 #include <cstddef>   // for size_t
 #include <iostream>  // for ostream
+#include <stdexcept>
 
 static_assert(sizeof(size_t) == 8, "size_t is not 8 bytes");  // Ensure our union matches correctly
 
 namespace core {
 
-inline constexpr int StackStringSize = 22;
-
-/*
-   Size of char array including null terminator
-*/
-inline constexpr int StackCharSize = StackStringSize + 1;
-
-/*
-   Size of total stack char array
-*/
-inline constexpr int StackArrSize = StackCharSize + 1;
-
-inline constexpr unsigned int RepFlagMask = 1;
-
 class String {
+    static constexpr int StackStringSize = 22;
+
+    /*
+       Size of char array including null terminator
+    */
+    static constexpr int StackCharSize = StackStringSize + 1;
+    
+    /*
+       Size of total stack char array
+    */
+    static constexpr int StackArrSize = StackCharSize + 1;
+    
+    static constexpr unsigned int RepFlagMask = 1;
+    
     struct HeapStringT {
         char* ptr;        // 8 bytes on 64-bit systems
         size_t size;      // 8 bytes
@@ -52,10 +53,13 @@ class String {
     };
 
 public:
+    static constexpr size_t Npos = -1;
+
     // Default Constructor
     // REQUIRES: Nothing
     // MODIFIES: *this
     // EFFECTS: Creates an empty string
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     String() {
         for (size_t i = 0; i < StackArrSize; ++i) {
             internal_.stack_string.data[i] = 0;
@@ -67,6 +71,7 @@ public:
     // REQUIRES: cstr is a null terminated C style string
     // MODIFIES: *this
     // EFFECTS: Creates a string with equivalent contents to cstr
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     String(const char* cstr) {
         // set it as short string
         for (size_t i = 0; i < StackArrSize; ++i) {
@@ -166,6 +171,7 @@ public:
     }
 
     // Move constructor
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     String(String&& other) noexcept {
         if (other.IsShort()) {
             for (size_t i = 0; i < StackArrSize; ++i) {
@@ -523,6 +529,79 @@ public:
         }
     }
 
+    size_t Find(char a) const {
+        for (const char *itr = begin(); itr != end(); itr++) {
+            if (*itr == a) {
+                return itr - begin();
+            }
+        }
+        return Npos;
+    }
+
+    void Substr(size_t begin, size_t len = Npos) {
+        if (begin > Size()) {
+            throw std::out_of_range("out of range begin for substr");
+        }
+
+        size_t actualNewLength = 0;
+        if (IsShort()) {
+            for (size_t i = 0; i < (Size() - begin) && actualNewLength != len; ++i) {
+                actualNewLength++;
+                internal_.stack_string.data[i] = internal_.stack_string.data[i + begin];
+            }
+
+            ShortSetSize(actualNewLength);
+            return;
+        }
+        
+        for (size_t i = 0; i < (Size() - begin) && actualNewLength != len; ++i) {
+            actualNewLength++;
+            internal_.heap_string.ptr[i] = internal_.heap_string.ptr[i + begin];
+        }
+
+        internal_.heap_string.size = actualNewLength;
+    }
+
+    void LeftTrim() {
+        size_t begin = 0;
+        const char *s = Cstr();
+        // NOLINTNEXTLINE(readability-implicit-bool-conversion)
+        while (isspace(*s)) {
+            s++;
+            begin++;
+        }
+
+        Substr(begin);
+    }
+
+    void RightTrim() {
+        size_t end = Size();
+        if (end == 0) {
+            return;
+        }
+
+        const char *b = begin();
+        const char *s = begin() + (end - 1);
+
+        // NOLINTNEXTLINE(readability-implicit-bool-conversion)
+        while (isspace(*s)) {
+            end--;
+
+            if (s == b) {
+                break;
+            }
+
+            s--;
+        }
+
+        Substr(0, end);
+    }
+
+    void Trim() {
+        LeftTrim();
+        RightTrim();
+    }
+
 private:
     string_t internal_;
 
@@ -575,6 +654,7 @@ private:
                 *(newBuffer + new_capacity) = '\0';
 
                 // Shrink size if necessary
+                // NOLINTNEXTLINE(readability-use-std-min-max)
                 if (internal_.heap_string.size > internal_.heap_string.capacity) {
                     internal_.heap_string.size = internal_.heap_string.capacity;
                 }
@@ -598,9 +678,11 @@ private:
         ShortSetSize(new_size);
     }
 
+    // NOLINTNEXTLINE(readability-redundant-inline-specifier)
     inline void ShortSetSize(size_t new_size) {
         // keeps the last bit as 1 to maintain short string notation
         // this conversion is fine since new_size < 22
+        // NOLINTNEXTLINE(bugprone-narrowing-conversions)
         internal_.stack_string.data[StackCharSize] = (new_size << 1) + 1;
     }
 
@@ -659,4 +741,22 @@ inline String operator+(String&& lhs, char rhs) {
 
 }  // namespace core
 
+
+template<> struct std::hash<core::String> {
+    std::size_t operator()(const core::String &s) const noexcept {
+        uint32_t hash = 0;
+
+        for (const char *cptr = s.begin(); cptr != s.end(); ++cptr) {
+            hash += *cptr;
+            hash += (hash << 10);
+            hash ^= (hash >> 6);
+        }
+    
+        hash += (hash << 3);
+        hash ^= (hash >> 11);
+        hash += (hash << 15);
+    
+        return hash;
+    };
+};
 #endif

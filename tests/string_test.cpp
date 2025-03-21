@@ -319,7 +319,6 @@ TEST(MIXED_STRINGS, HEAP_COMPARE_STACK) {
 TEST(StringTest, DefaultConstructor) {
     String s;
     EXPECT_EQ(s.Size(), 0);
-    EXPECT_EQ(s.Capacity(), StackStringSize);
     EXPECT_STREQ(s.Cstr(), "");
 }
 
@@ -343,6 +342,7 @@ TEST(StringTest, CStringLengthConstructor) {
 // Test copy constructor
 TEST(StringTest, CopyConstructor) {
     String s1("Hello");
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     String s2(s1);
     EXPECT_EQ(s1.Size(), s2.Size());
     EXPECT_STREQ(s1.Cstr(), s2.Cstr());
@@ -385,8 +385,6 @@ TEST(StringTest, Size) {
 // Test Capacity() function
 TEST(StringTest, Capacity) {
     String s;
-    EXPECT_EQ(s.Capacity(), StackStringSize);
-
     s.Resize(100);
     EXPECT_GE(s.Capacity(), 100);
 }
@@ -672,7 +670,6 @@ TEST(StringIntegrationTest, ResizeAndCapacityManagement) {
     // Start with a small string
     s = "Hello";
     EXPECT_EQ(s.Size(), 5);
-    EXPECT_EQ(s.Capacity(), StackStringSize);
 
     // Resize to a larger capacity
     s.Resize(100);
@@ -758,6 +755,7 @@ TEST(ConstStringTest, Access) {
 
 TEST(ConstStringTest, Copy) {
     const auto s1 = String{"Hello world"};
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     const auto s2 = s1;
 
     EXPECT_EQ(s1.Size(), s2.Size());
@@ -768,7 +766,7 @@ TEST(ConstStringTest, Copy) {
 TEST(ConstStringTest, Iterate) {
     const auto s = String{"123"};
 
-    auto it = s.begin();
+    const auto *it = s.begin();
     EXPECT_EQ(*it, '1');
     ++it;
     EXPECT_EQ(*it, '2');
@@ -776,6 +774,166 @@ TEST(ConstStringTest, Iterate) {
     EXPECT_EQ(*it, '3');
     ++it;
     EXPECT_EQ(it, s.end());
+}
+
+TEST(StringFindTest, FindCharAtBeginning) {
+    String s("abcde");
+    EXPECT_EQ(s.Find('a'), 0);
+}
+
+TEST(StringFindTest, FindCharInMiddle) {
+    String s("abcde");
+    EXPECT_EQ(s.Find('c'), 2);
+}
+
+TEST(StringFindTest, FindCharAtEnd) {
+    String s("abcde");
+    EXPECT_EQ(s.Find('e'), 4);
+}
+
+TEST(StringFindTest, FindCharNotPresent) {
+    String s("abcde");
+    EXPECT_EQ(s.Find('z'), String::Npos);
+}
+
+TEST(StringFindTest, FindRepeatedCharReturnsFirst) {
+    String s("aabbccdd");
+    EXPECT_EQ(s.Find('b'), 2);
+}
+
+TEST(StringFindTest, FindOnEmptyString) {
+    String s("");
+    EXPECT_EQ(s.Find('a'), String::Npos);
+}
+
+TEST(StringFindTest, FindOnSingleCharMatch) {
+    String s("x");
+    EXPECT_EQ(s.Find('x'), 0);
+}
+
+TEST(StringFindTest, FindOnSingleCharNoMatch) {
+    String s("x");
+    EXPECT_EQ(s.Find('y'), String::Npos);
+}
+
+TEST(StringFindTest, FindWhitespace) {
+    String s("  a b c  ");
+    EXPECT_EQ(s.Find(' '), 0);  // First space
+    EXPECT_EQ(s.Find('b'), 4);
+}
+
+TEST(StringFindTest, FindOnHeapString) {
+    String s("this is a very long string that is definitely heap allocated!");
+        
+    EXPECT_EQ(s.Find('v'), 10);
+    EXPECT_EQ(s.Find('!'), s.Size() - 1);
+}
+
+TEST(StringSubstrTest, BasicSubstring) {
+    String s("hello world");
+    s.Substr(0, 5);
+    EXPECT_EQ(s, String("hello"));
+}
+
+TEST(StringSubstrTest, SubstringWithOffset) {
+    String s("hello world");
+    s.Substr(6, 5);
+    EXPECT_EQ(s, String("world"));
+}
+
+TEST(StringSubstrTest, SubstringMidSection) {
+    String s("abcdefg");
+    s.Substr(2, 3);
+    EXPECT_EQ(s, String("cde"));
+}
+
+TEST(StringSubstrTest, SubstringWithLengthBeyondEnd) {
+    String s("short");
+    s.Substr(3, 100);  // len > remaining
+    EXPECT_EQ(s, String("rt"));
+}
+
+TEST(StringSubstrTest, SubstringEntireString) {
+    String s("entire string");
+    s.Substr(0);
+    EXPECT_EQ(s, String("entire string"));
+}
+
+TEST(StringSubstrTest, SubstringEmptyLength) {
+    String s("nonempty");
+    s.Substr(3, 0);
+    EXPECT_EQ(s, String(""));
+}
+
+TEST(StringSubstrTest, SubstringFromEnd) {
+    String s("edge");
+    s.Substr(4);
+    EXPECT_EQ(s, String(""));
+}
+
+TEST(StringSubstrTest, SubstringThrowsOnInvalidBegin) {
+    String s("short");
+    EXPECT_THROW(s.Substr(100, 2), std::out_of_range);
+}
+
+TEST(StringSubstrTest, SubstringOnEmptyString) {
+    String s("");
+    EXPECT_THROW(s.Substr(1), std::out_of_range);
+    s.Substr(0);
+    EXPECT_EQ(s, String(""));
+}
+
+TEST(StringSubstrTest, SubstringHeapString) {
+    String s("this is a really long string that will be heap allocated");
+    s.Substr(10, 6);
+    EXPECT_EQ(s, String("really"));
+}
+
+// Helper macro for trim tests
+#define EXPECT_TRIM_EQ(input, expected, method) \
+    { \
+        String s(input); \
+        s.method(); \
+        EXPECT_EQ(s, String(expected)); \
+    }
+
+TEST(StringTrimTest, LeftTrimBasic) {
+    EXPECT_TRIM_EQ("   hello", "hello", LeftTrim);
+    EXPECT_TRIM_EQ("\t\nhello", "hello", LeftTrim);
+    EXPECT_TRIM_EQ("hello", "hello", LeftTrim);
+    EXPECT_TRIM_EQ("  ", "", LeftTrim);
+    EXPECT_TRIM_EQ("", "", LeftTrim);
+    EXPECT_TRIM_EQ("     h e l l o", "h e l l o", LeftTrim);
+}
+
+TEST(StringTrimTest, RightTrimBasic) {
+    EXPECT_TRIM_EQ("hello   ", "hello", RightTrim);
+    EXPECT_TRIM_EQ("hello\t\n", "hello", RightTrim);
+    EXPECT_TRIM_EQ("hello", "hello", RightTrim);
+    EXPECT_TRIM_EQ("  ", "", RightTrim);
+    EXPECT_TRIM_EQ("", "", RightTrim);
+    EXPECT_TRIM_EQ("h e l l o     ", "h e l l o", RightTrim);
+}
+
+TEST(StringTrimTest, TrimBasic) {
+    EXPECT_TRIM_EQ("   hello   ", "hello", Trim);
+    EXPECT_TRIM_EQ("\t\nhello\t\n", "hello", Trim);
+    EXPECT_TRIM_EQ("hello", "hello", Trim);
+    EXPECT_TRIM_EQ("   ", "", Trim);
+    EXPECT_TRIM_EQ("", "", Trim);
+    EXPECT_TRIM_EQ("  h e l l o   ", "h e l l o", Trim);
+}
+
+TEST(StringTrimTest, TrimWithShortAndLongStrings) {
+    // SSO short string
+    String s1("   short str   ");
+    s1.Trim();
+    EXPECT_EQ(s1, String("short str"));
+
+    // Long string (forces heap)
+    String s2("     this is a long string that exceeds the stack limit     ");
+    s2.Trim();
+    EXPECT_EQ(s2, String("this is a long string that exceeds the stack limit"));
 }
 
 int main(int argc, char** argv) {
