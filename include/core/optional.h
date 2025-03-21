@@ -1,14 +1,14 @@
 #ifndef LIB_OPTIONAL_H
 #define LIB_OPTIONAL_H
 
-#include <utility>
-#include <type_traits>
-#include <stdexcept>
-#include <memory>
-#include <initializer_list>
 #include <algorithm>
-#include <concepts>
 #include <compare>
+#include <concepts>
+#include <initializer_list>
+#include <memory>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace core {
 
@@ -35,7 +35,8 @@ class Optional {
     static constexpr bool is_assignable_from_any_v = (std::is_assignable_v<Args, T> || ...);
 
     template<typename U, typename V /*= U& or U&&*/>
-    static constexpr bool satisfies_conv_ctor = std::is_constructible_v<T, V> &&
+    static constexpr bool satisfies_conv_ctor =
+        std::is_constructible_v<T, V> &&
         !is_constructible_from_any_v<Optional<U>&, const Optional<U>&, Optional<U>&&, const Optional<U>&&> &&
         !is_convertible_from_any_v<Optional<U>&, const Optional<U>&, Optional<U>&&, const Optional<U>&&>;
 
@@ -43,104 +44,119 @@ public:
     constexpr Optional() noexcept : Optional(nullopt) {}
     constexpr Optional(nullopt_t) noexcept : sentinel_{0}, has_value_{false} {}
 
-    constexpr Optional(const Optional& opt) requires std::is_trivially_copy_constructible_v<T> = default;
-    constexpr Optional(const Optional& opt) 
-        requires (std::is_copy_constructible_v<T> && !std::is_trivially_copy_constructible_v<T>)
-        : has_value_{opt.has_value_}
-    {
+    constexpr Optional(const Optional& opt)
+        requires std::is_trivially_copy_constructible_v<T>
+    = default;
+    constexpr Optional(const Optional& opt)
+        requires(std::is_copy_constructible_v<T> && !std::is_trivially_copy_constructible_v<T>)
+        : has_value_{opt.has_value_} {
         DirectInitFromOpt(opt);
     }
 
-    constexpr Optional(Optional&& opt) requires std::is_trivially_move_constructible_v<T> = default;
     constexpr Optional(Optional&& opt)
-        noexcept(std::is_nothrow_move_assignable_v<T>)
-        requires (std::is_move_constructible_v<T> && !std::is_trivially_move_constructible_v<T>)
-        : has_value_{opt.has_value_}
-    {
+        requires std::is_trivially_move_constructible_v<T>
+    = default;
+    constexpr Optional(Optional&& opt) noexcept(std::is_nothrow_move_assignable_v<T>)
+        requires(std::is_move_constructible_v<T> && !std::is_trivially_move_constructible_v<T>)
+        : has_value_{opt.has_value_} {
         DirectInitFromOpt(std::forward(opt));
     }
 
     template<typename U>
     constexpr explicit(!std::is_convertible_v<const U&, T>) Optional(const Optional<U>& opt)
         requires satisfies_conv_ctor<U, const U&>
-        : has_value_{opt.has_value_}
-    {
+        : has_value_{opt.has_value_} {
         DirectInitFromOpt(opt);
     }
 
     template<typename U>
     constexpr explicit(!std::is_convertible_v<const U&, T>) Optional(Optional<U>&& opt)
         requires satisfies_conv_ctor<U, U&&>
-        : has_value_{opt.has_value_}
-    {
+        : has_value_{opt.has_value_} {
         DirectInitFromOpt(std::forward(opt));
     }
 
     // TODO: in place constructors
 
-    template <typename U = T>
+    template<typename U = T>
     constexpr explicit(!std::is_convertible_v<U&&, T>) Optional(U&& val)
-        requires (std::is_constructible_v<T, U&&> &&
-                  !std::is_same_v<std::remove_cvref_t<U>, Optional>)
-        : has_value_{true}
-    {
+        requires(std::is_constructible_v<T, U &&> && !std::is_same_v<std::remove_cvref_t<U>, Optional>)
+        : has_value_{true} {
         DirectInitVal(val);
     }
 
-    constexpr ~Optional() requires std::is_trivially_destructible_v<T> = default;
-    constexpr ~Optional() { if (has_value_) val_.~T(); }
+    constexpr ~Optional()
+        requires std::is_trivially_destructible_v<T>
+    = default;
+    constexpr ~Optional() {
+        if (has_value_)
+            val_.~T();
+    }
 
-    static constexpr bool is_trivially_copyable_v = std::is_trivially_copy_constructible_v<T> && 
-        std::is_trivially_copy_assignable_v<T> && std::is_trivially_destructible_v<T>;
+    static constexpr bool is_trivially_copyable_v = std::is_trivially_copy_constructible_v<T> &&
+                                                    std::is_trivially_copy_assignable_v<T> &&
+                                                    std::is_trivially_destructible_v<T>;
     static constexpr bool is_trivially_moveable_v = std::is_trivially_move_constructible_v<T> &&
-        std::is_trivially_move_assignable_v<T> && std::is_trivially_destructible_v<T>;
+                                                    std::is_trivially_move_assignable_v<T> &&
+                                                    std::is_trivially_destructible_v<T>;
 
     // Assignment
-    constexpr Optional& operator=(nullopt_t) noexcept { Reset(); }
-    constexpr Optional& operator=(const Optional& opt) requires is_trivially_copyable_v = default;
+    constexpr Optional& operator=(nullopt_t) noexcept {
+        Reset();
+        return *this;
+    }
     constexpr Optional& operator=(const Optional& opt)
-        requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T> && !is_trivially_copyable_v)
+        requires is_trivially_copyable_v
+    = default;
+    constexpr Optional& operator=(const Optional& opt)
+        requires(std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T> && !is_trivially_copyable_v)
     {
         AssignFromOpt(opt);
         return val_;
     }
-    constexpr Optional& operator=(Optional&& opt)
-        noexcept(std::is_nothrow_move_assignable_v<T> && std::is_nothrow_move_constructible_v<T>)
-        requires is_trivially_moveable_v = default;
-    constexpr Optional& operator=(Optional&& opt)
-        noexcept(std::is_nothrow_move_assignable_v<T> && std::is_nothrow_move_constructible_v<T>)
-        requires (std::is_move_constructible_v<T> && std::is_move_assignable_v<T> && !is_trivially_moveable_v)
+    constexpr Optional& operator=(Optional&& opt) noexcept(std::is_nothrow_move_assignable_v<T> &&
+                                                           std::is_nothrow_move_constructible_v<T>)
+        requires is_trivially_moveable_v
+    = default;
+    constexpr Optional& operator=(Optional&& opt) noexcept(std::is_nothrow_move_assignable_v<T> &&
+                                                           std::is_nothrow_move_constructible_v<T>)
+        requires(std::is_move_constructible_v<T> && std::is_move_assignable_v<T> && !is_trivially_moveable_v)
     {
         AssignFromOpt(std::forward(opt));
         return val_;
     }
 
     template<typename U = T>
-    constexpr Optional& operator=(U&& value) requires
-        (std::is_constructible_v<T, U> && std::is_assignable_v<T&, U> &&
-        !std::is_same_v<std::remove_cvref_t<U>, Optional> &&
-        (!std::is_scalar_v<T> || !std::is_same_v<std::decay_t<U>, T>))
+    constexpr Optional& operator=(U&& value)
+        requires(std::is_constructible_v<T, U> && std::is_assignable_v<T&, U> &&
+                 !std::is_same_v<std::remove_cvref_t<U>, Optional> &&
+                 (!std::is_scalar_v<T> || !std::is_same_v<std::decay_t<U>, T>))
     {
-        if (has_value_) { // val_ exists, so assign
+        if (has_value_) {  // val_ exists, so assign
             val_ = std::forward(value);
-        } else { // must direct init it
+        } else {  // must direct init it
             DirectInitVal(std::forward(value));
         }
         return val_;
     }
 
     template<typename U, typename UU>
-    static constexpr bool satisfies_assign_reqs = satisfies_conv_ctor<U, UU> && std::is_assignable_v<T&, UU> &&
+    static constexpr bool satisfies_assign_reqs =
+        satisfies_conv_ctor<U, UU> && std::is_assignable_v<T&, UU> &&
         !is_assignable_from_any_v<Optional<U>&, const Optional<U>&, Optional<U>&&, const Optional<U>&&>;
 
     template<typename U>
-    constexpr Optional& operator=(const Optional<U>& opt) requires satisfies_assign_reqs<U, const U&> {
+    constexpr Optional& operator=(const Optional<U>& opt)
+        requires satisfies_assign_reqs<U, const U&>
+    {
         AssignFromOpt(opt);
         return val_;
     }
 
     template<typename U>
-    constexpr Optional& operator=(Optional<U>&& opt) requires satisfies_assign_reqs<U, U> {
+    constexpr Optional& operator=(Optional<U>&& opt)
+        requires satisfies_assign_reqs<U, U>
+    {
         AssignFromOpt(std::forward(opt));
         return val_;
     }
@@ -164,23 +180,33 @@ public:
     constexpr explicit operator bool() const noexcept { return has_value_; }
 
     [[nodiscard]]
-    constexpr bool HasValue() const noexcept { return has_value_; }
+    constexpr bool HasValue() const noexcept {
+        return has_value_;
+    }
 
     [[nodiscard]]
-    constexpr T& Value() & { return has_value_ ? val_ : throw BadOptionalAccess{}; }
+    constexpr T& Value() & {
+        return has_value_ ? val_ : throw BadOptionalAccess{};
+    }
     [[nodiscard]]
-    constexpr const T& Value() const & { return has_value_ ? val_ : throw BadOptionalAccess{}; }
+    constexpr const T& Value() const& {
+        return has_value_ ? val_ : throw BadOptionalAccess{};
+    }
     [[nodiscard]]
-    constexpr T&& value() && { return has_value_ ? std::move(val_) : throw BadOptionalAccess{}; }
+    constexpr T&& value() && {
+        return has_value_ ? std::move(val_) : throw BadOptionalAccess{};
+    }
     [[nodiscard]]
-    constexpr const T&& value() const && { return has_value_ ? std::move(val_) : throw BadOptionalAccess{}; }
+    constexpr const T&& value() const&& {
+        return has_value_ ? std::move(val_) : throw BadOptionalAccess{};
+    }
 
     // TODO: add type constraints here https://en.cppreference.com/w/cpp/utility/optional/value_or
-    template<typename U >
-    constexpr T ValueOr(U&& default_value) const& { 
+    template<typename U>
+    constexpr T ValueOr(U&& default_value) const& {
         return has_value_ ? val_ : static_cast<T>(std::forward<U>(default_value));
     }
-    template<typename U >
+    template<typename U>
     constexpr T ValueOr(U&& default_value) && {
         return has_value_ ? std::move(val_) : static_cast<T>(std::forward<U>(default_value));
     }
@@ -189,8 +215,8 @@ public:
     // TODO: maybe add these?
 
     // Modifiers
-    constexpr void Swap(Optional& other)
-        noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_swappable_v<T>)
+    constexpr void Swap(Optional& other) noexcept(std::is_nothrow_move_constructible_v<T> &&
+                                                  std::is_nothrow_swappable_v<T>)
         requires std::is_move_constructible_v<T>
     {
         if (this->has_value_ && other.has_value_) {
@@ -206,7 +232,8 @@ public:
     }
 
     constexpr void Reset() noexcept {
-        if (has_value_) ForceReset();
+        if (has_value_)
+            ForceReset();
     }
 
     // TODO: check Args can construct T?
@@ -246,8 +273,10 @@ private:
     // TODO: constrain Opt
     template<typename Opt>
     constexpr void DirectInitFromOpt(Opt&& opt) {
-        if (opt.has_value_) DirectInitVal(*std::forward(opt));
-        else sentinel_ = 0; // Required for constexpr
+        if (opt.has_value_)
+            DirectInitVal(*std::forward(opt));
+        else
+            sentinel_ = 0;  // Required for constexpr
     }
 
     // TODO: constrain Opt
@@ -263,7 +292,10 @@ private:
     }
 
 private:
-    union { char sentinel_; T val_; };
+    union {
+        char sentinel_;
+        T val_;
+    };
     bool has_value_;
 };
 
@@ -271,55 +303,81 @@ private:
 // compare with another optional
 template<class T, class U>
 constexpr bool operator==(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs == *rhs} -> std::convertible_to<bool>;}
+    requires requires {
+        { *lhs == *rhs } -> std::convertible_to<bool>;
+    }
 {
-    if (lhs && rhs) return (*lhs == *rhs);
-    else return (lhs.HasValue() == rhs.HasValue());
+    if (lhs && rhs)
+        return (*lhs == *rhs);
+    else
+        return (lhs.HasValue() == rhs.HasValue());
 }
 
 template<class T, class U>
 constexpr bool operator!=(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs != *rhs} -> std::convertible_to<bool>;}
+    requires requires {
+        { *lhs != *rhs } -> std::convertible_to<bool>;
+    }
 {
-    if (lhs && rhs) return (*lhs != *rhs);
-    else return (lhs.HasValue() != rhs.HasValue());
+    if (lhs && rhs)
+        return (*lhs != *rhs);
+    else
+        return (lhs.HasValue() != rhs.HasValue());
 }
 
 template<class T, class U>
 constexpr bool operator<(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs < *rhs} -> std::convertible_to<bool>;}
+    requires requires {
+        { *lhs < *rhs } -> std::convertible_to<bool>;
+    }
 {
-    if (lhs && rhs) return (*lhs < *rhs);
-    else return !lhs.HasValue();
+    if (lhs && rhs)
+        return (*lhs < *rhs);
+    else
+        return !lhs.HasValue();
 }
 
 template<class T, class U>
 constexpr bool operator<=(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs <= *rhs} -> std::convertible_to<bool>;}
+    requires requires {
+        { *lhs <= *rhs } -> std::convertible_to<bool>;
+    }
 {
-    if (lhs && rhs) return (*lhs <= *rhs);
-    else return (lhs.HasValue() <= rhs.HasValue());
+    if (lhs && rhs)
+        return (*lhs <= *rhs);
+    else
+        return (lhs.HasValue() <= rhs.HasValue());
 }
 
 template<class T, class U>
 constexpr bool operator>(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs > *rhs} -> std::convertible_to<bool>;}
+    requires requires {
+        { *lhs > *rhs } -> std::convertible_to<bool>;
+    }
 {
-    if (lhs && rhs) return (*lhs > *rhs);
-    else return lhs.HasValue();
+    if (lhs && rhs)
+        return (*lhs > *rhs);
+    else
+        return lhs.HasValue();
 }
 
 template<class T, class U>
 constexpr bool operator>=(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires {{*lhs >= *rhs} -> std::convertible_to<bool>;}
+    requires requires {
+        { *lhs >= *rhs } -> std::convertible_to<bool>;
+    }
 {
-    if (lhs && rhs) return (*lhs >= *rhs);
-    else return (lhs.HasValue() >= rhs.HasValue());
+    if (lhs && rhs)
+        return (*lhs >= *rhs);
+    else
+        return (lhs.HasValue() >= rhs.HasValue());
 }
 
 template<class T, class U>
 constexpr std::compare_three_way_result_t<T, U> operator<=>(const Optional<T>& lhs, const Optional<U>& rhs)
-    requires requires(T t, U u) {{t <=> u} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
+    requires requires(T t, U u) {
+        { t <=> u } -> std::convertible_to<std::compare_three_way_result_t<T, U>>;
+    }
 {
     return lhs && rhs ? *lhs <=> *rhs : lhs.HasValue() <=> rhs.HasValue();
 }
@@ -338,89 +396,115 @@ constexpr std::strong_ordering operator<=>(const Optional<T>& opt, nullopt_t) no
 // compare with value
 template<class T, class U>
 constexpr bool operator==(const Optional<T>& opt, const U& value)
-    requires requires {{*opt == value} -> std::convertible_to<bool>;}
+    requires requires {
+        { *opt == value } -> std::convertible_to<bool>;
+    }
 {
     return opt ? *opt == value : false;
 }
 template<class T, class U>
 constexpr bool operator==(const U& value, const Optional<T>& opt)
-    requires requires {{value == *opt} -> std::convertible_to<bool>;}
+    requires requires {
+        { value == *opt } -> std::convertible_to<bool>;
+    }
 {
     return opt ? value == *opt : false;
 }
 
 template<class T, class U>
 constexpr bool operator!=(const Optional<T>& opt, const U& value)
-    requires requires {{*opt != value} -> std::convertible_to<bool>;}
+    requires requires {
+        { *opt != value } -> std::convertible_to<bool>;
+    }
 {
     return opt ? *opt != value : false;
 }
 template<class T, class U>
 constexpr bool operator!=(const U& value, const Optional<T>& opt)
-    requires requires {{value != *opt} -> std::convertible_to<bool>;}
+    requires requires {
+        { value != *opt } -> std::convertible_to<bool>;
+    }
 {
     return opt ? value != *opt : false;
 }
 
 template<class T, class U>
 constexpr bool operator<(const Optional<T>& opt, const U& value)
-    requires requires {{*opt < value} -> std::convertible_to<bool>;}
+    requires requires {
+        { *opt < value } -> std::convertible_to<bool>;
+    }
 {
     return opt ? *opt < value : false;
 }
 template<class T, class U>
 constexpr bool operator<(const U& value, const Optional<T>& opt)
-    requires requires {{value < *opt} -> std::convertible_to<bool>;}
+    requires requires {
+        { value < *opt } -> std::convertible_to<bool>;
+    }
 {
     return opt ? value < *opt : false;
 }
 
 template<class T, class U>
 constexpr bool operator<=(const Optional<T>& opt, const U& value)
-    requires requires {{*opt <= value} -> std::convertible_to<bool>;}
+    requires requires {
+        { *opt <= value } -> std::convertible_to<bool>;
+    }
 {
     return opt ? *opt <= value : false;
 }
 template<class T, class U>
 constexpr bool operator<=(const U& value, const Optional<T>& opt)
-    requires requires {{value <= *opt} -> std::convertible_to<bool>;}
+    requires requires {
+        { value <= *opt } -> std::convertible_to<bool>;
+    }
 {
     return opt ? value <= *opt : false;
 }
 
 template<class T, class U>
 constexpr bool operator>(const Optional<T>& opt, const U& value)
-    requires requires {{*opt > value} -> std::convertible_to<bool>;}
+    requires requires {
+        { *opt > value } -> std::convertible_to<bool>;
+    }
 {
     return opt ? *opt > value : false;
 }
 template<class T, class U>
 constexpr bool operator>(const U& value, const Optional<T>& opt)
-    requires requires {{value > *opt} -> std::convertible_to<bool>;}
+    requires requires {
+        { value > *opt } -> std::convertible_to<bool>;
+    }
 {
     return opt ? value > *opt : false;
 }
 
 template<class T, class U>
 constexpr bool operator>=(const Optional<T>& opt, const U& value)
-    requires requires {{*opt >= value} -> std::convertible_to<bool>;}
+    requires requires {
+        { *opt >= value } -> std::convertible_to<bool>;
+    }
 {
     return opt ? *opt >= value : false;
 }
 template<class T, class U>
 constexpr bool operator>=(const U& value, const Optional<T>& opt)
-    requires requires {{value >= *opt} -> std::convertible_to<bool>;}
+    requires requires {
+        { value >= *opt } -> std::convertible_to<bool>;
+    }
 {
     return opt ? value >= *opt : false;
 }
 
 template<class T, class U>
-constexpr std::compare_three_way_result_t<T, U> operator<=>( const Optional<T>& opt, const U& value )
-    requires requires(T t, U u) {{t <=> u} -> std::convertible_to<std::compare_three_way_result_t<T, U>>;}
+constexpr std::compare_three_way_result_t<T, U> operator<=>(const Optional<T>& opt, const U& value)
+    requires requires(T t, U u) {
+        { t <=> u } -> std::convertible_to<std::compare_three_way_result_t<T, U>>;
+    }
 {
     return opt ? *opt <=> value : std::strong_ordering::less;
 }
 
-} // namespace core
+}  // namespace core
 
 #endif
