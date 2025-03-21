@@ -9,6 +9,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 file(GLOB TEST_SOURCES "*_test.cpp")
+
+file(COPY config DESTINATION ${CMAKE_BINARY_DIR}/tests)
+
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
