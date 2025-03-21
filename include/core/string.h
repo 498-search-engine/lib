@@ -741,4 +741,22 @@ inline String operator+(String&& lhs, char rhs) {
 
 }  // namespace core
 
+
+template<> struct std::hash<core::String> {
+    std::size_t operator()(const core::String &s) const noexcept {
+        uint32_t hash = 0;
+
+        for (const char *cptr = s.begin(); cptr != s.end(); ++cptr) {
+            hash += *cptr;
+            hash += (hash << 10);
+            hash ^= (hash >> 6);
+        }
+    
+        hash += (hash << 3);
+        hash ^= (hash >> 11);
+        hash += (hash << 15);
+    
+        return hash;
+    };
+};
 #endif
