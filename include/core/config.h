@@ -58,7 +58,7 @@ class Config {
 
     int GetInt(const String &key, int default_value) const {
         auto it = config_map_.find(key);
-        return (it != config_map_.end()) ? atoi(it->second.Cstr()) : default_value;
+        return (it != config_map_.end()) ? std::atoi(it->second.Cstr()) : default_value;
     }
 
     int GetInt(const String &key) const {
@@ -68,7 +68,7 @@ class Config {
             throw std::invalid_argument(error.Cstr());
         }
 
-        return atoi(it->second.Cstr());
+        return std::atoi(it->second.Cstr());
     }
 
     private:

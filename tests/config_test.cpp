@@ -16,7 +16,12 @@ TEST(ConfigTest, Basic) {
 
     ASSERT_ANY_THROW(config.GetString(""));
     ASSERT_ANY_THROW(config.GetString("non existent key"));
-    
+
+    ASSERT_ANY_THROW(config.GetInt("tomato"));
+    ASSERT_ANY_THROW(config.GetInt("tomato2"));
+    ASSERT_ANY_THROW(config.GetInt("tomato3"));
+    ASSERT_ANY_THROW(config.GetInt("tomato4"));
+
     ASSERT_EQ(config.GetString("non_existent_key", "3"), "3");
 
     ASSERT_EQ(config.GetInt("aaa"), 34);
