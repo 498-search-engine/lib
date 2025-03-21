@@ -21,15 +21,15 @@ TEST(OptionalTests, Emplace) {
     EXPECT_EQ(o1, i);
 }
 
-// TEST(OptionalTests, EmplaceInitList) {
-//     Optional<std::vector<int>> o1;
-//     EXPECT_FALSE(o1);
-//     o1.Emplace({1, 2, 3, 4});
-//     ASSERT_TRUE(o1.HasValue());
-//     EXPECT_EQ(o1->size(), 4);
-//     const std::vector<int> v{1,2,3,4};
-//     EXPECT_EQ(o1.Value(), v);
-// }
+TEST(OptionalTests, EmplaceInitList) {
+    Optional<std::vector<int>> o1;
+    EXPECT_FALSE(o1);
+    o1.Emplace({1, 2, 3, 4});
+    ASSERT_TRUE(o1.HasValue());
+    EXPECT_EQ(o1->size(), 4);
+    const std::vector<int> v{1,2,3,4};
+    EXPECT_EQ(o1.Value(), v);
+}
 
 TEST(OptionalTests, Swap) {
     Optional<int> o1{1};
