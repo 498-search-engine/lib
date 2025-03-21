@@ -1,6 +1,8 @@
 #ifndef LIB_SPAN_H
 #define LIB_SPAN_H
 
+#include "core/iterator.h"
+
 #include <cstddef>
 
 namespace core {
@@ -8,8 +10,8 @@ namespace core {
 template<typename T>
 class Span {
 public:
-    using iterator = T*;
-    using const_iterator = const T*;
+    using iterator = PointerIteratorWrapper<T>;
+    using const_iterator = PointerIteratorWrapper<const T>;
 
     constexpr Span() : ptr_(nullptr), size_(0) {}
     constexpr Span(T* ptr, size_t size) : ptr_(ptr), size_(size) {}
@@ -21,13 +23,17 @@ public:
     constexpr size_t Size() const { return size_; }
     constexpr bool Empty() const { return size_ == 0; }
 
-    constexpr iterator begin() const { return ptr_; }
-    constexpr iterator end() const { return ptr_ + size_; }
+    constexpr T& Front() const { return ptr_[0]; }
+    constexpr T& Back() const { return ptr_[size_ - 1]; }
+
+    constexpr iterator begin() const { return iterator(ptr_); }
+    constexpr iterator end() const { return iterator(ptr_ + size_); }
     constexpr const_iterator cbegin() const { return begin(); }
     constexpr const_iterator cend() const { return end(); }
 
     constexpr T& operator[](size_t n) const { return *(ptr_ + n); }
 
+    [[nodiscard]] constexpr Span Subspan(size_t offset) const { return Span{ptr_ + offset, size_ - offset}; }
     [[nodiscard]] constexpr Span Subspan(size_t offset, size_t size) const { return Span{ptr_ + offset, size}; }
 
 private:

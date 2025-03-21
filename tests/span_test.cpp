@@ -27,6 +27,9 @@ TEST(Span, Initialize) {
     EXPECT_EQ(c[3], 'l');
     EXPECT_EQ(c[4], 'o');
     EXPECT_EQ(c[5], '\0');
+
+    EXPECT_EQ(c.Front(), 'h');
+    EXPECT_EQ(c.Back(), '\0');
 }
 
 TEST(Span, Subspan) {
@@ -53,12 +56,20 @@ TEST(Span, Subspan) {
     ASSERT_EQ(d.Size(), 2);
     EXPECT_EQ(d[0], 'o');
     EXPECT_EQ(d[1], 'r');
+
+    auto e = a.Subspan(6);
+    ASSERT_EQ(e.Size(), 5);
+    EXPECT_EQ(e[0], 'w');
+    EXPECT_EQ(e[1], 'o');
+    EXPECT_EQ(e[2], 'r');
+    EXPECT_EQ(e[3], 'l');
+    EXPECT_EQ(e[4], 'd');
 }
 
 TEST(Span, Iterator) {
     const char text[] = "abc";
     auto a = Span<const char>{text, sizeof(text) - 1};
-    const auto* it = a.begin();
+    auto it = a.begin();
     ASSERT_NE(it, a.end());
     EXPECT_EQ(*it, 'a');
     ++it;
