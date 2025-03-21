@@ -71,58 +71,40 @@ class Config {
         std::unordered_map<String, String> config_map_; 
 
         void ProcessLine(const String &key, const char *line, size_t end) {
-            std::cout << "adding key " << key << " to " << String(line, end) << std::endl;;
             config_map_[key] = String(line, end);
         }
 
         void Parse(const String &content) {
             const char *data = content.Cstr();
-            size_t begin = 0;
-            size_t end = 0;
-            bool readingKey = true;
-            bool hasDataStarted = false;
-            String key = "";
+            size_t lineStart = 0;
+            size_t i = 0;
+            size_t len = content.Size();
         
-            while (data[end] != '\0') {
-                char ch = data[end];
+            while (i <= len) {
+                if (data[i] == '\n' || data[i] == '\0') {
+                    size_t lineLen = (i > lineStart && data[i - 1] == '\r') ? i - lineStart - 1 : i - lineStart;
+                    if (lineLen > 0) {
+                        String line(data + lineStart, lineLen);
+                        line.Trim();
         
-                if (ch == '\n') {
-                    if (!key.Empty()) {
-                        size_t valueLength = end - begin;
-                        if (valueLength > 0 && data[begin + valueLength - 1] == '\r') {
-                            valueLength--;
+                        if (!line.Empty() && line.Cstr()[0] != '#') {
+                            size_t colonPos = line.Find( ':');
+                            if (colonPos != String::Npos) {
+                                String key = line;
+                                key.Substr(0, colonPos);
+                                key.Trim();
+
+                                String value = line;
+                                value.Substr(colonPos + 1);
+                                value.Trim();
+
+                                ProcessLine(key, value.Cstr(), value.Size());
+                            }
                         }
-                        ProcessLine(key, content.Cstr() + begin, valueLength);
-                        key = "";
                     }
-                    begin = end + 1;
-                    readingKey = true;
-                    hasDataStarted = false;
-                } else if (ch == ':' && readingKey) {
-                    key = String(content.Cstr() + begin, end - begin);
-                    begin = end + 1;
-                    readingKey = false;
-                    hasDataStarted = false;
-                } else if (ch == '#' && readingKey) {
-                    while (data[end] != '\0' && data[end] != '\n') {
-                        end++;
-                    }
-                    begin = end + 1;
-                    key = "";
-                    readingKey = true;
-                    hasDataStarted = false;
+                    lineStart = i + 1;
                 }
-        
-                if (ch != ' ' && ch != '\t' && !hasDataStarted) {
-                    hasDataStarted = true;
-                }
-        
-                end++;
-            }
-        
-            // Handle last line if file does not end with a newline
-            if (!key.Empty() && end > begin) {
-                ProcessLine(key, content.Cstr() + begin, end - begin);
+                i++;
             }
         }
 };
