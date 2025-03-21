@@ -64,22 +64,22 @@ private:
 };
 
 template<typename T>
-bool operator==(const UniquePtr<T>& p, nullptr_t) noexcept {
+bool operator==(const UniquePtr<T>& p, std::nullptr_t) noexcept {
     return p.Get() == nullptr;
 }
 
 template<typename T>
-bool operator==(nullptr_t, const UniquePtr<T>& p) noexcept {
+bool operator==(std::nullptr_t, const UniquePtr<T>& p) noexcept {
     return p.Get() == nullptr;
 }
 
 template<typename T>
-bool operator!=(const UniquePtr<T>& p, nullptr_t) noexcept {
+bool operator!=(const UniquePtr<T>& p, std::nullptr_t) noexcept {
     return p.Get() != nullptr;
 }
 
 template<typename T>
-bool operator!=(nullptr_t, const UniquePtr<T>& p) noexcept {
+bool operator!=(std::nullptr_t, const UniquePtr<T>& p) noexcept {
     return p.Get() != nullptr;
 }
 
