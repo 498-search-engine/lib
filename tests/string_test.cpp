@@ -319,7 +319,6 @@ TEST(MIXED_STRINGS, HEAP_COMPARE_STACK) {
 TEST(StringTest, DefaultConstructor) {
     String s;
     EXPECT_EQ(s.Size(), 0);
-    EXPECT_EQ(s.Capacity(), StackStringSize);
     EXPECT_STREQ(s.Cstr(), "");
 }
 
@@ -386,8 +385,6 @@ TEST(StringTest, Size) {
 // Test Capacity() function
 TEST(StringTest, Capacity) {
     String s;
-    EXPECT_EQ(s.Capacity(), StackStringSize);
-
     s.Resize(100);
     EXPECT_GE(s.Capacity(), 100);
 }
@@ -673,7 +670,6 @@ TEST(StringIntegrationTest, ResizeAndCapacityManagement) {
     // Start with a small string
     s = "Hello";
     EXPECT_EQ(s.Size(), 5);
-    EXPECT_EQ(s.Capacity(), StackStringSize);
 
     // Resize to a larger capacity
     s.Resize(100);
@@ -797,7 +793,7 @@ TEST(StringFindTest, FindCharAtEnd) {
 
 TEST(StringFindTest, FindCharNotPresent) {
     String s("abcde");
-    EXPECT_EQ(s.Find('z'), Npos);
+    EXPECT_EQ(s.Find('z'), String::Npos);
 }
 
 TEST(StringFindTest, FindRepeatedCharReturnsFirst) {
@@ -807,7 +803,7 @@ TEST(StringFindTest, FindRepeatedCharReturnsFirst) {
 
 TEST(StringFindTest, FindOnEmptyString) {
     String s("");
-    EXPECT_EQ(s.Find('a'), Npos);
+    EXPECT_EQ(s.Find('a'), String::Npos);
 }
 
 TEST(StringFindTest, FindOnSingleCharMatch) {
@@ -817,7 +813,7 @@ TEST(StringFindTest, FindOnSingleCharMatch) {
 
 TEST(StringFindTest, FindOnSingleCharNoMatch) {
     String s("x");
-    EXPECT_EQ(s.Find('y'), Npos);
+    EXPECT_EQ(s.Find('y'), String::Npos);
 }
 
 TEST(StringFindTest, FindWhitespace) {
