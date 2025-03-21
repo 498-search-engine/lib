@@ -33,6 +33,10 @@ class Config {
 
         close(fd);
 
+        if (bytesRead < 0) {
+            throw std::runtime_error("Error reading config file");
+        }
+
         Parse(content);
     };
 
