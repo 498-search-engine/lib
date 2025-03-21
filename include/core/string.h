@@ -538,7 +538,7 @@ public:
         return Npos;
     }
 
-    void Substr(size_t begin, size_t len = Npos) {
+    void SubstrInplace(size_t begin, size_t len = Npos) {
         if (begin > Size()) {
             throw std::out_of_range("out of range begin for substr");
         }
@@ -562,6 +562,27 @@ public:
         internal_.heap_string.size = actualNewLength;
     }
 
+    String Substr(size_t begin, size_t len = Npos) {
+        if (begin > Size()) {
+            throw std::out_of_range("out of range begin for substr");
+        }
+
+        size_t actualNewLength = 0;
+        if (IsShort()) {
+            for (size_t i = 0; i < (Size() - begin) && actualNewLength != len; ++i) {
+                actualNewLength++;
+            }
+
+            return String(Cstr() + begin, actualNewLength);
+        }
+        
+        for (size_t i = 0; i < (Size() - begin) && actualNewLength != len; ++i) {
+            actualNewLength++;
+        }
+
+        return String(Cstr() + begin, actualNewLength);
+    }
+
     void LeftTrim() {
         size_t begin = 0;
         const char *s = Cstr();
@@ -571,7 +592,7 @@ public:
             begin++;
         }
 
-        Substr(begin);
+        SubstrInplace(begin);
     }
 
     void RightTrim() {
@@ -594,7 +615,7 @@ public:
             s--;
         }
 
-        Substr(0, end);
+        SubstrInplace(0, end);
     }
 
     void Trim() {

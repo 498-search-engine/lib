@@ -829,46 +829,113 @@ TEST(StringFindTest, FindOnHeapString) {
     EXPECT_EQ(s.Find('!'), s.Size() - 1);
 }
 
+TEST(StringSubstrTest, BasicSubstringInplace) {
+    String s("hello world");
+    s.SubstrInplace(0, 5);
+    EXPECT_EQ(s, String("hello"));
+}
+
+TEST(StringSubstrTest, SubstringInplaceWithOffset) {
+    String s("hello world");
+    s.SubstrInplace(6, 5);
+    EXPECT_EQ(s, String("world"));
+}
+
+TEST(StringSubstrTest, SubstringInplaceMidSection) {
+    String s("abcdefg");
+    s.SubstrInplace(2, 3);
+    EXPECT_EQ(s, String("cde"));
+}
+
+TEST(StringSubstrTest, SubstringInplaceWithLengthBeyondEnd) {
+    String s("short");
+    s.SubstrInplace(3, 100);  // len > remaining
+    EXPECT_EQ(s, String("rt"));
+}
+
+TEST(StringSubstrTest, SubstringInplaceEntireString) {
+    String s("entire string");
+    s.SubstrInplace(0);
+    EXPECT_EQ(s, String("entire string"));
+}
+
+TEST(StringSubstrTest, SubstringInplaceEmptyLength) {
+    String s("nonempty");
+    s.SubstrInplace(3, 0);
+    EXPECT_EQ(s, String(""));
+}
+
+TEST(StringSubstrTest, SubstringInplaceFromEnd) {
+    String s("edge");
+    s.SubstrInplace(4);
+    EXPECT_EQ(s, String(""));
+}
+
+TEST(StringSubstrTest, SubstringInplaceThrowsOnInvalidBegin) {
+    String s("short");
+    EXPECT_THROW(s.SubstrInplace(100, 2), std::out_of_range);
+}
+
+TEST(StringSubstrTest, SubstringInplaceOnEmptyString) {
+    String s("");
+    EXPECT_THROW(s.SubstrInplace(1), std::out_of_range);
+    s.SubstrInplace(0);
+    EXPECT_EQ(s, String(""));
+}
+
+TEST(StringSubstrTest, SubstringInplaceHeapString) {
+    String s("this is a really long string that will be heap allocated");
+    s.SubstrInplace(10, 6);
+    EXPECT_EQ(s, String("really"));
+}
+
 TEST(StringSubstrTest, BasicSubstring) {
     String s("hello world");
-    s.Substr(0, 5);
-    EXPECT_EQ(s, String("hello"));
+    String result = s.Substr(0, 5);
+    EXPECT_EQ(result, String("hello"));
+    EXPECT_EQ(s, String("hello world"));
 }
 
 TEST(StringSubstrTest, SubstringWithOffset) {
     String s("hello world");
-    s.Substr(6, 5);
-    EXPECT_EQ(s, String("world"));
+    String result = s.Substr(6, 5);
+    EXPECT_EQ(result, String("world"));
+    EXPECT_EQ(s, String("hello world"));
 }
 
 TEST(StringSubstrTest, SubstringMidSection) {
     String s("abcdefg");
-    s.Substr(2, 3);
-    EXPECT_EQ(s, String("cde"));
+    String result = s.Substr(2, 3);
+    EXPECT_EQ(result, String("cde"));
+    EXPECT_EQ(s, String("abcdefg"));
 }
 
 TEST(StringSubstrTest, SubstringWithLengthBeyondEnd) {
     String s("short");
-    s.Substr(3, 100);  // len > remaining
-    EXPECT_EQ(s, String("rt"));
+    String result = s.Substr(3, 100);
+    EXPECT_EQ(result, String("rt"));
+    EXPECT_EQ(s, String("short"));
 }
 
 TEST(StringSubstrTest, SubstringEntireString) {
     String s("entire string");
-    s.Substr(0);
+    String result = s.Substr(0);
+    EXPECT_EQ(result, String("entire string"));
     EXPECT_EQ(s, String("entire string"));
 }
 
 TEST(StringSubstrTest, SubstringEmptyLength) {
     String s("nonempty");
-    s.Substr(3, 0);
-    EXPECT_EQ(s, String(""));
+    String result = s.Substr(3, 0);
+    EXPECT_EQ(result, String(""));
+    EXPECT_EQ(s, String("nonempty"));
 }
 
 TEST(StringSubstrTest, SubstringFromEnd) {
     String s("edge");
-    s.Substr(4);
-    EXPECT_EQ(s, String(""));
+    String result = s.Substr(4);
+    EXPECT_EQ(result, String(""));
+    EXPECT_EQ(s, String("edge"));
 }
 
 TEST(StringSubstrTest, SubstringThrowsOnInvalidBegin) {
@@ -879,14 +946,15 @@ TEST(StringSubstrTest, SubstringThrowsOnInvalidBegin) {
 TEST(StringSubstrTest, SubstringOnEmptyString) {
     String s("");
     EXPECT_THROW(s.Substr(1), std::out_of_range);
-    s.Substr(0);
-    EXPECT_EQ(s, String(""));
+    String result = s.Substr(0);
+    EXPECT_EQ(result, String(""));
 }
 
 TEST(StringSubstrTest, SubstringHeapString) {
     String s("this is a really long string that will be heap allocated");
-    s.Substr(10, 6);
-    EXPECT_EQ(s, String("really"));
+    String result = s.Substr(10, 6);
+    EXPECT_EQ(result, String("really"));
+    EXPECT_EQ(s, String("this is a really long string that will be heap allocated"));
 }
 
 // Helper macro for trim tests
