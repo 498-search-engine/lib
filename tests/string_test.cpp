@@ -828,6 +828,7 @@ TEST(StringFindTest, FindWhitespace) {
 
 TEST(StringFindTest, FindOnHeapString) {
     String s("this is a very long string that is definitely heap allocated!");
+        
     EXPECT_EQ(s.Find('v'), 10);
     EXPECT_EQ(s.Find('!'), s.Size() - 1);
 }

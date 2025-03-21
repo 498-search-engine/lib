@@ -13,23 +13,21 @@ static_assert(sizeof(size_t) == 8, "size_t is not 8 bytes");  // Ensure our unio
 
 namespace core {
 
-inline constexpr size_t Npos = -1;
-
-inline constexpr int StackStringSize = 22;
-
-/*
-   Size of char array including null terminator
-*/
-inline constexpr int StackCharSize = StackStringSize + 1;
-
-/*
-   Size of total stack char array
-*/
-inline constexpr int StackArrSize = StackCharSize + 1;
-
-inline constexpr unsigned int RepFlagMask = 1;
-
 class String {
+    static constexpr int StackStringSize = 22;
+
+    /*
+       Size of char array including null terminator
+    */
+    static constexpr int StackCharSize = StackStringSize + 1;
+    
+    /*
+       Size of total stack char array
+    */
+    static constexpr int StackArrSize = StackCharSize + 1;
+    
+    static constexpr unsigned int RepFlagMask = 1;
+    
     struct HeapStringT {
         char* ptr;        // 8 bytes on 64-bit systems
         size_t size;      // 8 bytes
@@ -55,6 +53,8 @@ class String {
     };
 
 public:
+    static constexpr size_t Npos = -1;
+
     // Default Constructor
     // REQUIRES: Nothing
     // MODIFIES: *this
