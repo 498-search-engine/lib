@@ -1,6 +1,7 @@
 #ifndef LIB_CUSTOM_CONFIG_H
 #define LIB_CUSTOM_CONFIG_H
 
+#include <charconv>
 #include <core/string.h>
 #include <fcntl.h>
 #include <stdexcept>
@@ -54,6 +55,25 @@ class Config {
         }
 
         return it->second;
+    }
+
+    double GetDouble(const String &key) {
+        auto it = config_map_.find(key);
+        if (it == config_map_.end()) {
+            const String error = "key " + key + " not found";
+            throw std::invalid_argument(error.Cstr());
+        }
+
+        return std::stod(it->second.Cstr());;
+    }
+
+    double GetDouble(const String &key, double default_value) const {
+        auto it = config_map_.find(key);
+        if (it == config_map_.end()) {
+            return default_value;
+        }
+
+        return std::stod(it->second.Cstr());
     }
 
     int GetInt(const String &key, int default_value) const {
