@@ -21,6 +21,7 @@ TEST(ConfigTest, Basic) {
     ASSERT_ANY_THROW(config.GetInt("tomato2"));
     ASSERT_ANY_THROW(config.GetInt("tomato3"));
     ASSERT_ANY_THROW(config.GetInt("tomato4"));
+    ASSERT_ANY_THROW(config.GetDouble("tomato3"));
 
     ASSERT_EQ(config.GetString("non_existent_key", "3"), "3");
 
@@ -28,6 +29,10 @@ TEST(ConfigTest, Basic) {
     ASSERT_EQ(config.GetInt("aaaf"), 53);
 
     ASSERT_EQ(config.GetInt("non_existent_key", 2), 2);
+    
+    ASSERT_EQ(config.GetDouble("a122"), 122.34);
+    ASSERT_EQ(config.GetDouble("s3"), 0.85);
+    ASSERT_EQ(config.GetDouble("d"), 2);
 }
 
 TEST(ConfigTest, ParsesBasicKeyValuePairs) {
@@ -90,3 +95,4 @@ TEST(ConfigTest, IgnoresWhitespaceOnlyLines) {
     core::Config config("IgnoresWhitespaceOnlyLines.conf");
     EXPECT_EQ(config.GetString("key"), "value");
 }
+
