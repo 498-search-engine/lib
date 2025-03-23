@@ -48,7 +48,7 @@ public:
         end_decided_ = true;
     }
 
-    bool Joinable() const noexcept { return end_decided_; }
+    bool Joinable() const noexcept { return !end_decided_; }
 
     /*
      * Disable the copy constructor and copy assignment operator.
