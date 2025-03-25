@@ -18,7 +18,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     target_link_libraries(${TEST_NAME}
         PRIVATE
             gtest_main
-            core
+            lib::core
     )
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
