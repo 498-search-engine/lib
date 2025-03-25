@@ -10,6 +10,11 @@ namespace core {
 */
 class CSRMatrix {
     public:
+        std::vector<int> row_ptr_;
+        std::vector<int> col_idx_;
+        std::vector<double> values_;
+        int N_;
+
         CSRMatrix(int nodes) : N_(nodes) { 
             row_ptr_.resize(N_ + 1, 0); 
         }
@@ -37,12 +42,6 @@ class CSRMatrix {
             }
             return result;
         }
-
-    private:
-        std::vector<int> row_ptr_;
-        std::vector<int> col_idx_;
-        std::vector<double> values_;
-        int N_;
 };
 
 } // namespace core
