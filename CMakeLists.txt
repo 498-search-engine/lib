@@ -3,6 +3,7 @@ project(lib VERSION 1.0
         DESCRIPTION "Search engine core library"
         LANGUAGES CXX)
 
+find_package(OpenMP REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 # Create main library target
@@ -21,10 +22,13 @@ target_include_directories(core
         $<INSTALL_INTERFACE:include>
 )
 
+target_compile_options(core PRIVATE -fopenmp)
+
 target_link_libraries(core
     PUBLIC
         OpenSSL::Crypto
         OpenSSL::SSL
+        OpenMP::OpenMP_CXX
 )
 
 # Set up compile features
