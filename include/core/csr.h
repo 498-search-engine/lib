@@ -1,6 +1,7 @@
 // authors: @Anubhav652
 
 #include <vector>
+#include <omp.h>
 
 namespace core {
 
