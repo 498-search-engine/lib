@@ -37,7 +37,12 @@ target_include_directories(core
         $<INSTALL_INTERFACE:include>
 )
 
-target_compile_options(core PRIVATE -fopenmp)
+# Only apply `-fopenmp` on non-Apple Clang systems
+if(NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_SYSTEM_NAME MATCHES "Darwin"))
+    target_compile_options(core PRIVATE -fopenmp)
+else()
+    message(STATUS "Skipping -fopenmp for Apple Clang (unsupported)")
+endif()
 
 target_link_libraries(core
     PUBLIC
