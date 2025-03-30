@@ -1,7 +1,10 @@
 // authors: @Anubhav652
 
 #include <vector>
+
+#if __has_include(<omp.h>)
 #include <omp.h>
+#endif
 
 namespace core {
 
