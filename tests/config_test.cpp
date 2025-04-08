@@ -33,6 +33,10 @@ TEST(ConfigTest, Basic) {
     ASSERT_EQ(config.GetDouble("a122"), 122.34);
     ASSERT_EQ(config.GetDouble("s3"), 0.85);
     ASSERT_EQ(config.GetDouble("d"), 2);
+
+    ASSERT_EQ(config.GetFloat("a122"), 122.34F);
+    ASSERT_EQ(config.GetFloat("s3"), 0.85F);
+    ASSERT_EQ(config.GetFloat("d"), 2);
 }
 
 TEST(ConfigTest, ParsesBasicKeyValuePairs) {
