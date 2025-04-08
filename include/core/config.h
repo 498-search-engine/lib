@@ -64,7 +64,7 @@ class Config {
             throw std::invalid_argument(error.Cstr());
         }
 
-        return std::stod(it->second.Cstr());;
+        return std::stod(it->second.Cstr());
     }
 
     double GetDouble(const String &key, double default_value) const {
@@ -74,6 +74,26 @@ class Config {
         }
 
         return std::stod(it->second.Cstr());
+    }
+
+
+    float GetFloat(const String &key) {
+        auto it = config_map_.find(key);
+        if (it == config_map_.end()) {
+            const String error = "key " + key + " not found";
+            throw std::invalid_argument(error.Cstr());
+        }
+
+        return std::stof(it->second.Cstr());
+    }
+
+    float GetFloat(const String &key, float default_value) const {
+        auto it = config_map_.find(key);
+        if (it == config_map_.end()) {
+            return default_value;
+        }
+
+        return std::stof(it->second.Cstr());
     }
 
     int GetInt(const String &key, int default_value) const {
