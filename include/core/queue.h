@@ -16,9 +16,17 @@ struct Queue {
         front += (front+1)%arr.size();
         --sz;
     }
+
     void push(const T& element) {
         auto new_b = (back +1) % arr.size();
         (not arr.size()) or (new_b == front) ? arr.push_back(element) : arr[new_b] = elem;
+        back = (back +1) % arr.size();
+        ++sz;
+    }
+
+    void push(T&& element) {
+        auto new_b = (back +1) % arr.size();
+        (not arr.size()) or (new_b == front) ? arr.push_back(std::move(elem)) : arr[new_b] = std::move(elem);
         back = (back +1) % arr.size();
         ++sz;
     }
