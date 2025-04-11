@@ -53,6 +53,8 @@ public:
 
     SharedPtr& operator=(const SharedPtr& other) {
         if (this != &other) {
+            Decrement();
+
             counter_ = other.counter_;
             ptr_ = other.ptr_;
 
@@ -61,6 +63,15 @@ public:
 
         return *this;
     };
+
+    SharedPtr& operator=(std::nullptr_t) {
+        Decrement();
+
+        ptr_ = nullptr;
+        counter_ = nullptr;
+
+        return *this;
+    }
 
     SharedPtr(SharedPtr&& other) noexcept : ptr_(other.ptr_), counter_(other.counter_) {
         other.ptr_ = nullptr;
@@ -74,6 +85,9 @@ public:
             ptr_ = other.ptr_;
             counter_ = other.counter_;
         }
+
+        other.ptr_ = nullptr;
+        other.counter_ = nullptr;
 
         return *this;
     }
