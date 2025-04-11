@@ -100,5 +100,30 @@ private:
         }
     }
 };
+
+template<typename T>
+bool operator==(const SharedPtr<T>& p, std::nullptr_t) noexcept {
+    return p.Get() == nullptr;
+}
+
+template<typename T>
+bool operator==(std::nullptr_t, const SharedPtr<T>& p) noexcept {
+    return p.Get() == nullptr;
+}
+
+template<typename T>
+bool operator!=(const SharedPtr<T>& p, std::nullptr_t) noexcept {
+    return p.Get() != nullptr;
+}
+
+template<typename T>
+bool operator!=(std::nullptr_t, const SharedPtr<T>& p) noexcept {
+    return p.Get() != nullptr;
+}
+
+template<typename T, typename... Args>
+SharedPtr<T> MakeShared(Args&&... args) {
+    return SharedPtr<T>{new T(std::forward<Args>(args)...)};
+}
 }  // namespace core
 #endif
