@@ -6,8 +6,8 @@
 #define SHARED_PTR_H
 
 #include <atomic>
+#include <cstddef>
 #include <cstdint>
-#include <utility>
 
 namespace {
 class Counter {
