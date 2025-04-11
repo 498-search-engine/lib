@@ -47,16 +47,32 @@ class SharedPtr {
 public:
     explicit SharedPtr(T* ptr = nullptr) : counter_(new Counter()), ptr_(ptr) {};
 
-    SharedPtr(const SharedPtr&) = delete;
-    SharedPtr& operator=(const SharedPtr&) = delete;
+    SharedPtr(const SharedPtr& other) : counter_(other.counter_), ptr_(other.ptr_) { counter_->IncrementIfNotZero(); }
 
-    SharedPtr(SharedPtr&& other) noexcept : ptr_(other.ptr_) { other.ptr_ = nullptr; }
+    ~SharedPtr() { Decrement(); }
+
+    SharedPtr& operator=(const SharedPtr& other) {
+        if (this != &other) {
+            counter_ = other.counter_;
+            ptr_ = other.ptr_;
+
+            counter_->IncrementIfNotZero();
+        }
+
+        return *this;
+    };
+
+    SharedPtr(SharedPtr&& other) noexcept : ptr_(other.ptr_), counter_(other.counter_) {
+        other.ptr_ = nullptr;
+        other.counter_ = nullptr;
+    }
 
     SharedPtr& operator=(SharedPtr&& other) noexcept {
         if (this != &other) {
-            delete ptr_;
+            Decrement();
+
             ptr_ = other.ptr_;
-            other.ptr_ = nullptr;
+            counter_ = other.counter_;
         }
 
         return *this;
@@ -73,6 +89,16 @@ public:
 private:
     T* ptr_;
     Counter* counter_;
+
+    void Decrement() {
+        if (static_cast<bool>(counter_) && counter_->Decrement()) {
+            delete ptr_;
+            delete counter_;
+
+            ptr_ = nullptr;
+            counter_ = nullptr;
+        }
+    }
 };
 }  // namespace core
 #endif
