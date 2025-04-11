@@ -7,6 +7,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <utility>
 
 namespace {
 class Counter {
