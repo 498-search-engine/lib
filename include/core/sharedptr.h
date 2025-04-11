@@ -11,13 +11,13 @@
 namespace {
 class Counter {
 public:
-    bool IncrementIfNotZero() { return (counter_.fetch_add(1) & is_zero_) == 0; }
+    bool IncrementIfNotZero() { return (counter_.fetch_add(1) & IsZero) == 0; }
 
     bool Decrement() {
         if (counter_.fetch_sub(1) == 1) {
             uint64_t e = 0;
-            if (counter_.compare_exchange_strong(e, is_zero_) ||
-                static_cast<bool>(e & helped_) && static_cast<bool>(counter_.exchange(is_zero_) & helped_)) {
+            if (counter_.compare_exchange_strong(e, IsZero) ||
+                static_cast<bool>(e & IsHelped) && static_cast<bool>(counter_.exchange(IsZero) & IsHelped)) {
                 return true;
             };
         }
@@ -27,15 +27,15 @@ public:
 
     uint64_t Read() {
         auto val = counter_.load();
-        if (val == 0 && counter_.compare_exchange_strong(val, is_zero_ | helped_)) {
+        if (val == 0 && counter_.compare_exchange_strong(val, IsZero | IsHelped)) {
             return 0;
         }
-        return static_cast<bool>(val & is_zero_) ? 0 : val;
+        return static_cast<bool>(val & IsZero) ? 0 : val;
     }
 
 private:
-    uint64_t is_zero_ = 1ULL << 63;
-    uint64_t helped_ = 1ULL << 62;
+    static constexpr uint64_t IsZero = 1ULL << 63;
+    static constexpr uint64_t IsHelped = 1ULL << 62;
     std::atomic<uint64_t> counter_{1};
 };
 };  // namespace
