@@ -24,6 +24,7 @@ find_package(OpenSSL REQUIRED)
 # Create main library target
 add_library(core
     src/core/optional.cpp
+    src/core/mem_map_file.cpp
     # Add other source files
 )
 
