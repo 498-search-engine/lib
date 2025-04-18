@@ -19,9 +19,13 @@ namespace core {
 
 class FileOpenFailure final : public std::exception {
 public:
+    FileOpenFailure(const std::string& file, std::string msg = "")
+        : what_("File open failure: failed to memory map file " + file + " " + msg) {}
     const char* what() const noexcept override {
-        return "File open failure: failed to memory map file";
+        return what_.c_str();
     }
+private:
+    std::string what_;
 };
 
 class MemMapFile {

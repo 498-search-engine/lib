@@ -21,21 +21,26 @@ namespace core {
 MemMapFile::MemMapFile(const std::string& path) {
     fd_ = open(path.c_str(), O_RDONLY);
     if (fd_ == -1) {
-        throw FileOpenFailure();
+        throw FileOpenFailure(path, "bad fd");
     }
 
     off_t len = lseek(fd_, 0, SEEK_END);
     if (len == -1) {
         close(fd_);
-        throw FileOpenFailure();
+        throw FileOpenFailure(path, "bad length");
     }
 
     size_ = static_cast<size_t>(len);
+    if (size_ == 0) {
+        close(fd_);
+        throw FileOpenFailure(path, "size zero");
+    }
+
     data_ = static_cast<char*>(mmap(nullptr, size_, PROT_READ, MAP_PRIVATE, fd_, 0));
 
     if (data_ == MAP_FAILED) {
         close(fd_);
-        throw FileOpenFailure();
+        throw FileOpenFailure(path, "mmap() failed");
     }
 }
 
