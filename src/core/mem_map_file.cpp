@@ -4,21 +4,21 @@
  * @brief Memory mapped file RAII wrapper
  * @version 0.1
  * @date 2025-04-16
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 
 #include "core/mem_map_file.h"
 
+#include <fcntl.h>
 #include <string>
 #include <sys/mman.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 namespace core {
 
-MemMapFile::MemMapFile(const std::string& path) {
+MemMapFile::MemMapFile(const std::string& path, bool forceInMemory) {
     fd_ = open(path.c_str(), O_RDONLY);
     if (fd_ == -1) {
         throw FileOpenFailure(path, "bad fd");
@@ -41,6 +41,18 @@ MemMapFile::MemMapFile(const std::string& path) {
     if (data_ == MAP_FAILED) {
         close(fd_);
         throw FileOpenFailure(path, "mmap() failed");
+    }
+
+    if (forceInMemory) {
+        if (mlock(data_, size_) != 0) {
+            throw FileOpenFailure(path, "unable to mlock");
+        }
+
+        // Touch all pages to force in memory
+        volatile char tmp;
+        for (size_t i = 0; i < size_; i += 4096) {
+            tmp = *((char*)data_ + i);
+        }
     }
 }
 
