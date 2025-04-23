@@ -47,7 +47,7 @@ MemMapFile::MemMapFile(const std::string& path, bool forceInMemory) {
 
     if (forceInMemory) {
         if (mlock(data_, size_) != 0) {
-            spdlog::warn("unable to mlock {}", path);
+            cout << "unable to mlock " << path;
         }
 
         // Touch all pages to force in memory
