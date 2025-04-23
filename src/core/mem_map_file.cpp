@@ -15,10 +15,12 @@
 #include <string>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <iostream>
 
 namespace core {
 
 MemMapFile::MemMapFile(const std::string& path, bool forceInMemory) {
+    std::cout << "in memmap file constructor " << path;
     fd_ = open(path.c_str(), O_RDONLY);
     if (fd_ == -1) {
         throw FileOpenFailure(path, "bad fd");
@@ -45,7 +47,7 @@ MemMapFile::MemMapFile(const std::string& path, bool forceInMemory) {
 
     if (forceInMemory) {
         if (mlock(data_, size_) != 0) {
-            throw FileOpenFailure(path, "unable to mlock");
+            std::cout << "unable to mlock " << path;
         }
 
         // Touch all pages to force in memory
