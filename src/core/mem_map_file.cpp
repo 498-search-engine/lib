@@ -20,7 +20,6 @@
 namespace core {
 
 MemMapFile::MemMapFile(const std::string& path, bool forceInMemory) {
-    std::cout << "in memmap file constructor " << path;
     fd_ = open(path.c_str(), O_RDONLY);
     if (fd_ == -1) {
         throw FileOpenFailure(path, "bad fd");
