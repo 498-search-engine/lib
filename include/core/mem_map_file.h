@@ -29,7 +29,7 @@ private:
 
 class MemMapFile {
 public:
-    MemMapFile(const std::string& path, bool forceInMemory = false);
+    MemMapFile(const std::string& path, bool forceInMemory = true);
 
     MemMapFile(const MemMapFile&) = delete;
     MemMapFile& operator=(const MemMapFile&) = delete;
