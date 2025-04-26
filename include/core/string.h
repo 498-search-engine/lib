@@ -5,8 +5,12 @@
 //
 // Starter file for a string template
 
-#include <cstddef>   // for size_t
-#include <iostream>  // for ostream
+#include "core/algorithm.h"
+#include "core/internal/string_fn.h"
+#include "core/string_view.h"
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
 #include <stdexcept>
 
 static_assert(sizeof(size_t) == 8, "size_t is not 8 bytes");  // Ensure our union matches correctly
@@ -20,14 +24,14 @@ class String {
        Size of char array including null terminator
     */
     static constexpr int StackCharSize = StackStringSize + 1;
-    
+
     /*
        Size of total stack char array
     */
     static constexpr int StackArrSize = StackCharSize + 1;
-    
+
     static constexpr unsigned int RepFlagMask = 1;
-    
+
     struct HeapStringT {
         char* ptr;        // 8 bytes on 64-bit systems
         size_t size;      // 8 bytes
@@ -130,6 +134,8 @@ public:
         internal_.heap_string.size = n;
     }
 
+    String(StringView v) : String(v.Data(), v.Size()) {}
+
     ~String() {
         if (!IsShort()) {
             delete[] internal_.heap_string.ptr;
@@ -209,6 +215,8 @@ public:
 
         return *this;
     }
+
+    operator StringView() const { return StringView{Cstr(), Size()}; }
 
     bool Empty() const { return Size() == 0; }
 
@@ -292,7 +300,7 @@ public:
     // MODIFIES: *this
     // EFFECTS: Appends the contents of other to *this, resizing any
     //      memory at most once
-    void Append(const String& other) {
+    void Append(StringView other) {
         // Grow string if necessary
         const size_t currentSize = Size();
         size_t newSize = currentSize + other.Size();
@@ -301,8 +309,8 @@ public:
         }
 
         // Copy over string
-        const auto* it = other.begin();
-        const auto* end = other.end();
+        auto it = other.begin();
+        auto end = other.end();
 
         char* currIt = begin() + currentSize;
         while (it != end) {
@@ -319,7 +327,7 @@ public:
         }
     }
 
-    void operator+=(const String& other) { Append(other); }
+    void operator+=(StringView other) { Append(other); }
 
     // Push Back
     // REQUIRES: Nothing
@@ -365,26 +373,7 @@ public:
     // EFFECTS: Returns whether all the contents of *this
     //    and other are equal
     bool operator==(const String& other) const {
-        // quick check for diff string size
-        if (Size() != other.Size()) {
-            return false;
-        }
-
-        const char* curBuf = begin();
-        const char* otherBuf = other.begin();
-
-        const char* curBufEnd = end();
-        const char* otherBufEnd = other.end();
-
-        while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
-            if (*curBuf != *otherBuf) {
-                return false;
-            }
-            curBuf++;
-            otherBuf++;
-        }
-
-        return curBuf == curBufEnd && otherBuf == otherBufEnd;
+        return Size() == other.Size() && core::equal(begin(), end(), other.begin(), other.end());
     }
 
     // Not-Equality Operator
@@ -399,21 +388,7 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically less than other
     bool operator<(const String& other) const {
-        const char* curBuf = begin();
-        const char* otherBuf = other.begin();
-
-        const char* curBufEnd = end();
-        const char* otherBufEnd = other.end();
-
-        while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
-            if (*curBuf != *otherBuf) {
-                return *curBuf < *otherBuf;
-            }
-            curBuf++;
-            otherBuf++;
-        }
-
-        return Size() < other.Size();
+        return internal::Compare(Cstr(), Size(), other.Cstr(), other.Size()) < 0;
     }
 
     // Greater Than Operator
@@ -421,21 +396,7 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically greater than other
     bool operator>(const String& other) const {
-        const char* curBuf = begin();
-        const char* otherBuf = other.begin();
-
-        const char* curBufEnd = end();
-        const char* otherBufEnd = other.end();
-
-        while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
-            if (*curBuf != *otherBuf) {
-                return *curBuf > *otherBuf;
-            }
-            curBuf++;
-            otherBuf++;
-        }
-
-        return Size() > other.Size();
+        return internal::Compare(Cstr(), Size(), other.Cstr(), other.Size()) > 0;
     }
 
     // Less Than Or Equal Operator
@@ -443,21 +404,7 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically less or equal to other
     bool operator<=(const String& other) const {
-        const char* curBuf = begin();
-        const char* otherBuf = other.begin();
-
-        const char* curBufEnd = end();
-        const char* otherBufEnd = other.end();
-
-        while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
-            if (*curBuf != *otherBuf) {
-                return *curBuf < *otherBuf;
-            }
-            curBuf++;
-            otherBuf++;
-        }
-
-        return Size() <= other.Size();
+        return internal::Compare(Cstr(), Size(), other.Cstr(), other.Size()) <= 0;
     }
 
     // Greater Than Or Equal Operator
@@ -465,21 +412,7 @@ public:
     // MODIFIES: Nothing
     // EFFECTS: Returns whether *this is lexigraphically less or equal to other
     bool operator>=(const String& other) const {
-        const char* curBuf = begin();
-        const char* otherBuf = other.begin();
-
-        const char* curBufEnd = end();
-        const char* otherBufEnd = other.end();
-
-        while (curBuf != curBufEnd && otherBuf != otherBufEnd) {
-            if (*curBuf != *otherBuf) {
-                return *curBuf > *otherBuf;
-            }
-            curBuf++;
-            otherBuf++;
-        }
-
-        return Size() >= other.Size();
+        return internal::Compare(Cstr(), Size(), other.Cstr(), other.Size()) >= 0;
     }
 
     // Automatically Grows the capacity of the string
@@ -529,13 +462,23 @@ public:
         }
     }
 
-    size_t Find(char a) const {
-        for (const char *itr = begin(); itr != end(); itr++) {
-            if (*itr == a) {
-                return itr - begin();
-            }
+    size_t Find(const String& s, size_t pos = 0) const {
+        if (pos > Size()) {
+            throw std::out_of_range("pos is out of range");
         }
-        return Npos;
+        return internal::Find<Npos>(Cstr(), Size(), s.Cstr(), s.Size(), pos);
+    }
+    size_t Find(const char* s, size_t pos = 0) const {
+        if (pos > Size()) {
+            throw std::out_of_range("pos is out of range");
+        }
+        return internal::Find<Npos>(Cstr(), Size(), s, internal::StrLen(s), pos);
+    }
+    size_t Find(char a, size_t pos = 0) const {
+        if (pos > Size()) {
+            throw std::out_of_range("pos is out of range");
+        }
+        return internal::FindChar<Npos>(Cstr(), Size(), a, pos);
     }
 
     void SubstrInplace(size_t begin, size_t len = Npos) {
@@ -553,7 +496,7 @@ public:
             ShortSetSize(actualNewLength);
             return;
         }
-        
+
         for (size_t i = 0; i < (Size() - begin) && actualNewLength != len; ++i) {
             actualNewLength++;
             internal_.heap_string.ptr[i] = internal_.heap_string.ptr[i + begin];
@@ -575,7 +518,7 @@ public:
 
             return String(Cstr() + begin, actualNewLength);
         }
-        
+
         for (size_t i = 0; i < (Size() - begin) && actualNewLength != len; ++i) {
             actualNewLength++;
         }
@@ -585,7 +528,7 @@ public:
 
     void LeftTrim() {
         size_t begin = 0;
-        const char *s = Cstr();
+        const char* s = Cstr();
         // NOLINTNEXTLINE(readability-implicit-bool-conversion)
         while (isspace(*s)) {
             s++;
@@ -601,8 +544,8 @@ public:
             return;
         }
 
-        const char *b = begin();
-        const char *s = begin() + (end - 1);
+        const char* b = begin();
+        const char* s = begin() + (end - 1);
 
         // NOLINTNEXTLINE(readability-implicit-bool-conversion)
         while (isspace(*s)) {
@@ -763,20 +706,21 @@ inline String operator+(String&& lhs, char rhs) {
 }  // namespace core
 
 
-template<> struct std::hash<core::String> {
-    std::size_t operator()(const core::String &s) const noexcept {
+template<>
+struct std::hash<core::String> {
+    std::size_t operator()(const core::String& s) const noexcept {
         uint32_t hash = 0;
 
-        for (const char *cptr = s.begin(); cptr != s.end(); ++cptr) {
+        for (const char* cptr = s.begin(); cptr != s.end(); ++cptr) {
             hash += *cptr;
             hash += (hash << 10);
             hash ^= (hash >> 6);
         }
-    
+
         hash += (hash << 3);
         hash ^= (hash >> 11);
         hash += (hash << 15);
-    
+
         return hash;
     };
 };
