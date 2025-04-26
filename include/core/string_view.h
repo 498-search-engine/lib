@@ -1,8 +1,9 @@
 #ifndef LIB_STRING_VIEW_H
 #define LIB_STRING_VIEW_H
 
+#include "core/algorithm.h"
+#include "core/internal/string_fn.h"
 #include "core/iterator.h"
-#include "core/string_fn.h"
 
 #include <algorithm>
 #include <cassert>
@@ -73,9 +74,21 @@ public:
     constexpr bool EndsWith(char c) const noexcept { return size_ > 0 && Back() == c; }
     constexpr bool EndsWith(const char* s) const { return internal::EndsWith(Data(), Size(), s, internal::StrLen(s)); }
 
-    constexpr size_t Find(StringView v, size_t pos = 0) const noexcept { return Npos; }
-    constexpr size_t Find(char c, size_t pos = 0) const noexcept { return Npos; }
-    constexpr size_t Find(const char* s, size_t pos = 0) const noexcept { return Npos; }
+    constexpr size_t Find(StringView v, size_t pos = 0) const {
+        if (pos >= Size()) {
+            throw std::out_of_range("pos is out of range");
+        }
+        return internal::Find<Npos>(Data(), Size(), v.Data(), v.Size(), pos);
+    }
+    constexpr size_t Find(char c, size_t pos = 0) const {
+        if (pos >= Size()) {
+            throw std::out_of_range("pos is out of range");
+        }
+        return internal::FindChar<Npos>(Data(), Size(), c, pos);
+    }
+    constexpr size_t Find(const char* s, size_t pos = 0) const noexcept {
+        return internal::Find<Npos>(Data(), Size(), s, internal::StrLen(s), pos);
+    }
 
 private:
     const char* data_;
@@ -83,8 +96,7 @@ private:
 };
 
 constexpr bool operator==(StringView lhs, StringView rhs) noexcept {
-    // return false; TODO: use core::Equals
-    return lhs.Size() == rhs.Size() && lhs.Compare(rhs) == 0;
+    return lhs.Size() == rhs.Size() && core::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 constexpr bool operator<(StringView lhs, StringView rhs) noexcept {

@@ -1,6 +1,7 @@
 #ifndef LIB_STRING_FN_H
 #define LIB_STRING_FN_H
 
+#include "core/algorithm.h"
 #include <cstddef>
 
 namespace core::internal {
@@ -55,6 +56,26 @@ constexpr bool EndsWith(const char* s, size_t n, const char* suffix, size_t suff
         }
     }
     return true;
+}
+
+template<size_t Npos>
+constexpr size_t Find(const char* s, size_t n, const char* target, size_t targetN, size_t pos) noexcept {
+    const auto* it = core::search(s + pos, s + n, target, target + targetN);
+    if (it == s + n) {
+        return Npos;
+    } else {
+        return it - s;
+    }
+}
+
+template<size_t Npos>
+constexpr size_t FindChar(const char* s, size_t n, char c, size_t pos) noexcept {
+    const auto* it = core::find(s + pos, s + n, c);
+    if (it == s + n) {
+        return Npos;
+    } else {
+        return it - s;
+    }
 }
 
 }  // namespace core::internal

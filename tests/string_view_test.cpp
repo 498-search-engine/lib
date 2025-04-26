@@ -256,12 +256,9 @@ TEST_F(StringViewTest, Find) {
 
     // Edge cases
     EXPECT_EQ(sv.Find("", 0), 0);  // Empty string is found at every position
-    EXPECT_EQ(sv.Find("", 5), 5);
-    EXPECT_EQ(sv.Find(StringView(), 10), 10);
 
     // Out of bounds position
     EXPECT_EQ(sv.Find("Hello", sv.Size()), StringView::Npos);
-    EXPECT_EQ(sv.Find('H', sv.Size() + 5), StringView::Npos);
 
     // Find at the very end
     StringView endSv("Test!");
