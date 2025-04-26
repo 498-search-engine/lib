@@ -75,13 +75,13 @@ public:
     constexpr bool EndsWith(const char* s) const { return internal::EndsWith(Data(), Size(), s, internal::StrLen(s)); }
 
     constexpr size_t Find(StringView v, size_t pos = 0) const {
-        if (pos >= Size()) {
+        if (pos > Size()) {
             throw std::out_of_range("pos is out of range");
         }
         return internal::Find<Npos>(Data(), Size(), v.Data(), v.Size(), pos);
     }
     constexpr size_t Find(char c, size_t pos = 0) const {
-        if (pos >= Size()) {
+        if (pos > Size()) {
             throw std::out_of_range("pos is out of range");
         }
         return internal::FindChar<Npos>(Data(), Size(), c, pos);
