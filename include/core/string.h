@@ -61,6 +61,8 @@ class String {
 public:
     static constexpr size_t Npos = -1;
 
+    static constexpr size_t npos = Npos;
+
     // Default Constructor
     // REQUIRES: Nothing
     // MODIFIES: *this
@@ -570,6 +572,8 @@ public:
 
     size_t size() const { return Size(); }
 
+    size_t length() const { return size(); }
+
 size_t capacity() const { return Capacity(); }
 
 const char* c_str() const { return Cstr(); }
@@ -600,6 +604,20 @@ void trim() { Trim(); }
 
 operator std::string() const {
     return std::string(Cstr(), Size());
+}
+
+size_t find_last_of(char c, size_t pos = Npos) const {
+    size_t n = Size();
+    if (n == 0) return Npos;
+    if (pos >= n) pos = n - 1;
+
+    const char* data = Cstr();
+    for (size_t i = pos + 1; i-- > 0;) {
+        if (data[i] == c) {
+            return i;
+        }
+    }
+    return Npos;
 }
 
 private:
