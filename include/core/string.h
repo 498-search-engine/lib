@@ -739,20 +739,20 @@ inline String operator+(String&& lhs, char rhs) {
     return std::move(lhs);
 }
 
-inline int stoi(const String& s) {
-    return std::strtol(s.Cstr(), nullptr, 10);
+inline int stoi(const String& s, size_t* idx = nullptr, int base = 10) {
+    return std::stoi(std::string(s), idx, base);
 }
 
-inline long stol(const String& s) {
-    return std::strtol(s.Cstr(), nullptr, 10);
+inline long stol(const String& s, size_t* idx = nullptr, int base = 10) {
+    return std::stol(std::string(s), idx, base);
 }
 
-inline unsigned long stoul(const String& s) {
-    return std::strtoul(s.Cstr(), nullptr, 10);
+inline unsigned long stoul(const String& s, size_t* idx = nullptr, int base = 10) {
+    return std::stoul(std::string(s), idx, base);
 }
 
-inline double stod(const String& s) {
-    return std::strtod(s.Cstr(), nullptr);
+inline double stod(const String& s, size_t* idx = nullptr) {
+    return std::stod(std::string(s), idx);
 }
 
 }  // namespace core
