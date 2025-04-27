@@ -90,6 +90,33 @@ public:
         return internal::Find<Npos>(Data(), Size(), s, internal::StrLen(s), pos);
     }
 
+    constexpr char front() const { return Front(); }
+constexpr char back() const { return Back(); }
+
+constexpr const char* data() const { return Data(); }
+constexpr size_t size() const { return Size(); }
+constexpr size_t length() const { return Length(); }
+constexpr bool empty() const { return Empty(); }
+
+constexpr void remove_prefix(size_t n) { RemovePrefix(n); }
+constexpr void remove_suffix(size_t n) { RemoveSuffix(n); }
+constexpr StringView substr(size_t pos, size_t count = Npos) { return Substr(pos, count); }
+
+constexpr int compare(StringView v) const { return Compare(v); }
+constexpr int compare(const char* s) const { return Compare(s); }
+
+constexpr bool starts_with(StringView v) const noexcept { return StartsWith(v); }
+constexpr bool starts_with(char c) const noexcept { return StartsWith(c); }
+constexpr bool starts_with(const char* s) const { return StartsWith(s); }
+
+constexpr bool ends_with(StringView v) const noexcept { return EndsWith(v); }
+constexpr bool ends_with(char c) const noexcept { return EndsWith(c); }
+constexpr bool ends_with(const char* s) const { return EndsWith(s); }
+
+constexpr size_t find(StringView v, size_t pos = 0) const { return Find(v, pos); }
+constexpr size_t find(char c, size_t pos = 0) const { return Find(c, pos); }
+constexpr size_t find(const char* s, size_t pos = 0) const noexcept { return Find(s, pos); }
+
 private:
     const char* data_;
     size_t size_;
