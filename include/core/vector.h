@@ -229,31 +229,28 @@ public:
 
     const T* data() const { return arr; }
 
-    void insert(iterator pos, iterator first, iterator last) {
-        size_t p = static_cast<size_t>(pos - begin());
-        size_t count = static_cast<size_t>(last - first);
-
-        if (p > sz) {
-            throw std::out_of_range("Vector::insert: position out of range");
+    template<typename InputIt>
+    void insert(iterator pos, InputIt first, InputIt last) {
+        size_t insert_pos = static_cast<size_t>(pos - begin());
+        size_t num_elements = static_cast<size_t>(last - first);
+    
+        if (sz + num_elements > cap) {
+            reserve(std::max(cap * 2, sz + num_elements));
         }
-
-        if (sz + count > cap) {
-            reserve(std::max(cap * 2, sz + count));
+    
+        // Shift existing elements to the right
+        for (size_t i = sz; i > insert_pos; --i) {
+            arr[i + num_elements - 1] = std::move(arr[i - 1]);
         }
-
-        for (size_t i = sz + count - 1; i >= p + count; --i) {
-            arr[i] = std::move(arr[i - count]);
-            if (i == 0)
-                break;  
+    
+        // Insert new elements
+        for (size_t i = 0; i < num_elements; ++i) {
+            arr[insert_pos + i] = *(first + i);  // 🛠️ FIXED: dereference after moving first + i
         }
-
-        for (size_t i = 0; i < count; ++i) {
-            arr[p + i] = *(first + i);
-        }
-
-        sz += count;
+    
+        sz += num_elements;
     }
-
+    
 
 private:
     // TODO
