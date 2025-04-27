@@ -469,6 +469,32 @@ public:
         sz += num_elements;
     }
 
+        // Move push_back
+        constexpr void push_back(T&& x) {
+            if (sz == cap)
+                reserve(cap > 0 ? cap * 2 : 1);
+            arr[sz++] = std::move(x);
+        }
+    
+        // Emplace_back
+        template<typename... Args>
+        constexpr T& emplace_back(Args&&... args) {
+            if (sz == cap)
+                reserve(cap > 0 ? cap * 2 : 1);
+            new (&arr[sz]) T(std::forward<Args>(args)...);
+            return arr[sz++];
+        }
+    
+        // back() access
+        constexpr T& back() {
+            return arr[sz - 1];
+        }
+    
+        constexpr const T& back() const {
+            return arr[sz - 1];
+        }
+    
+
 private:
     T* arr = nullptr;
     size_t sz = 0;
