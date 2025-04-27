@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <stdexcept>
 
 static_assert(sizeof(size_t) == 8, "size_t is not 8 bytes");  // Ensure our union matches correctly
@@ -596,6 +597,10 @@ void left_trim() { LeftTrim(); }
 void right_trim() { RightTrim(); }
 
 void trim() { Trim(); }
+
+operator std::string() const {
+    return std::string(Cstr(), Size());
+}
 
 private:
     string_t internal_;
