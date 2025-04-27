@@ -620,6 +620,18 @@ size_t find_last_of(char c, size_t pos = Npos) const {
     return Npos;
 }
 
+inline String operator+(const String& lhs, const char* rhs) {
+    String s = lhs;
+    s.Append(rhs);
+    return s;
+}
+
+inline String operator+(const char* lhs, const String& rhs) {
+    String s(lhs);
+    s.Append(rhs);
+    return s;
+}
+
 private:
     string_t internal_;
 
