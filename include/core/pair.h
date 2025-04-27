@@ -62,6 +62,11 @@ struct Pair {
     }
 };
 
+template<typename First, typename Second>
+constexpr Pair<std::decay_t<First>, std::decay_t<Second>> make_pair(First&& f, Second&& s) {
+    return Pair<std::decay_t<First>, std::decay_t<Second>>(std::forward<First>(f), std::forward<Second>(s));
+}
+
 } // namespace core
 
 #endif
