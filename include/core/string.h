@@ -567,6 +567,36 @@ public:
         RightTrim();
     }
 
+    size_t size() const { return Size(); }
+
+size_t capacity() const { return Capacity(); }
+
+const char* c_str() const { return Cstr(); }
+
+bool empty() const { return Empty(); }
+
+void append(StringView other) { Append(other); }
+
+void push_back(char c) { PushBack(c); }
+
+void pop_back() { PopBack(); }
+
+void clear() { Clear(); }
+
+size_t find(const String& s, size_t pos = 0) const { return Find(s, pos); }
+
+size_t find(const char* s, size_t pos = 0) const { return Find(s, pos); }
+
+size_t find(char a, size_t pos = 0) const { return Find(a, pos); }
+
+String substr(size_t begin, size_t len = Npos) { return Substr(begin, len); }
+
+void left_trim() { LeftTrim(); }
+
+void right_trim() { RightTrim(); }
+
+void trim() { Trim(); }
+
 private:
     string_t internal_;
 
