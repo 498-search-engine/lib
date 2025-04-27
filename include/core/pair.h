@@ -3,10 +3,10 @@
 
 
 namespace core {
-    template<typename T1, typename T2>
+    template<typename First, typename Second>
     struct Pair{
-        T1 first;
-        T2 second;
+        First first;
+        Second second;
 
         // Default constructor
     constexpr Pair() = default;
