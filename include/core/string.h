@@ -773,18 +773,6 @@ inline double stod(const String& s, size_t* idx = nullptr) {
     return std::stod(std::string(s), idx);
 }
 
-inline String operator+(const String& lhs, const char* rhs) {
-    String s = lhs;
-    s.Append(rhs);
-    return s;
-}
-
-inline String operator+(const char* lhs, const String& rhs) {
-    String s(lhs);
-    s.Append(rhs);
-    return s;
-}
-
 }  // namespace core
 
 
