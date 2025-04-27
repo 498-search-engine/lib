@@ -72,6 +72,44 @@ constexpr bool operator<(const Pair<First, Second>& lhs, const Pair<First, Secon
     return (lhs.first < rhs.first) || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
 }
 
+
+template<typename FirstRef, typename SecondRef>
+struct PairTie {
+    FirstRef first;
+    SecondRef second;
+
+    // Comparison operators
+    constexpr bool operator==(const PairTie& other) const {
+        return first == other.first && second == other.second;
+    }
+
+    constexpr bool operator!=(const PairTie& other) const {
+        return !(*this == other);
+    }
+
+    constexpr bool operator<(const PairTie& other) const {
+        return (first < other.first) || (!(other.first < first) && second < other.second);
+    }
+
+    constexpr bool operator<=(const PairTie& other) const {
+        return !(other < *this);
+    }
+
+    constexpr bool operator>(const PairTie& other) const {
+        return other < *this;
+    }
+
+    constexpr bool operator>=(const PairTie& other) const {
+        return !(*this < other);
+    }
+};
+
+// Now the actual tie function
+template<typename First, typename Second>
+constexpr auto tie(const Pair<First, Second>& p) {
+    return PairTie<const First&, const Second&>{p.first, p.second};
+}
+
 } // namespace core
 
 #endif
