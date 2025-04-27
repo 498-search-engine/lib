@@ -8,8 +8,8 @@ using core::UnorderedSet;
 
 TEST(UnorderedSetTest, DefaultConstructor) {
     UnorderedSet<int> s;
-    EXPECT_EQ(s.Size(), 0);
-    EXPECT_TRUE(s.Empty());
+    EXPECT_EQ(s.size(), 0);
+    EXPECT_TRUE(s.empty());
 }
 
 TEST(UnorderedSetTest, InsertAndContains) {
@@ -29,9 +29,9 @@ TEST(UnorderedSetTest, EraseElement) {
     s.insert(2);
 
     EXPECT_TRUE(s.contains(2));
-    EXPECT_TRUE(s.Erase(2));
+    EXPECT_TRUE(s.erase(2));
     EXPECT_FALSE(s.contains(2));
-    EXPECT_FALSE(s.Erase(2));
+    EXPECT_FALSE(s.erase(2));
 }
 
 TEST(UnorderedSetTest, ClearSet) {
@@ -40,10 +40,10 @@ TEST(UnorderedSetTest, ClearSet) {
     s.insert(20);
     s.insert(30);
 
-    EXPECT_EQ(s.Size(), 3);
+    EXPECT_EQ(s.size(), 3);
     s.clear();
-    EXPECT_EQ(s.Size(), 0);
-    EXPECT_TRUE(s.Empty());
+    EXPECT_EQ(s.size(), 0);
+    EXPECT_TRUE(s.empty());
     EXPECT_FALSE(s.contains(10));
 }
 
@@ -73,7 +73,7 @@ TEST(UnorderedSetTest, MoveConstructor) {
 
     EXPECT_TRUE(s2.contains("x"));
     EXPECT_TRUE(s2.contains("y"));
-    EXPECT_TRUE(s1.Empty());
+    EXPECT_TRUE(s1.empty());
 }
 
 TEST(UnorderedSetTest, MoveAssignment) {
@@ -84,5 +84,5 @@ TEST(UnorderedSetTest, MoveAssignment) {
     s2 = std::move(s1);
 
     EXPECT_TRUE(s2.contains("hello"));
-    EXPECT_TRUE(s1.Empty());
+    EXPECT_TRUE(s1.empty());
 }

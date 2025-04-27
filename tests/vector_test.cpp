@@ -74,9 +74,9 @@ TEST(VectorTest, MoveAssignment) {
 
 TEST(VectorTest, PushBack) {
     Vector<int> v;
-    v.pushBack(10);
-    v.pushBack(20);
-    v.pushBack(30);
+    v.push_back(10);
+    v.push_back(20);
+    v.push_back(30);
 
     EXPECT_EQ(v.size(), 3);
     EXPECT_GE(v.capacity(), 3);
@@ -87,9 +87,9 @@ TEST(VectorTest, PushBack) {
 
 TEST(VectorTest, PopBack) {
     Vector<int> v;
-    v.pushBack(1);
-    v.pushBack(2);
-    v.popBack();
+    v.push_back(1);
+    v.push_back(2);
+    v.pop_back();
 
     EXPECT_EQ(v.size(), 1);
     EXPECT_EQ(v[0], 1);
@@ -100,15 +100,15 @@ TEST(VectorTest, ReserveIncreasesCapacity) {
     v.reserve(10);
     EXPECT_GE(v.capacity(), 10);
 
-    v.pushBack(5);
+    v.push_back(5);
     EXPECT_EQ(v[0], 5);
 }
 
 TEST(VectorTest, BeginEndIteration) {
     Vector<int> v;
-    v.pushBack(1);
-    v.pushBack(2);
-    v.pushBack(3);
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
 
     int expected = 1;
     for (auto it = v.begin(); it != v.end(); ++it) {
@@ -119,13 +119,67 @@ TEST(VectorTest, BeginEndIteration) {
 
 TEST(VectorTest, RangeBasedIteration) {
     Vector<int> v;
-    v.pushBack(1);
-    v.pushBack(2);
-    v.pushBack(3);
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
 
     int expected = 1;
     for (auto i : v) {
         EXPECT_EQ(i, expected);
         expected++;
     }
+}
+
+TEST(VectorTest, InitializerListConstructor) {
+    Vector<int> v = {1, 2, 3, 4, 5};
+
+    EXPECT_EQ(v.size(), 5);
+    EXPECT_GE(v.capacity(), 5); // capacity could be larger due to growth strategy
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+}
+
+TEST(VectorTest, InsertMiddle) {
+    Vector<int> v = {1, 2, 4, 5};
+    v.insert(2, 3); // Insert 3 at position 2 (between 2 and 4)
+
+    EXPECT_EQ(v.size(), 5);
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+}
+
+TEST(VectorTest, InsertFront) {
+    Vector<int> v = {2, 3, 4, 5};
+    v.insert(0, 1); // Insert 1 at front
+
+    EXPECT_EQ(v.size(), 5);
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+}
+
+TEST(VectorTest, InsertBack) {
+    Vector<int> v = {1, 2, 3, 4};
+    v.insert(v.size(), 5); // Insert at end
+
+    EXPECT_EQ(v.size(), 5);
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+}
+
+TEST(VectorTest, InsertOutOfRangeThrows) {
+    Vector<int> v = {1, 2, 3};
+
+    EXPECT_THROW(v.insert(5, 99), std::out_of_range);
 }

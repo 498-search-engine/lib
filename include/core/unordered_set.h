@@ -90,7 +90,7 @@ namespace core {
             return false;
         }
     
-        bool Erase(const T& value) {
+        bool erase(const T& value) {
             size_t index = GetBucketIndex(value);
             auto& bucket = buckets_[index];
             for (auto it = bucket.begin(); it != bucket.end(); ++it) {
@@ -110,18 +110,18 @@ namespace core {
             size_ = 0;
         }
     
-        size_t Size() const {
+        size_t size() const {
             return size_;
         }
     
-        bool Empty() const {
+        bool empty() const {
             return size_ == 0;
         }
     
-        class UnorderedSetIterator {
+        class iterator {
         private:
-            using outer_iterator = List<T>*;
-            using inner_iterator = typename List<T>::ListIterator;
+            using outer_iterator = typename Vector<List<T>>::iterator;
+            using inner_iterator = typename List<T>::iterator;
     
             outer_iterator outer_;
             outer_iterator outer_end_;
@@ -136,7 +136,7 @@ namespace core {
             }
     
         public:
-            UnorderedSetIterator(outer_iterator outer, outer_iterator outer_end)
+            iterator(outer_iterator outer, outer_iterator outer_end)
                 : outer_(outer), outer_end_(outer_end), inner_(nullptr) {
                 if (outer_ != outer_end_)
                     inner_ = outer_->begin();
@@ -147,27 +147,27 @@ namespace core {
                 return *inner_;
             }
     
-            UnorderedSetIterator& operator++() {
+            iterator& operator++() {
                 ++inner_;
                 AdvancePastEmptyBuckets();
                 return *this;
             }
     
-            bool operator==(const UnorderedSetIterator& other) const {
+            bool operator==(const iterator& other) const {
                 return outer_ == other.outer_ && (outer_ == outer_end_ || inner_ == other.inner_);
             }
     
-            bool operator!=(const UnorderedSetIterator& other) const {
+            bool operator!=(const iterator& other) const {
                 return !(*this == other);
             }
         };
     
-        UnorderedSetIterator begin() {
-            return UnorderedSetIterator(buckets_.begin(), buckets_.end());
+        iterator begin() {
+            return iterator(buckets_.begin(), buckets_.end());
         }
     
-        UnorderedSetIterator end() {
-            return UnorderedSetIterator(buckets_.end(), buckets_.end());
+        iterator end() {
+            return iterator(buckets_.end(), buckets_.end());
         }
     
     };
