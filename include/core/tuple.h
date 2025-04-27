@@ -24,6 +24,29 @@ struct Tuple<Head, Tail...> {
     Tuple(HH&& h, TT&&... t)
         : head(std::forward<HH>(h)),
           tail(std::forward<TT>(t)...) {}
+    
+
+    Tuple(const Tuple& other)
+        : head(other.head),
+          tail(other.tail) {}
+
+
+    Tuple(Tuple&& other) noexcept
+        : head(std::move(other.head)),
+          tail(std::move(other.tail)) {}
+
+    Tuple& operator=(const Tuple& other) {
+        head = other.head;
+        tail = other.tail;
+        return *this;
+    }
+
+
+    Tuple& operator=(Tuple&& other) noexcept {
+        head = std::move(other.head);
+        tail = std::move(other.tail);
+        return *this;
+    }
 };
 
 
