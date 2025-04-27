@@ -67,6 +67,11 @@ constexpr Pair<std::decay_t<First>, std::decay_t<Second>> make_pair(First&& f, S
     return Pair<std::decay_t<First>, std::decay_t<Second>>(std::forward<First>(f), std::forward<Second>(s));
 }
 
+template <typename First, typename Second>
+constexpr bool operator<(const Pair<First, Second>& lhs, const Pair<First, Second>& rhs) {
+    return (lhs.first < rhs.first) || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
+}
+
 } // namespace core
 
 #endif
