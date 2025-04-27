@@ -20,6 +20,7 @@
 #include <limits>
 #include <stdexcept>
 #include <cassert>
+#include <vector>
 
 namespace core {
 
@@ -86,7 +87,7 @@ public:
     Map(Map&&) noexcept = default;
     Map& operator=(Map&&) noexcept = default;
 
-    // TODO: range constructors
+    // TODO: range constructors, etc.
 
     ~Map() = default;
 
@@ -147,7 +148,21 @@ public:
         return insert(val.first, val.second);
     }
 
-    // TODO: erase
+    // Returns number of elements erased (0 or 1)
+    size_type erase(const Key& k) {
+        bool rem=false;
+        root_ = removeNode(std::move(root_), k, rem);
+        return rem ? 1 : 0;
+    }
+
+    iterator erase(const_iterator pos) {
+        if (!pos.node) return end();
+        auto nxt = pos; ++nxt;
+        erase(pos.node->data.first);
+        return nxt;
+    }
+
+    // TODO: erase range
 
     /* Lookup */
     size_type count(const Key& key) const noexcept { return findNode(root_.get(), key) ? 1 : 0; }
@@ -292,6 +307,57 @@ private:
         n->left = clone(src->left.get(), n.get());
         n->right = clone(src->right.get(), n.get());
         return n;
+    }
+
+    [[nodiscard]]
+    std::unique_ptr<Node> removeNode(std::unique_ptr<Node> node, const Key& key, bool& removed) {
+        if (!node) return nullptr;
+        if (comp_(key, node->data.first)) {
+            node->left = removeNode(std::move(node->left), key, removed);
+            if (node->left) node->left->parent = node.get();
+        } else if (comp_(node->data.first, key)) {
+            node->right = removeNode(std::move(node->right), key, removed);
+            if (node->right) node->right->parent = node.get();
+        } else {
+            removed = true;
+            --node_count_;
+            // Node with one or no child
+            if (!node->left) {
+                auto r = std::move(node->right);
+                if (r) r->parent = node->parent;
+                return r;
+            } else if (!node->right) {
+                auto l = std::move(node->left);
+                if (l) l->parent = node->parent;
+                return l;
+            }
+            // Node with two children: rotate to reduce
+            if (getHeight(node->left.get()) > getHeight(node->right.get())) {
+                node = rotateRight(std::move(node));
+                node->right = removeNode(std::move(node->right), key, removed);
+                if (node->right) node->right->parent = node.get();
+            } else {
+                node = rotateLeft(std::move(node));
+                node->left = removeNode(std::move(node->left), key, removed);
+                if (node->left) node->left->parent = node.get();
+            }
+        }
+        // Rebalance
+        updateHeight(node.get());
+        int balance = getBalance(node.get());
+        if (balance > 1 && getBalance(node->left.get()) >= 0)
+            return rotateRight(std::move(node));
+        if (balance > 1 && getBalance(node->left.get()) < 0) {
+            node->left = rotateLeft(std::move(node->left));
+            return rotateRight(std::move(node));
+        }
+        if (balance < -1 && getBalance(node->right.get()) <= 0)
+            return rotateLeft(std::move(node));
+        if (balance < -1 && getBalance(node->right.get()) > 0) {
+            node->right = rotateRight(std::move(node->right));
+            return rotateLeft(std::move(node));
+        }
+        return node;
     }
 
 public:

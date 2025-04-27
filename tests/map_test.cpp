@@ -137,3 +137,76 @@ TEST(MapTest, EmplaceWorks) {
     EXPECT_EQ(it2->second, "four");
     EXPECT_EQ(m.size(), 1u);
 }
+
+// Erase by key
+TEST(MapTest, EraseByKey) {
+    Map<int,int> m;
+    for (int i = 1; i <= 5; ++i) {
+        m.insert(i, i*10);
+    }
+    EXPECT_EQ(m.size(), 5u);
+
+    // erase existing key
+    auto removed = m.erase(3);
+    EXPECT_EQ(removed, 1u);
+    EXPECT_EQ(m.size(), 4u);
+    EXPECT_EQ(m.find(3), m.end());
+
+    // erase missing key
+    removed = m.erase(42);
+    EXPECT_EQ(removed, 0u);
+    EXPECT_EQ(m.size(), 4u);
+}
+
+// Erase by single iterator
+TEST(MapTest, EraseByIterator) {
+    Map<int,std::string> m;
+    m.insert(1, "one");
+    m.insert(2, "two");
+    m.insert(3, "three");
+    m.insert(4, "four");
+
+    // find element '3' and erase it via iterator
+    auto it3 = m.find(3);
+    ASSERT_NE(it3, m.end());
+    auto next = m.erase(it3);
+    // should return iterator to the element that followed '3' (i.e. key==4)
+    ASSERT_NE(next, m.end());
+    EXPECT_EQ(next->first, 4);
+    // size should have decreased
+    EXPECT_EQ(m.size(), 3u);
+    // '3' should no longer be present
+    EXPECT_EQ(m.find(3), m.end());
+}
+
+// // Erase by iterator range
+// TEST(MapTest, EraseByRange) {
+//     Map<int,int> m;
+//     for (int i = 1; i <= 10; ++i) {
+//         m.insert(i, i);
+//     }
+//     EXPECT_EQ(m.size(), 10u);
+
+//     // remove keys 4,5,6
+//     auto first = m.lower_bound(4);
+//     auto last  = m.lower_bound(7);
+//     auto ret   = m.erase(first, last);
+
+//     // return iterator should be equivalent to lower_bound(7)
+//     ASSERT_NE(ret, m.end());
+//     EXPECT_EQ(ret->first, 7);
+
+//     // size should be 7 now
+//     EXPECT_EQ(m.size(), 7u);
+
+//     // keys 4,5,6 should be gone
+//     EXPECT_EQ(m.find(4), m.end());
+//     EXPECT_EQ(m.find(5), m.end());
+//     EXPECT_EQ(m.find(6), m.end());
+
+//     // keys outside that range should still exist
+//     EXPECT_NE(m.find(1), m.end());
+//     EXPECT_NE(m.find(3), m.end());
+//     EXPECT_NE(m.find(7), m.end());
+//     EXPECT_NE(m.find(10), m.end());
+// }
