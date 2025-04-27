@@ -10,6 +10,7 @@
 #include "core/string_view.h"
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 
@@ -701,6 +702,22 @@ inline String operator+(String&& lhs, const String& rhs) {
 inline String operator+(String&& lhs, char rhs) {
     lhs.PushBack(rhs);
     return std::move(lhs);
+}
+
+inline int stoi(const String& s) {
+    return std::strtol(s.Cstr(), nullptr, 10);
+}
+
+inline long stol(const String& s) {
+    return std::strtol(s.Cstr(), nullptr, 10);
+}
+
+inline unsigned long stoul(const String& s) {
+    return std::strtoul(s.Cstr(), nullptr, 10);
+}
+
+inline double stod(const String& s) {
+    return std::strtod(s.Cstr(), nullptr);
 }
 
 }  // namespace core
