@@ -5,6 +5,7 @@
 #include <utility>
 #include "vector.h"
 #include <initializer_list>
+#include <iostream>
 
 namespace core {
 
