@@ -20,6 +20,9 @@ public:
 
     static constexpr size_t Npos = -1;
 
+    constexpr StringView(std::string_view sv) noexcept
+    : data_(sv.data()), size_(sv.size()) {}
+
     constexpr StringView() noexcept : data_(nullptr), size_(0) {}
     constexpr StringView(const char* s, size_t n) : data_(s), size_(n) {}
     constexpr StringView(const char* s) : data_(s), size_(internal::StrLen(s)) {}
