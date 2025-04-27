@@ -15,7 +15,7 @@ struct PriorityQueue {
     PriorityQueue() = default;
     PriorityQueue(const std::initializer_list<T>& il){
         for (auto i : il){
-            arr.pushBack(i);
+            arr.push_back(i);
         }
         sz = arr.size();
         heapify();
@@ -37,7 +37,7 @@ struct PriorityQueue {
 
     void push(const T& element) {
         if (sz == arr.size()) {
-            arr.pushBack(element);
+            arr.push_back(element);
         } else {
             arr[sz] = element;
         }
@@ -47,7 +47,7 @@ struct PriorityQueue {
 
     void push(T&& element) {
         if (sz == arr.size()) {
-            arr.pushBack(std::move(element));
+            arr.push_back(std::move(element));
         } else {
             arr[sz] = std::move(element);
         }

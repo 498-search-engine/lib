@@ -124,31 +124,31 @@ namespace core {
             sz = 0;
         }
     
-        struct ListIterator {
+        struct iterator {
             Node* curr;
     
-            ListIterator(Node* node) : curr(node) {}
+            iterator(Node* node) : curr(node) {}
     
             T& operator*() const { return curr->data; }
             T* operator->() const { return &(curr->data); }
     
-            ListIterator& operator++() { curr = curr->next; return *this; }
-            ListIterator operator++(int) { ListIterator tmp = *this; ++(*this); return tmp; }
+            iterator& operator++() { curr = curr->next; return *this; }
+            iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
     
-            ListIterator& operator--() { curr = curr->prev; return *this; }
-            ListIterator operator--(int) { ListIterator tmp = *this; --(*this); return tmp; }
+            iterator& operator--() { curr = curr->prev; return *this; }
+            iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
     
-            bool operator==(const ListIterator& other) const { return curr == other.curr; }
-            bool operator!=(const ListIterator& other) const { return curr != other.curr; }
+            bool operator==(const iterator& other) const { return curr == other.curr; }
+            bool operator!=(const iterator& other) const { return curr != other.curr; }
         };
     
-        ListIterator begin() const { return ListIterator(head); }
-        ListIterator end() const { return ListIterator(nullptr); }
+        iterator begin() const { return iterator(head); }
+        iterator end() const { return iterator(nullptr); }
     
-        ListIterator insert(ListIterator pos, const T& value) {
+        iterator insert(iterator pos, const T& value) {
             if (pos.curr == nullptr) {
                 push_back(value);
-                return ListIterator(tail);
+                return iterator(tail);
             }
             Node* n = new Node(value);
             Node* curr = pos.curr;
@@ -160,10 +160,10 @@ namespace core {
                 head = n;
             curr->prev = n;
             sz++;
-            return ListIterator(n);
+            return iterator(n);
         }
     
-        ListIterator erase(ListIterator pos) {
+        iterator erase(iterator pos) {
             if (!pos.curr) return end();
     
             Node* curr = pos.curr;
@@ -181,7 +181,7 @@ namespace core {
     
             delete curr;
             sz--;
-            return ListIterator(next);
+            return iterator(next);
         }
 
         private:
