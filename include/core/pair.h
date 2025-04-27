@@ -37,29 +37,35 @@ struct Pair {
     constexpr Pair& operator=(Pair&&) noexcept = default;
 
     // Comparison operators
-    constexpr bool operator==(const Pair& other) const {
-        return first == other.first && second == other.second;
-    }
+    template<typename F = First, typename S = Second>
+constexpr bool operator==(const Pair<F, S>& other) const {
+    return first == other.first && second == other.second;
+}
 
-    constexpr bool operator!=(const Pair& other) const {
-        return !(*this == other);
-    }
+template<typename F = First, typename S = Second>
+constexpr bool operator!=(const Pair<F, S>& other) const {
+    return !(*this == other);
+}
 
-    constexpr bool operator<(const Pair& other) const {
-        return (first < other.first) || (!(other.first < first) && second < other.second);
-    }
+template<typename F = First, typename S = Second>
+constexpr bool operator<(const Pair<F, S>& other) const {
+    return (first < other.first) || (!(other.first < first) && second < other.second);
+}
 
-    constexpr bool operator<=(const Pair& other) const {
-        return !(other < *this);
-    }
+template<typename F = First, typename S = Second>
+constexpr bool operator<=(const Pair<F, S>& other) const {
+    return !(other < *this);
+}
 
-    constexpr bool operator>(const Pair& other) const {
-        return other < *this;
-    }
+template<typename F = First, typename S = Second>
+constexpr bool operator>(const Pair<F, S>& other) const {
+    return other < *this;
+}
 
-    constexpr bool operator>=(const Pair& other) const {
-        return !(*this < other);
-    }
+template<typename F = First, typename S = Second>
+constexpr bool operator>=(const Pair<F, S>& other) const {
+    return !(*this < other);
+}
 };
 
 template<typename First, typename Second>
