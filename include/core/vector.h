@@ -356,12 +356,18 @@ public:
         return *this;
     }
 
-    constexpr void reserve(size_t newCapacity) {
+    void reserve(size_t newCapacity) {
         if (newCapacity > cap) {
-            T* tmp = new T[newCapacity];
-            for (size_t i = 0; i < sz; ++i)
-                tmp[i] = std::move(arr[i]);
-            delete[] arr;
+            void* raw = ::operator new(newCapacity * sizeof(T));
+            T* tmp = static_cast<T*>(raw);
+    
+            // Move-construct elements
+            for (size_t i = 0; i < sz; ++i) {
+                new (tmp + i) T(std::move(arr[i]));
+                arr[i].~T(); // destroy old
+            }
+    
+            ::operator delete(arr);
             arr = tmp;
             cap = newCapacity;
         }
