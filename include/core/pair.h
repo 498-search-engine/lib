@@ -7,6 +7,14 @@ namespace core {
     struct Pair{
         T1 first;
         T2 second;
+
+        constexpr bool operator==(const Pair& other) const {
+            return first == other.first && second == other.second;
+        }
+
+        constexpr bool operator<(const Pair& other) const {
+            return (first < other.first) || (!(other.first < first) && second < other.second);
+        }
     };
 
 }
