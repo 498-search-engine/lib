@@ -83,10 +83,8 @@ public:
         return *this;
     }
 
-    void clear() {
-        sz = 0;
-    }
-    
+    void clear() { sz = 0; }
+
     // Move Constructor
     // REQUIRES: Nothing
     // MODIFIES: *this, leaves other in a default constructed state
@@ -188,31 +186,32 @@ public:
 
     struct iterator {
         T* ptr;
-    
+
         iterator(T* p) : ptr(p) {}
-    
+
         T& operator*() const { return *ptr; }
         T* operator->() const { return ptr; }
-    
-        iterator& operator++() { ++ptr; return *this; }
-        iterator operator++(int) { iterator tmp = *this; ++ptr; return tmp; }
-    
+
+        iterator& operator++() {
+            ++ptr;
+            return *this;
+        }
+        iterator operator++(int) {
+            iterator tmp = *this;
+            ++ptr;
+            return tmp;
+        }
+
         bool operator==(const iterator& other) const { return ptr == other.ptr; }
         bool operator!=(const iterator& other) const { return ptr != other.ptr; }
 
-        iterator operator+(ptrdiff_t n) const {
-            return iterator(ptr + n);
-        }
-        
-        iterator operator-(ptrdiff_t n) const {
-            return iterator(ptr - n);
-        }
-        
-        ptrdiff_t operator-(const iterator& other) const {
-            return ptr - other.ptr;
-        }
+        iterator operator+(ptrdiff_t n) const { return iterator(ptr + n); }
+
+        iterator operator-(ptrdiff_t n) const { return iterator(ptr - n); }
+
+        ptrdiff_t operator-(const iterator& other) const { return ptr - other.ptr; }
     };
-    
+
     iterator begin() { return iterator(arr); }
     iterator end() { return iterator(arr + sz); }
     const iterator begin() const { return iterator(arr); }
@@ -221,6 +220,38 @@ public:
     void insert(iterator it, const T& x) {
         size_t pos = static_cast<size_t>(it - begin());
         insert(pos, x);
+    }
+
+   
+    bool empty() const { return sz == 0; }
+
+    T* data() { return arr; }
+
+    const T* data() const { return arr; }
+
+    void insert(iterator pos, iterator first, iterator last) {
+        size_t p = static_cast<size_t>(pos - begin());
+        size_t count = static_cast<size_t>(last - first);
+
+        if (p > sz) {
+            throw std::out_of_range("Vector::insert: position out of range");
+        }
+
+        if (sz + count > cap) {
+            reserve(std::max(cap * 2, sz + count));
+        }
+
+        for (size_t i = sz + count - 1; i >= p + count; --i) {
+            arr[i] = std::move(arr[i - count]);
+            if (i == 0)
+                break;  
+        }
+
+        for (size_t i = 0; i < count; ++i) {
+            arr[p + i] = *(first + i);
+        }
+
+        sz += count;
     }
 
 

@@ -183,3 +183,72 @@ TEST(VectorTest, InsertOutOfRangeThrows) {
 
     EXPECT_THROW(v.insert(5, 99), std::out_of_range);
 }
+
+TEST(VectorExtraTest, EmptyFunctionality) {
+    Vector<int> v;
+    EXPECT_TRUE(v.empty());
+
+    v.push_back(42);
+    EXPECT_FALSE(v.empty());
+
+    v.pop_back();
+    EXPECT_TRUE(v.empty());
+}
+
+TEST(VectorExtraTest, DataFunctionality) {
+    Vector<int> v;
+    v.push_back(10);
+    v.push_back(20);
+
+    int* data_ptr = v.data();
+    ASSERT_NE(data_ptr, nullptr);
+    EXPECT_EQ(data_ptr[0], 10);
+    EXPECT_EQ(data_ptr[1], 20);
+
+    const Vector<int>& cv = v;
+    const int* const_data_ptr = cv.data();
+    ASSERT_NE(const_data_ptr, nullptr);
+    EXPECT_EQ(const_data_ptr[0], 10);
+    EXPECT_EQ(const_data_ptr[1], 20);
+}
+
+TEST(VectorExtraTest, InsertRangeFunctionality) {
+    Vector<int> v = {1, 2, 5, 6};
+    Vector<int> insert_me = {3, 4};
+
+    v.insert(v.begin() + 2, insert_me.begin(), insert_me.end());
+
+    ASSERT_EQ(v.size(), 6);
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+    EXPECT_EQ(v[5], 6);
+}
+
+TEST(VectorExtraTest, InsertRangeAtEnd) {
+    Vector<int> v = {1, 2};
+    Vector<int> insert_me = {3, 4, 5};
+
+    v.insert(v.end(), insert_me.begin(), insert_me.end());
+
+    ASSERT_EQ(v.size(), 5);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+}
+
+TEST(VectorExtraTest, InsertRangeAtFront) {
+    Vector<int> v = {4, 5};
+    Vector<int> insert_me = {1, 2, 3};
+
+    v.insert(v.begin(), insert_me.begin(), insert_me.end());
+
+    ASSERT_EQ(v.size(), 5);
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v[3], 4);
+    EXPECT_EQ(v[4], 5);
+}
