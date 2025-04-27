@@ -620,18 +620,6 @@ size_t find_last_of(char c, size_t pos = Npos) const {
     return Npos;
 }
 
-inline String operator+(const String& lhs, const char* rhs) {
-    String s = lhs;
-    s.Append(rhs);
-    return s;
-}
-
-inline String operator+(const char* lhs, const String& rhs) {
-    String s(lhs);
-    s.Append(rhs);
-    return s;
-}
-
 private:
     string_t internal_;
 
@@ -783,6 +771,18 @@ inline unsigned long stoul(const String& s, size_t* idx = nullptr, int base = 10
 
 inline double stod(const String& s, size_t* idx = nullptr) {
     return std::stod(std::string(s), idx);
+}
+
+inline String operator+(const String& lhs, const char* rhs) {
+    String s = lhs;
+    s.Append(rhs);
+    return s;
+}
+
+inline String operator+(const char* lhs, const String& rhs) {
+    String s(lhs);
+    s.Append(rhs);
+    return s;
 }
 
 }  // namespace core
