@@ -104,7 +104,6 @@ struct PairTie {
     }
 };
 
-// Now the actual tie function
 template<typename First, typename Second>
 constexpr auto tie(const Pair<First, Second>& p) {
     return PairTie<const First&, const Second&>{p.first, p.second};
