@@ -20,28 +20,30 @@ struct Tuple<Head, Tail...> {
 
     Tuple() = default;
 
-    template<typename HH, typename... TT>
+    
+    template<typename HH, typename... TT, typename = std::enable_if_t<!std::is_same_v<std::decay_t<HH>, Tuple>>>
     Tuple(HH&& h, TT&&... t)
         : head(std::forward<HH>(h)),
           tail(std::forward<TT>(t)...) {}
-    
 
+    // Copy constructor
     Tuple(const Tuple& other)
         : head(other.head),
           tail(other.tail) {}
 
-
+    // Move constructor
     Tuple(Tuple&& other) noexcept
         : head(std::move(other.head)),
           tail(std::move(other.tail)) {}
 
+    // Copy assignment
     Tuple& operator=(const Tuple& other) {
         head = other.head;
         tail = other.tail;
         return *this;
     }
 
-
+    // Move assignment
     Tuple& operator=(Tuple&& other) noexcept {
         head = std::move(other.head);
         tail = std::move(other.tail);
@@ -79,7 +81,6 @@ struct tuple_element<0, Tuple<Head, Tail...>> {
     }
 };
 
-// -------------------- get --------------------
 
 template<std::size_t Index, typename... Types>
 auto& get(Tuple<Types...>& t) {
