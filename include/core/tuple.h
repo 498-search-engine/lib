@@ -92,6 +92,11 @@ const auto& get(const Tuple<Types...>& t) {
     return tuple_element<Index, Tuple<Types...>>::get(t);
 }
 
+template<typename... Args>
+Tuple<std::decay_t<Args>...> make_tuple(Args&&... args) {
+    return Tuple<std::decay_t<Args>...>(std::forward<Args>(args)...);
+}
+
 } // namespace core
 
 #endif
