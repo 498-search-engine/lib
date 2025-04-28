@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <cassert>
 #include <vector>
+#include <iterator>
 
 namespace core {
 
